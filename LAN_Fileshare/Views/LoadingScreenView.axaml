@@ -1,0 +1,56 @@
+<UserControl
+    x:Class="LAN_Fileshare.Views.LoadingScreenView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:LAN_Fileshare.ViewModels"
+    d:DesignHeight="700"
+    d:DesignWidth="1300"
+    x:DataType="vm:LoadingScreenViewModel"
+    mc:Ignorable="d">
+
+    <Design.DataContext>
+        <vm:LoadingScreenViewModel />
+    </Design.DataContext>
+
+    <Grid RowDefinitions="auto,auto,auto,auto">
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="40%,90%" EndPoint="100%,0%">
+                <GradientStop Offset="0.0" Color="#120a59" />
+                <GradientStop Offset="1.0" Color="#060324" />
+            </LinearGradientBrush>
+        </Grid.Background>
+        <Label
+            Grid.Row="0"
+            Margin="0,100,0,160"
+            HorizontalAlignment="Center"
+            Content="Welcome"
+            FontSize="48"
+            FontWeight="DemiBold"
+            Foreground="#e8e8e8" />
+        <Label
+            Grid.Row="1"
+            HorizontalAlignment="Center"
+            Content="Enter Your Username"
+            FontSize="18"
+            Foreground="#e8e8e8" />
+        <TextBox
+            Grid.Row="2"
+            Width="200"
+            Margin="0,10,0,10"
+            Background="#06031e"
+            BorderBrush="#311ed9"
+            BorderThickness="1"
+            Text="{Binding UsernameInputContent}" />
+        <StackPanel
+            Grid.Row="3"
+            HorizontalAlignment="Center"
+            Orientation="Horizontal"
+            Spacing="10">
+            <Button Background="#6b5cff" Content="Random" />
+            <Button Background="#6b5cff" Content="Apply" />
+        </StackPanel>
+    </Grid>
+
+</UserControl>
