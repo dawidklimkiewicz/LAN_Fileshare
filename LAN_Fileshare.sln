@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35728.132 d17.12
+VisualStudioVersion = 17.12.35728.132
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LAN_Fileshare", "LAN_Fileshare\LAN_Fileshare.csproj", "{6D8B7573-DA08-4E20-9892-580D02715782}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LAN_Fileshare.Tests", "LAN_Fileshare.Tests\LAN_Fileshare.Tests.csproj", "{74EE36B7-E545-4812-9CEC-686DE7C88A24}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{6D8B7573-DA08-4E20-9892-580D02715782}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D8B7573-DA08-4E20-9892-580D02715782}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D8B7573-DA08-4E20-9892-580D02715782}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74EE36B7-E545-4812-9CEC-686DE7C88A24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74EE36B7-E545-4812-9CEC-686DE7C88A24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74EE36B7-E545-4812-9CEC-686DE7C88A24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74EE36B7-E545-4812-9CEC-686DE7C88A24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
