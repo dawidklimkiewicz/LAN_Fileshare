@@ -1,0 +1,45 @@
+<UserControl
+    x:Class="LAN_Fileshare.Views.HostsSidebar"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:LAN_Fileshare.ViewModels"
+    d:DesignHeight="700"
+    d:DesignWidth="200"
+    x:DataType="vm:MainWindowViewModel"
+    mc:Ignorable="d">
+
+    <Grid Background="{DynamicResource HostsSidebarBackgroundColor}" RowDefinitions="auto,auto">
+        <Button
+            Grid.Row="0"
+            Width="180"
+            Height="80"
+            Margin="0,5,0,5"
+            Padding="5,0"
+            HorizontalAlignment="Center"
+            HorizontalContentAlignment="Left"
+            VerticalContentAlignment="Center"
+            Background="Transparent"
+            CornerRadius="5"
+            FontSize="20">
+            <StackPanel Orientation="Vertical">
+                <!--<Label Content="{Binding LocalUsername}" />
+                <Label Content="{Binding LocalIPAddress}" />-->
+                <TextBlock
+                    Margin="0,0,0,3"
+                    Text="{Binding LocalUsername}"
+                    TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding LocalIPAddress}" />
+            </StackPanel>
+        </Button>
+        <Border
+            Grid.Row="1"
+            Margin="5,0"
+            BorderBrush="{DynamicResource HostsSidebarSeparatorColor}"
+            BorderThickness="0,1,0,0">
+            <StackPanel />
+        </Border>
+    </Grid>
+
+</UserControl>

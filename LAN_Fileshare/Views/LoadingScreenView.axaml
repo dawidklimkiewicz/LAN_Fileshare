@@ -10,9 +10,9 @@
     x:DataType="vm:LoadingScreenViewModel"
     mc:Ignorable="d">
 
-    <Design.DataContext>
+    <!--<Design.DataContext>
         <vm:LoadingScreenViewModel />
-    </Design.DataContext>
+    </Design.DataContext>-->
 
     <Grid RowDefinitions="auto,auto,auto,auto">
         <Grid.Background>
@@ -41,8 +41,7 @@
             Margin="0,10,0,10"
             Background="#06031e"
             BorderBrush="#311ed9"
-            BorderThickness="1"
-            Text="{Binding UsernameInputContent}" />
+            BorderThickness="1" />
         <StackPanel
             Grid.Row="3"
             HorizontalAlignment="Center"

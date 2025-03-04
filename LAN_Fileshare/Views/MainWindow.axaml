@@ -9,15 +9,18 @@
     Title="LAN_Fileshare"
     Width="1300"
     Height="700"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
+    d:DesignHeight="700"
+    d:DesignWidth="1300"
     x:DataType="vm:MainWindowViewModel"
     Icon="/Assets/avalonia-logo.ico"
     mc:Ignorable="d">
 
-    <Design.DataContext>
-        <vm:MainWindowViewModel />
-    </Design.DataContext>
+    <Grid ColumnDefinitions="200,*">
+        <views:HostsSidebar />
 
-    <views:LoadingScreenView />
+        <Grid Grid.Column="1" RowDefinitions="*,50">
+            <Grid Grid.Row="0" Background="Pink" />
+            <Grid Grid.Row="1" Background="Green" />
+        </Grid>
+    </Grid>
 </Window>

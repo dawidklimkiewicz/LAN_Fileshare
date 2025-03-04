@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 
@@ -24,5 +23,14 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\HostsSideBar.axaml.cs">
+      <DependentUpon>HostsSidebar.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\LoadingScreenView.axaml.cs">
+      <DependentUpon>LoadingScreenView.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

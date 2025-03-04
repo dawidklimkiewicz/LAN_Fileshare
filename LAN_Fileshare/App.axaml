@@ -13,4 +13,9 @@
     <Application.Styles>
         <FluentTheme />
     </Application.Styles>
+
+    <Application.Resources>
+        <SolidColorBrush x:Key="HostsSidebarBackgroundColor">#1f1f1f</SolidColorBrush>
+        <SolidColorBrush x:Key="HostsSidebarSeparatorColor">#4f4e4e</SolidColorBrush>
+    </Application.Resources>
 </Application>

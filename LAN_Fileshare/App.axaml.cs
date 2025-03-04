@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using LAN_Fileshare.Stores;
 using LAN_Fileshare.ViewModels;
 using LAN_Fileshare.Views;
 using System.Linq;
@@ -10,9 +11,14 @@ namespace LAN_Fileshare
 {
     public partial class App : Application
     {
+        AppStateStore _userStateStore = null!;
+
+
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
+
+            _userStateStore = new();
         }
 
         public override void OnFrameworkInitializationCompleted()
@@ -24,7 +30,7 @@ namespace LAN_Fileshare
                 DisableAvaloniaDataAnnotationValidation();
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(),
+                    DataContext = new MainWindowViewModel(_userStateStore),
                 };
             }
 

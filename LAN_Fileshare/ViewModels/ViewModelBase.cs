@@ -2,8 +2,7 @@
 
 namespace LAN_Fileshare.ViewModels
 {
-
-    public class ViewModelBase : ObservableRecipient
+    public class ViewModelBase : ObservableValidator
     {
     }
 }
