@@ -2,27 +2,32 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using LAN_Fileshare.Services;
 using LAN_Fileshare.Stores;
 using LAN_Fileshare.ViewModels;
 using LAN_Fileshare.Views;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LAN_Fileshare
 {
     public partial class App : Application
     {
-        AppStateStore _userStateStore = null!;
-
+        private AppStateStore _userStateStore = null!;
+        private PacketListenerService _packetListenerService = null!;
 
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
 
             _userStateStore = new();
+            _packetListenerService = new(_userStateStore);
         }
 
         public override void OnFrameworkInitializationCompleted()
         {
+            _ = Task.Run(() => _packetListenerService.Start());
+
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 

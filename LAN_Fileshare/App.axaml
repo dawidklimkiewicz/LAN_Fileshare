@@ -17,5 +17,10 @@
     <Application.Resources>
         <SolidColorBrush x:Key="HostsSidebarBackgroundColor">#1f1f1f</SolidColorBrush>
         <SolidColorBrush x:Key="HostsSidebarSeparatorColor">#4f4e4e</SolidColorBrush>
+        <SolidColorBrush x:Key="PrimaryTextColor">#eee</SolidColorBrush>
+        <SolidColorBrush x:Key="SecondaryTextColor">#ddd</SolidColorBrush>
+        <SolidColorBrush x:Key="ListItemBackgroundColor">#444</SolidColorBrush>
+        <SolidColorBrush x:Key="SelectedItemColor">#777</SolidColorBrush>
+        <SolidColorBrush x:Key="HostListHoverColor">#555</SolidColorBrush>
     </Application.Resources>
 </Application>

@@ -16,6 +16,8 @@ namespace LAN_Fileshare.ViewModels
         [ObservableProperty]
         private string _localUsername;
 
+        public HostListingViewModel HostListingViewModel { get; set; }
+
         public MainWindowViewModel(AppStateStore appStateStore)
         {
             currentViewModel = new();
@@ -24,12 +26,15 @@ namespace LAN_Fileshare.ViewModels
             LocalIPAddress = _appStateStore.IPAddress;
             LocalUsername = _appStateStore.Username;
 
+            HostListingViewModel = new(appStateStore);
+
             NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;
         }
 
+        // TODO wyzerować wszystko po utracie połączenia z siecią
         private void NetworkChange_NetworkAddressChanged(object? sender, System.EventArgs e)
         {
-            // Pobierz nowy adres
+            // Read local IP after reconnecting
             _appStateStore.InitLocalUserInfo();
             LocalIPAddress = _appStateStore.IPAddress;
         }

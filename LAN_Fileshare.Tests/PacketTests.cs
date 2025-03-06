@@ -36,7 +36,7 @@ namespace LAN_Fileshare.Tests
             //_ipAddress.GetAddressBytes().CopyTo(span.Slice(1, 4));
 
             long time = stopwatch.ElapsedTicks;
-            TestContext.WriteLine(time);
+            TestContext.Out.WriteLine(time);
 
             Assert.That(time, Is.LessThan(1000));
         }
