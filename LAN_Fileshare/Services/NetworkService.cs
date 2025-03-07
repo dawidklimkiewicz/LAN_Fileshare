@@ -1,5 +1,4 @@
-﻿using LAN_Fileshare.Models;
-using LAN_Fileshare.Stores;
+﻿using LAN_Fileshare.Stores;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -97,31 +96,6 @@ namespace LAN_Fileshare.Services
                 pingTasks.Add(TryConnection(pingAddress, _appStateStore.PacketListenerPort));
             }
             await Task.WhenAll(pingTasks);
-        }
-
-        public async void BroadcastShutdown()
-        {
-            List<Task> tasks = new();
-            foreach (Host host in _appStateStore.HostStore.GetHostList())
-            {
-                tasks.Add(SendShutdown(host.IPAddress));
-            }
-            await Task.WhenAll(tasks);
-        }
-
-        private async Task SendShutdown(IPAddress receiverIP)
-        {
-            try
-            {
-                using TcpClient tcpClient = new();
-                await tcpClient.ConnectAsync(receiverIP, _appStateStore.PacketListenerPort);
-                using NetworkStream networkStream = tcpClient.GetStream();
-
-                byte[] packet = PacketService.CreateShutdownPacket(_appStateStore.IPAddress!);
-                await networkStream.WriteAsync(packet, 0, packet.Length);
-                await networkStream.FlushAsync();
-            }
-            catch { }
         }
 
         public void StartPingingPeriodically()

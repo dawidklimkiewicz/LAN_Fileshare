@@ -6,7 +6,6 @@
         {
             Acknowledge,
             Ping,
-            Shutdown,
             HostInfo,
             HostInfoReply,
         }
