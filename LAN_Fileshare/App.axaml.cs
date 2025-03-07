@@ -49,6 +49,8 @@ namespace LAN_Fileshare
                 await _networkService.PingNetwork();
             }, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
 
+            _ = Task.Run(() => _networkService.MonitorHosts());
+
             base.OnFrameworkInitializationCompleted();
         }
 

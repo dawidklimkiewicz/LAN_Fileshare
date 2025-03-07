@@ -11,7 +11,7 @@ namespace LAN_Fileshare.ViewModels
         private ViewModelBase currentViewModel;
 
         [ObservableProperty]
-        private IPAddress _localIPAddress;
+        private IPAddress? _localIPAddress;
 
         [ObservableProperty]
         private string _localUsername;

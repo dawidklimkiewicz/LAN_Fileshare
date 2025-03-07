@@ -1,4 +1,7 @@
-﻿using LAN_Fileshare.Stores;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using LAN_Fileshare.Messages;
+using LAN_Fileshare.Models;
+using LAN_Fileshare.Stores;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +16,6 @@ namespace LAN_Fileshare.Services
     public class NetworkService
     {
         AppStateStore _appStateStore;
-        private List<uint> _existingHostsIpList => _appStateStore.HostStore.GetHostList().Select(host => IpAddressToBinary(host.IPAddress)).ToList();
 
         public NetworkService(AppStateStore appStateStore)
         {
@@ -59,6 +61,9 @@ namespace LAN_Fileshare.Services
             }
         }
 
+        /// <summary>
+        /// Discovers new hosts in the local network by broadcasting Ping
+        /// </summary>
         public async Task PingNetwork()
         {
             if (_appStateStore.IPAddress == null || _appStateStore.IPMask == null)
@@ -69,13 +74,13 @@ namespace LAN_Fileshare.Services
             uint networkAddressBinary = IpAddressToBinary(GetNetworkAddress(_appStateStore.IPAddress, _appStateStore.IPMask));
             uint broadcastAddressBinary = IpAddressToBinary(GetBroadcastAddress(_appStateStore.IPAddress, _appStateStore.IPMask));
 
-            List<Task> pingTasks = new List<Task>();
+            List<Task> pingTasks = new();
 
+            List<uint> existingHostsIpList = _appStateStore.HostStore.GetHostList().Select(host => IpAddressToBinary(host.IPAddress)).ToList();
             for (uint address = networkAddressBinary + 1; address < broadcastAddressBinary; address++)
             {
-                if (_existingHostsIpList.Contains(address))
+                if (existingHostsIpList.Contains(address))
                 {
-                    Trace.WriteLine($"JUZ ISTNIEJE {(address >> 24) & 255}.{(address >> 16) & 255}.{(address >> 8) & 255}.{address & 255}");
                     continue;
                 }
 
@@ -87,6 +92,52 @@ namespace LAN_Fileshare.Services
                 pingTasks.Add(TryConnection(pingAddress, _appStateStore.PacketListenerPort));
             }
             await Task.WhenAll(pingTasks);
+        }
+
+        public async Task MonitorHosts()
+        {
+            while (true)
+            {
+                List<Task> keepAliveTasks = new();
+
+                foreach (Host host in _appStateStore.HostStore.GetHostList())
+                {
+                    keepAliveTasks.Add(SendKeepAlive(host));
+                }
+
+                await Task.WhenAll(keepAliveTasks);
+                await Task.Delay(TimeSpan.FromSeconds(6));
+            }
+        }
+
+        private async Task SendKeepAlive(Host host)
+        {
+            try
+            {
+                using TcpClient tcpClient = new();
+                var connectTask = tcpClient.ConnectAsync(host.IPAddress, _appStateStore.PacketListenerPort);
+
+                if (await Task.WhenAny(connectTask, Task.Delay(TimeSpan.FromSeconds(3))) != connectTask)
+                    throw new TimeoutException();
+
+                using NetworkStream networkStream = tcpClient.GetStream();
+                byte[] keepAlivePacket = PacketService.CreateKeepAlivePacket();
+                byte[] ackBuffer = new byte[1];
+
+                await networkStream.WriteAsync(keepAlivePacket, 0, keepAlivePacket.Length);
+                await networkStream.FlushAsync();
+
+                var readTask = networkStream.ReadAsync(ackBuffer, 0, ackBuffer.Length);
+                if (await Task.WhenAny(readTask, Task.Delay(TimeSpan.FromSeconds(3))) != readTask)
+                    throw new TimeoutException();
+
+                int bytesRead = await readTask;
+                tcpClient.Close();
+            }
+            catch
+            {
+                StrongReferenceMessenger.Default.Send(new HostRemovedMessage(host));
+            }
         }
 
         private async Task TryConnection(IPAddress ip, int port)
@@ -109,6 +160,8 @@ namespace LAN_Fileshare.Services
             catch (SocketException) { }
             catch (Exception) { }
         }
+
+
 
         private IPAddress GetNetworkAddress(IPAddress ipAddress, IPAddress subnetMask)
         {

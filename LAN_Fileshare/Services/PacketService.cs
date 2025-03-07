@@ -41,6 +41,11 @@ namespace LAN_Fileshare.Services
             return SerializePacket(PacketType.Acknowledge, []);
         }
 
+        public static byte[] CreateKeepAlivePacket()
+        {
+            return SerializePacket(PacketType.KeepAlive, []);
+        }
+
         /// <summary>
         /// (1B) Type | (4B) IPAddress
         /// </summary>

@@ -12,7 +12,6 @@ namespace LAN_Fileshare.Stores
         public readonly object HostListLock = new object();
 
         private List<Host> _hosts;
-        public List<Host> HostList => _hosts;
 
         public HostStore()
         {

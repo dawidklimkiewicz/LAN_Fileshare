@@ -15,7 +15,7 @@ namespace LAN_Fileshare.ViewModels
 
         public Host Host { get; }
         public IPAddress IPAddress => Host.IPAddress;
-        public PhysicalAddress? PhysicalAddress => Host.PhysicalAddress;
+        public PhysicalAddress PhysicalAddress => Host.PhysicalAddress;
 
         public HostListingItemViewModel(Host host)
         {
