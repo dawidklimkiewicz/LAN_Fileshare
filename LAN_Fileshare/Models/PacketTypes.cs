@@ -4,6 +4,7 @@
     {
         public enum PacketType
         {
+            Acknowledge,
             Ping,
             HostInfo,
             HostInfoReply,

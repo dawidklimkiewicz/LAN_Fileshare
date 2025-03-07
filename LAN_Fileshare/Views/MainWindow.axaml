@@ -15,8 +15,8 @@
     Icon="/Assets/avalonia-logo.ico"
     mc:Ignorable="d">
 
-    <Grid ColumnDefinitions="200,*">
-        <views:HostsSidebar />
+    <Grid ColumnDefinitions="210,*">
+        <views:HostListingView />
 
         <Grid Grid.Column="1" RowDefinitions="*,50">
             <Grid Grid.Row="0" Background="Pink" />

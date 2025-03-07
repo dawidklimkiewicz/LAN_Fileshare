@@ -1,5 +1,4 @@
-﻿using LAN_Fileshare.Services;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net;
 using static LAN_Fileshare.Models.PacketTypes;
 
@@ -8,13 +7,11 @@ namespace LAN_Fileshare.Tests
     [TestFixture]
     public class PacketTests
     {
-        private PacketService _packetService;
         private IPAddress _ipAddress;
 
         [SetUp]
         public void Setup()
         {
-            _packetService = new();
             _ipAddress = new([192, 168, 1, 1]);
         }
 
@@ -36,7 +33,7 @@ namespace LAN_Fileshare.Tests
             //_ipAddress.GetAddressBytes().CopyTo(span.Slice(1, 4));
 
             long time = stopwatch.ElapsedTicks;
-            TestContext.WriteLine(time);
+            TestContext.Out.WriteLine(time);
 
             Assert.That(time, Is.LessThan(1000));
         }

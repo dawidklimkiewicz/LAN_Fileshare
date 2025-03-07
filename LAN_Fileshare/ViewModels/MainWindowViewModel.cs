@@ -1,20 +1,23 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
+using LAN_Fileshare.Messages;
 using LAN_Fileshare.Stores;
 using System.Net;
-using System.Net.NetworkInformation;
 
 namespace LAN_Fileshare.ViewModels
 {
-    public partial class MainWindowViewModel : ViewModelBase
+    public partial class MainWindowViewModel : ViewModelBase, IRecipient<NetworkInfoUpdated>
     {
         private readonly AppStateStore _appStateStore;
         private ViewModelBase currentViewModel;
 
         [ObservableProperty]
-        private IPAddress _localIPAddress;
+        private IPAddress? _localIPAddress;
 
         [ObservableProperty]
         private string _localUsername;
+
+        public HostListingViewModel HostListingViewModel { get; set; }
 
         public MainWindowViewModel(AppStateStore appStateStore)
         {
@@ -24,14 +27,12 @@ namespace LAN_Fileshare.ViewModels
             LocalIPAddress = _appStateStore.IPAddress;
             LocalUsername = _appStateStore.Username;
 
-            NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;
+            HostListingViewModel = new(appStateStore);
         }
 
-        private void NetworkChange_NetworkAddressChanged(object? sender, System.EventArgs e)
+        public void Receive(NetworkInfoUpdated message)
         {
-            // Pobierz nowy adres
-            _appStateStore.InitLocalUserInfo();
-            LocalIPAddress = _appStateStore.IPAddress;
+            LocalIPAddress = message.Value.IPAddress;
         }
     }
 }

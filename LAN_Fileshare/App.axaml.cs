@@ -2,27 +2,35 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using LAN_Fileshare.Services;
 using LAN_Fileshare.Stores;
 using LAN_Fileshare.ViewModels;
 using LAN_Fileshare.Views;
 using System.Linq;
+using System.Net.NetworkInformation;
 
 namespace LAN_Fileshare
 {
     public partial class App : Application
     {
-        AppStateStore _userStateStore = null!;
-
+        private AppStateStore _appStateStore = new();
+        private PacketListenerService _packetListenerService = null!;
+        private NetworkService _networkService = null!;
+        private HostCheck _hostCheckService = null!;
 
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
 
-            _userStateStore = new();
+            _packetListenerService = new(_appStateStore);
+            _networkService = new(_appStateStore);
+            _hostCheckService = new(_appStateStore);
         }
 
         public override void OnFrameworkInitializationCompleted()
         {
+            _packetListenerService.Start();
+
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
@@ -30,11 +38,47 @@ namespace LAN_Fileshare
                 DisableAvaloniaDataAnnotationValidation();
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(_userStateStore),
+                    DataContext = new MainWindowViewModel(_appStateStore),
                 };
+                desktop.Exit += Desktop_Exit;
             }
 
+            _networkService.StartPingingPeriodically();
+            _hostCheckService.Start();
+
+            NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;
+
             base.OnFrameworkInitializationCompleted();
+        }
+
+        private void Desktop_Exit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
+        {
+            _networkService.BroadcastShutdown();
+        }
+
+        private void NetworkChange_NetworkAddressChanged(object? sender, System.EventArgs e)
+        {
+            NetworkInterface? networkInterface = _networkService.GetNetworkInterface();
+
+            if (networkInterface == null)
+            {
+                _packetListenerService.Stop();
+                _networkService.StopPingingPeriodically();
+                _hostCheckService.Stop();
+
+                _appStateStore.DisposeNetworkInformation();
+                _appStateStore.HostStore.RemoveAllHosts();
+            }
+
+            else
+            {
+                // Read network information after reconnecting
+                _appStateStore.InitLocalUserInfo();
+
+                _packetListenerService.Start();
+                _networkService.StartPingingPeriodically();
+                _hostCheckService.Start();
+            }
         }
 
         private void DisableAvaloniaDataAnnotationValidation()
@@ -49,5 +93,7 @@ namespace LAN_Fileshare
                 BindingPlugins.DataValidators.Remove(plugin);
             }
         }
+
+
     }
 }
