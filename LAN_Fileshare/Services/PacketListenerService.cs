@@ -15,14 +15,12 @@ namespace LAN_Fileshare.Services
     {
         private readonly AppStateStore _appStateStore;
 
-        private readonly PacketService _packetService;
         private readonly TcpListener _packetListener;
         private readonly CancellationTokenSource _packetListenerCancellationToken = new();
 
         public PacketListenerService(AppStateStore appStateStore)
         {
             _appStateStore = appStateStore;
-            _packetService = new();
             _packetListener = new(IPAddress.Any, appStateStore.PacketListenerPort);
         }
 
@@ -40,12 +38,8 @@ namespace LAN_Fileshare.Services
                     Trace.WriteLine("ACCEPTED CLIENT");
 
                     using NetworkStream networkStream = tcpClient.GetStream();
-                    ReadPacket(networkStream);
 
-                    // Signal that the stream can be closed
-                    byte[] acknowledgePacket = _packetService.CreateAcknowledgePacket();
-                    networkStream.Write(acknowledgePacket);
-                    networkStream.Flush();
+                    _ = Task.Run(() => ReadPacket(networkStream));
                 }
             }
 
@@ -55,9 +49,9 @@ namespace LAN_Fileshare.Services
             }
         }
 
-        private void ReadPacket(NetworkStream networkStream)
+        private async void ReadPacket(NetworkStream networkStream)
         {
-            PacketType packetType = _packetService.ReadPacketType(networkStream);
+            PacketType packetType = PacketService.ReadPacketType(networkStream);
             Trace.WriteLine($"Packet type: {packetType}");
 
             switch (packetType)
@@ -66,12 +60,24 @@ namespace LAN_Fileshare.Services
                 case PacketType.HostInfo: ProcessHostInfoPacket(networkStream); break;
                 case PacketType.HostInfoReply: ProcessHostInfoReplyPacket(networkStream); break;
             }
+
+            try
+            {
+                // Signal that the stream can be closed
+                byte[] acknowledgePacket = PacketService.CreateAcknowledgePacket();
+                await networkStream.WriteAsync(acknowledgePacket);
+                await networkStream.FlushAsync();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"Failed to send acknowledgement packet - {ex}");
+            }
         }
 
         // TODO: dodać timeout albo nawet powtórzenie wysłania
-        private void ProcessPingPacket(NetworkStream networkStream)
+        private async void ProcessPingPacket(NetworkStream networkStream)
         {
-            IPAddress remoteIp = _packetService.ReadPingPacket(networkStream);
+            IPAddress remoteIp = PacketService.ReadPingPacket(networkStream);
 
             try
             {
@@ -79,11 +85,11 @@ namespace LAN_Fileshare.Services
                 tcpClient.Connect(remoteIp, _appStateStore.PacketListenerPort);
                 using NetworkStream responseStream = tcpClient.GetStream();
 
-                byte[] hostInfoPacket = _packetService.CreateHostInfoPacket(_appStateStore.IPAddress, _appStateStore.PhysicalAddress, _appStateStore.Username);
+                byte[] hostInfoPacket = PacketService.CreateHostInfoPacket(_appStateStore.IPAddress!, _appStateStore.PhysicalAddress!, _appStateStore.Username);
                 byte[] responseBuffer = new byte[1];
 
-                responseStream.Write(hostInfoPacket, 0, hostInfoPacket.Length);
-                responseStream.Flush();
+                await responseStream.WriteAsync(hostInfoPacket, 0, hostInfoPacket.Length);
+                await responseStream.FlushAsync();
                 responseStream.ReadExactly(responseBuffer, 0, responseBuffer.Length);
 
                 tcpClient.Close();
@@ -95,9 +101,9 @@ namespace LAN_Fileshare.Services
         }
 
         // TODO: dodać timeout albo nawet powtórzenie wysłania
-        private void ProcessHostInfoPacket(NetworkStream networkStream)
+        private async void ProcessHostInfoPacket(NetworkStream networkStream)
         {
-            var packetFields = _packetService.ReadHostInfoPacket(networkStream);
+            var packetFields = PacketService.ReadHostInfoPacket(networkStream);
             IPAddress remoteIp = packetFields.SenderIp;
             PhysicalAddress remotePhysicalAddress = packetFields.PhysicalAddress;
             string remoteUsername = packetFields.Username;
@@ -114,11 +120,11 @@ namespace LAN_Fileshare.Services
                 tcpClient.Connect(remoteIp, _appStateStore.PacketListenerPort);
                 using NetworkStream responseStream = tcpClient.GetStream();
 
-                byte[] hostInfoReplyPacket = _packetService.CreateHostInfoReplyPacket(_appStateStore.IPAddress, _appStateStore.PhysicalAddress, _appStateStore.Username);
+                byte[] hostInfoReplyPacket = PacketService.CreateHostInfoReplyPacket(_appStateStore.IPAddress!, _appStateStore.PhysicalAddress!, _appStateStore.Username);
                 byte[] responseBuffer = new byte[1];
 
-                responseStream.Write(hostInfoReplyPacket, 0, hostInfoReplyPacket.Length);
-                responseStream.Flush();
+                await responseStream.WriteAsync(hostInfoReplyPacket, 0, hostInfoReplyPacket.Length);
+                await responseStream.FlushAsync();
                 responseStream.ReadExactly(responseBuffer, 0, responseBuffer.Length);
 
                 tcpClient.Close();
@@ -131,7 +137,7 @@ namespace LAN_Fileshare.Services
 
         private void ProcessHostInfoReplyPacket(NetworkStream networkStream)
         {
-            var packetFields = _packetService.ReadHostInfoPacket(networkStream);
+            var packetFields = PacketService.ReadHostInfoPacket(networkStream);
             IPAddress remoteIp = packetFields.SenderIp;
             PhysicalAddress remotePhysicalAddress = packetFields.PhysicalAddress;
             string remoteUsername = packetFields.Username;

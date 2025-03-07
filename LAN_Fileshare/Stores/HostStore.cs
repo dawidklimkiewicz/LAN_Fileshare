@@ -37,6 +37,14 @@ namespace LAN_Fileshare.Stores
             OnHostAdded(newHost);
         }
 
+        public IReadOnlyList<Host> GetHostList()
+        {
+            lock (HostListLock)
+            {
+                return _hosts.AsReadOnly();
+            }
+        }
+
         private void OnHostAdded(Host newHost)
         {
             StrongReferenceMessenger.Default.Send(new HostAddedMessage(newHost));

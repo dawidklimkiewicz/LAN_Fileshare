@@ -6,22 +6,26 @@ using LAN_Fileshare.Services;
 using LAN_Fileshare.Stores;
 using LAN_Fileshare.ViewModels;
 using LAN_Fileshare.Views;
+using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LAN_Fileshare
 {
     public partial class App : Application
     {
-        private AppStateStore _userStateStore = null!;
+        private AppStateStore _appStateStore = null!;
         private PacketListenerService _packetListenerService = null!;
+        private Timer _pingTimer = null!;
+        private NetworkService _networkService = null!;
 
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
 
-            _userStateStore = new();
-            _packetListenerService = new(_userStateStore);
+            _appStateStore = new();
+            _packetListenerService = new(_appStateStore);
         }
 
         public override void OnFrameworkInitializationCompleted()
@@ -35,9 +39,15 @@ namespace LAN_Fileshare
                 DisableAvaloniaDataAnnotationValidation();
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(_userStateStore),
+                    DataContext = new MainWindowViewModel(_appStateStore),
                 };
             }
+
+            _networkService = new(_appStateStore);
+            _pingTimer = new Timer(async _ =>
+            {
+                await _networkService.PingNetwork();
+            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
 
             base.OnFrameworkInitializationCompleted();
         }

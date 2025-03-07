@@ -6,14 +6,13 @@ namespace LAN_Fileshare.Stores
 {
     public class AppStateStore
     {
-        private PhysicalAddress _physicalAddress = null!;
-        private IPAddress _ipAddress = null!;
-        private string _username = null!;
+        private PhysicalAddress? _physicalAddress = null!;
+        private IPAddress? _ipAddress = null!;
 
-
-        public PhysicalAddress PhysicalAddress => _physicalAddress;
-        public IPAddress IPAddress => _ipAddress;
-        public string Username => _username;
+        public PhysicalAddress? PhysicalAddress => _physicalAddress;
+        public IPAddress? IPAddress => _ipAddress;
+        public IPAddress? IPMask = null!;
+        public string Username = "";
 
         public int PacketListenerPort { get; set; } = 53788;
         public HostStore HostStore { get; set; }
@@ -26,8 +25,8 @@ namespace LAN_Fileshare.Stores
 
         public void InitLocalUserInfo()
         {
-            NetworkService networkService = new();
-            networkService.GetLocalUserInfo(ref _physicalAddress, ref _ipAddress, ref _username);
+            NetworkService networkService = new(this);
+            networkService.GetLocalUserInfo(ref _physicalAddress, ref _ipAddress, ref IPMask, ref Username);
         }
 
     }

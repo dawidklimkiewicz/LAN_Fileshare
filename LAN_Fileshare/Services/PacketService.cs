@@ -9,9 +9,9 @@ using static LAN_Fileshare.Models.PacketTypes;
 
 namespace LAN_Fileshare.Services
 {
-    public class PacketService
+    public static class PacketService
     {
-        private byte[] SerializePacket(PacketType packetType, List<byte[]> fields)
+        private static byte[] SerializePacket(PacketType packetType, List<byte[]> fields)
         {
             using MemoryStream memoryStream = new();
             using BinaryWriter packetData = new(memoryStream);
@@ -29,14 +29,14 @@ namespace LAN_Fileshare.Services
         /// <summary>
         /// Reads packet's first byte
         /// </summary>
-        public PacketType ReadPacketType(NetworkStream packetData)
+        public static PacketType ReadPacketType(NetworkStream packetData)
         {
             byte[] packetTypeBuffer = new byte[1];
             int bytesRead = packetData.Read(packetTypeBuffer, 0, 1);
             return (PacketType)packetTypeBuffer[0];
         }
 
-        public byte[] CreateAcknowledgePacket()
+        public static byte[] CreateAcknowledgePacket()
         {
             return SerializePacket(PacketType.Acknowledge, []);
         }
@@ -44,13 +44,13 @@ namespace LAN_Fileshare.Services
         /// <summary>
         /// (1B) Type | (4B) IPAddress
         /// </summary>
-        public byte[] CreatePingPacket(IPAddress senderIP)
+        public static byte[] CreatePingPacket(IPAddress senderIP)
         {
             List<byte[]> fields = [senderIP.GetAddressBytes()];
             return SerializePacket(PacketType.Ping, fields);
         }
 
-        public IPAddress ReadPingPacket(NetworkStream packetData)
+        public static IPAddress ReadPingPacket(NetworkStream packetData)
         {
             byte[] senderAddressBuffer = new byte[4];
             packetData.ReadExactly(senderAddressBuffer, 0, 4);
@@ -60,7 +60,7 @@ namespace LAN_Fileshare.Services
         /// <summary>
         /// (1B) Type | (4B) IPAddress | (6B) MAC address | (4B) Username length | (X Bytes) Username
         /// </summary>
-        public byte[] CreateHostInfoPacket(IPAddress senderIP, PhysicalAddress physicalAddress, string username)
+        public static byte[] CreateHostInfoPacket(IPAddress senderIP, PhysicalAddress physicalAddress, string username)
         {
             List<byte[]> fields = [
                 senderIP.GetAddressBytes(),
@@ -71,7 +71,7 @@ namespace LAN_Fileshare.Services
             return SerializePacket(PacketType.HostInfo, fields);
         }
 
-        public (IPAddress SenderIp, PhysicalAddress PhysicalAddress, string Username) ReadHostInfoPacket(NetworkStream packetData)
+        public static (IPAddress SenderIp, PhysicalAddress PhysicalAddress, string Username) ReadHostInfoPacket(NetworkStream packetData)
         {
             byte[] ipBuffer = new byte[4];
             byte[] physicalAddressBuffer = new byte[6];
@@ -96,7 +96,7 @@ namespace LAN_Fileshare.Services
         /// <summary>
         /// (1B) Type | (4B) IPAddress | (6B) MAC address | (4B) Username length | (X Bytes) Username
         /// </summary>
-        public byte[] CreateHostInfoReplyPacket(IPAddress senderIP, PhysicalAddress physicalAddress, string username)
+        public static byte[] CreateHostInfoReplyPacket(IPAddress senderIP, PhysicalAddress physicalAddress, string username)
         {
             List<byte[]> fields = [
                 senderIP.GetAddressBytes(),
