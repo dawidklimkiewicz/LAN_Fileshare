@@ -14,17 +14,22 @@ namespace LAN_Fileshare.Services
     public class PacketListenerService
     {
         private readonly AppStateStore _appStateStore;
-
-        private readonly TcpListener _packetListener;
-        private readonly CancellationTokenSource _packetListenerCancellationToken = new();
+        private TcpListener _packetListener = null!;
+        CancellationTokenSource _packetListenerCancellationToken = null!;
 
         public PacketListenerService(AppStateStore appStateStore)
         {
             _appStateStore = appStateStore;
-            _packetListener = new(IPAddress.Any, appStateStore.PacketListenerPort);
         }
 
-        public async Task Start()
+        public void Start()
+        {
+            _packetListenerCancellationToken = new();
+            _packetListener = new(IPAddress.Any, _appStateStore.PacketListenerPort);
+            _ = Task.Run(() => StartListener());
+        }
+
+        public async Task StartListener()
         {
             try
             {
@@ -34,7 +39,7 @@ namespace LAN_Fileshare.Services
                 {
                     Trace.WriteLine("WAITING FOR CONNECTION");
 
-                    TcpClient tcpClient = await _packetListener.AcceptTcpClientAsync();
+                    TcpClient tcpClient = await _packetListener.AcceptTcpClientAsync(_packetListenerCancellationToken.Token);
                     Trace.WriteLine("ACCEPTED CLIENT");
 
                     _ = Task.Run(() => HandleClientAsync(tcpClient));

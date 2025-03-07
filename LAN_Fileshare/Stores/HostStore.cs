@@ -36,6 +36,23 @@ namespace LAN_Fileshare.Stores
             OnHostAdded(newHost);
         }
 
+        public void RemoveHost(Host hostToRemove)
+        {
+            lock (HostListLock)
+            {
+                _hosts.Remove(hostToRemove);
+            }
+            OnHostRemoved(hostToRemove);
+        }
+
+        public void RemoveAllHosts()
+        {
+            lock (HostListLock)
+            {
+                _hosts.Clear();
+            }
+        }
+
         public IReadOnlyList<Host> GetHostList()
         {
             lock (HostListLock)
@@ -47,6 +64,11 @@ namespace LAN_Fileshare.Stores
         private void OnHostAdded(Host newHost)
         {
             StrongReferenceMessenger.Default.Send(new HostAddedMessage(newHost));
+        }
+
+        private void OnHostRemoved(Host hostToRemove)
+        {
+            StrongReferenceMessenger.Default.Send(new HostRemovedMessage(hostToRemove));
         }
     }
 }

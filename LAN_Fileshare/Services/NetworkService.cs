@@ -1,7 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
-using LAN_Fileshare.Messages;
-using LAN_Fileshare.Models;
-using LAN_Fileshare.Stores;
+﻿using LAN_Fileshare.Stores;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,13 +6,15 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LAN_Fileshare.Services
 {
     public class NetworkService
     {
-        AppStateStore _appStateStore;
+        private CancellationTokenSource _pingPeriodicallyCancellationToken = null!;
+        private readonly AppStateStore _appStateStore;
 
         public NetworkService(AppStateStore appStateStore)
         {
@@ -30,16 +29,12 @@ namespace LAN_Fileshare.Services
             {
                 NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
 
-                if (networkInterfaces.Length == 0)
+                if (NetworkInterface.GetAllNetworkInterfaces().Length == 0)
                 {
                     throw new InvalidOperationException("[GET NETWORK INTERFACE]: No network interfaces were found");
                 }
 
-                NetworkInterface? networkInterface = networkInterfaces.FirstOrDefault(x => x?.NetworkInterfaceType != NetworkInterfaceType.Loopback
-                        && x?.NetworkInterfaceType != NetworkInterfaceType.Tunnel
-                        && x?.OperationalStatus == OperationalStatus.Up
-                        && !x.Name.Contains("vEthernet")
-                        && !x.Description.Contains("VirtualBox"), null);
+                NetworkInterface? networkInterface = GetNetworkInterface();
 
                 if (networkInterface == null)
                 {
@@ -59,6 +54,15 @@ namespace LAN_Fileshare.Services
                 ipAddress = null;
                 physicalAddress = null;
             }
+        }
+
+        public NetworkInterface? GetNetworkInterface()
+        {
+            return NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(x => x?.NetworkInterfaceType != NetworkInterfaceType.Loopback
+                        && x?.NetworkInterfaceType != NetworkInterfaceType.Tunnel
+                        && x?.OperationalStatus == OperationalStatus.Up
+                        && !x.Name.Contains("vEthernet")
+                        && !x.Description.Contains("VirtualBox"), null);
         }
 
         /// <summary>
@@ -94,50 +98,24 @@ namespace LAN_Fileshare.Services
             await Task.WhenAll(pingTasks);
         }
 
-        public async Task MonitorHosts()
+        private async Task PingPeriodically()
         {
-            while (true)
+            while (!_pingPeriodicallyCancellationToken.Token.IsCancellationRequested)
             {
-                List<Task> keepAliveTasks = new();
-
-                foreach (Host host in _appStateStore.HostStore.GetHostList())
-                {
-                    keepAliveTasks.Add(SendKeepAlive(host));
-                }
-
-                await Task.WhenAll(keepAliveTasks);
-                await Task.Delay(TimeSpan.FromSeconds(6));
+                await PingNetwork();
+                await Task.Delay(TimeSpan.FromSeconds(10));
             }
         }
 
-        private async Task SendKeepAlive(Host host)
+        public void StartPingingPeriodically()
         {
-            try
-            {
-                using TcpClient tcpClient = new();
-                var connectTask = tcpClient.ConnectAsync(host.IPAddress, _appStateStore.PacketListenerPort);
+            _pingPeriodicallyCancellationToken = new();
+            _ = Task.Run(() => PingPeriodically());
+        }
 
-                if (await Task.WhenAny(connectTask, Task.Delay(TimeSpan.FromSeconds(3))) != connectTask)
-                    throw new TimeoutException();
-
-                using NetworkStream networkStream = tcpClient.GetStream();
-                byte[] keepAlivePacket = PacketService.CreateKeepAlivePacket();
-                byte[] ackBuffer = new byte[1];
-
-                await networkStream.WriteAsync(keepAlivePacket, 0, keepAlivePacket.Length);
-                await networkStream.FlushAsync();
-
-                var readTask = networkStream.ReadAsync(ackBuffer, 0, ackBuffer.Length);
-                if (await Task.WhenAny(readTask, Task.Delay(TimeSpan.FromSeconds(3))) != readTask)
-                    throw new TimeoutException();
-
-                int bytesRead = await readTask;
-                tcpClient.Close();
-            }
-            catch
-            {
-                StrongReferenceMessenger.Default.Send(new HostRemovedMessage(host));
-            }
+        public void StopPingingPeriodically()
+        {
+            _pingPeriodicallyCancellationToken.Cancel();
         }
 
         private async Task TryConnection(IPAddress ip, int port)
@@ -160,7 +138,6 @@ namespace LAN_Fileshare.Services
             catch (SocketException) { }
             catch (Exception) { }
         }
-
 
 
         private IPAddress GetNetworkAddress(IPAddress ipAddress, IPAddress subnetMask)

@@ -19,6 +19,7 @@ namespace LAN_Fileshare.ViewModels
             _hostListingItemViewModels = new();
 
             StrongReferenceMessenger.Default.Register<HostAddedMessage>(this);
+            StrongReferenceMessenger.Default.Register<HostRemovedMessage>(this);
         }
 
         public void Receive(HostAddedMessage message)
@@ -27,12 +28,17 @@ namespace LAN_Fileshare.ViewModels
         }
         public void Receive(HostRemovedMessage message)
         {
-            _hostListingItemViewModels.Remove(_hostListingItemViewModels.First(host => host.PhysicalAddress.Equals(message.Value.PhysicalAddress)));
+            HostListingItemViewModel? hostListingItemViewModel = _hostListingItemViewModels.FirstOrDefault(x => x.PhysicalAddress == message.Value.PhysicalAddress);
+            if (hostListingItemViewModel != null)
+            {
+                _hostListingItemViewModels.Remove(hostListingItemViewModel);
+            }
         }
 
         public void Dispose()
         {
             StrongReferenceMessenger.Default.Unregister<HostAddedMessage>(this);
+            StrongReferenceMessenger.Default.Unregister<HostRemovedMessage>(this);
         }
 
     }

@@ -6,31 +6,30 @@ using LAN_Fileshare.Services;
 using LAN_Fileshare.Stores;
 using LAN_Fileshare.ViewModels;
 using LAN_Fileshare.Views;
-using System;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Net.NetworkInformation;
 
 namespace LAN_Fileshare
 {
     public partial class App : Application
     {
-        private AppStateStore _appStateStore = null!;
+        private AppStateStore _appStateStore = new();
         private PacketListenerService _packetListenerService = null!;
-        private Timer _pingTimer = null!;
         private NetworkService _networkService = null!;
+        private HostCheck _hostCheckService = null!;
 
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
 
-            _appStateStore = new();
             _packetListenerService = new(_appStateStore);
+            _networkService = new(_appStateStore);
+            _hostCheckService = new(_appStateStore);
         }
 
         public override void OnFrameworkInitializationCompleted()
         {
-            _ = Task.Run(() => _packetListenerService.Start());
+            _packetListenerService.Start();
 
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
@@ -43,15 +42,40 @@ namespace LAN_Fileshare
                 };
             }
 
-            _networkService = new(_appStateStore);
-            _pingTimer = new Timer(async _ =>
-            {
-                await _networkService.PingNetwork();
-            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+            _networkService.StartPingingPeriodically();
+            _hostCheckService.Start();
 
-            _ = Task.Run(() => _networkService.MonitorHosts());
+            NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;
 
             base.OnFrameworkInitializationCompleted();
+        }
+
+        private void NetworkChange_NetworkAddressChanged(object? sender, System.EventArgs e)
+        {
+            NetworkInterface? networkInterface = _networkService.GetNetworkInterface();
+
+            if (networkInterface == null)
+            {
+                _appStateStore.PingPeriodicallyCancellationToken.Cancel();
+                _appStateStore.MonitorHostsCancellationToken.Cancel();
+                _appStateStore.PacketListenerCancellationToken.Cancel();
+
+                _appStateStore.HostStore.RemoveAllHosts();
+            }
+
+            else
+            {
+                // Read network information after reconnecting
+                _appStateStore.InitLocalUserInfo();
+
+                _appStateStore.PingPeriodicallyCancellationToken = new();
+                _appStateStore.MonitorHostsCancellationToken = new();
+                _appStateStore.PacketListenerCancellationToken = new();
+
+                _packetListenerService.Start();
+                _networkService.StartPingingPeriodically();
+                _hostCheckService.Start();
+            }
         }
 
         private void DisableAvaloniaDataAnnotationValidation()
