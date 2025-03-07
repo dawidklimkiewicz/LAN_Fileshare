@@ -75,6 +75,7 @@ namespace LAN_Fileshare.Services
             {
                 if (_existingHostsIpList.Contains(address))
                 {
+                    Trace.WriteLine($"JUZ ISTNIEJE {(address >> 24) & 255}.{(address >> 16) & 255}.{(address >> 8) & 255}.{address & 255}");
                     continue;
                 }
 
@@ -105,10 +106,8 @@ namespace LAN_Fileshare.Services
                 networkStream.ReadExactly(ackBuffer, 0, ackBuffer.Length);
                 tcpClient.Close();
             }
-            catch (Exception ex)
-            {
-                Trace.WriteLine($"Failed to send ping packet  - {ex}");
-            }
+            catch (SocketException) { }
+            catch (Exception) { }
         }
 
         private IPAddress GetNetworkAddress(IPAddress ipAddress, IPAddress subnetMask)

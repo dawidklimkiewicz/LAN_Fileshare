@@ -87,7 +87,7 @@ namespace LAN_Fileshare.Services
             int usernameLength = BitConverter.ToInt32(usernameLengthBuffer, 0);
             byte[] usernameBuffer = new byte[usernameLength];
             packetData.ReadExactly(usernameBuffer);
-            string username = BitConverter.ToString(usernameBuffer, usernameBuffer.Length);
+            string username = Encoding.UTF8.GetString(usernameBuffer, 0, usernameBuffer.Length);
 
             return (ip, physicalAddress, username);
         }

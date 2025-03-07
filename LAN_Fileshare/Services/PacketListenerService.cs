@@ -34,12 +34,10 @@ namespace LAN_Fileshare.Services
                 {
                     Trace.WriteLine("WAITING FOR CONNECTION");
 
-                    using TcpClient tcpClient = await _packetListener.AcceptTcpClientAsync();
+                    TcpClient tcpClient = await _packetListener.AcceptTcpClientAsync();
                     Trace.WriteLine("ACCEPTED CLIENT");
 
-                    using NetworkStream networkStream = tcpClient.GetStream();
-
-                    _ = Task.Run(() => ReadPacket(networkStream));
+                    _ = Task.Run(() => HandleClientAsync(tcpClient));
                 }
             }
 
@@ -49,7 +47,24 @@ namespace LAN_Fileshare.Services
             }
         }
 
-        private async void ReadPacket(NetworkStream networkStream)
+        private async Task HandleClientAsync(TcpClient tcpClient)
+        {
+            try
+            {
+                using NetworkStream networkStream = tcpClient.GetStream();
+                await ReadPacket(networkStream);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"Error handling client: {ex}");
+            }
+            finally
+            {
+                tcpClient.Close();
+            }
+        }
+
+        private async Task ReadPacket(NetworkStream networkStream)
         {
             PacketType packetType = PacketService.ReadPacketType(networkStream);
             Trace.WriteLine($"Packet type: {packetType}");
