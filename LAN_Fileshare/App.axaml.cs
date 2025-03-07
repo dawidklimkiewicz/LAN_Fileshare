@@ -56,10 +56,11 @@ namespace LAN_Fileshare
 
             if (networkInterface == null)
             {
-                _appStateStore.PingPeriodicallyCancellationToken.Cancel();
-                _appStateStore.MonitorHostsCancellationToken.Cancel();
-                _appStateStore.PacketListenerCancellationToken.Cancel();
+                _packetListenerService.Stop();
+                _networkService.StopPingingPeriodically();
+                _hostCheckService.Stop();
 
+                _appStateStore.DisposeNetworkInformation();
                 _appStateStore.HostStore.RemoveAllHosts();
             }
 
@@ -67,10 +68,6 @@ namespace LAN_Fileshare
             {
                 // Read network information after reconnecting
                 _appStateStore.InitLocalUserInfo();
-
-                _appStateStore.PingPeriodicallyCancellationToken = new();
-                _appStateStore.MonitorHostsCancellationToken = new();
-                _appStateStore.PacketListenerCancellationToken = new();
 
                 _packetListenerService.Start();
                 _networkService.StartPingingPeriodically();
