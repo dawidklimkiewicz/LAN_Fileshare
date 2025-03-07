@@ -41,7 +41,7 @@ namespace LAN_Fileshare.Services
                 }
 
                 await Task.WhenAll(keepAliveTasks);
-                await Task.Delay(TimeSpan.FromSeconds(2));
+                await Task.Delay(TimeSpan.FromSeconds(5));
             }
         }
 
@@ -52,21 +52,9 @@ namespace LAN_Fileshare.Services
                 using TcpClient tcpClient = new();
                 var connectTask = tcpClient.ConnectAsync(host.IPAddress, _appStateStore.PacketListenerPort);
 
-                if (await Task.WhenAny(connectTask, Task.Delay(TimeSpan.FromSeconds(2))) != connectTask)
+                if (await Task.WhenAny(connectTask, Task.Delay(TimeSpan.FromSeconds(4))) != connectTask)
                     throw new TimeoutException();
 
-                using NetworkStream networkStream = tcpClient.GetStream();
-                byte[] keepAlivePacket = PacketService.CreateKeepAlivePacket();
-                byte[] ackBuffer = new byte[1];
-
-                await networkStream.WriteAsync(keepAlivePacket, 0, keepAlivePacket.Length);
-                await networkStream.FlushAsync();
-
-                var readTask = networkStream.ReadAsync(ackBuffer, 0, ackBuffer.Length);
-                if (await Task.WhenAny(readTask, Task.Delay(TimeSpan.FromSeconds(2))) != readTask)
-                    throw new TimeoutException();
-
-                int bytesRead = await readTask;
                 tcpClient.Close();
             }
             catch

@@ -1,4 +1,5 @@
-﻿using LAN_Fileshare.Stores;
+﻿using LAN_Fileshare.Models;
+using LAN_Fileshare.Stores;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -98,13 +99,29 @@ namespace LAN_Fileshare.Services
             await Task.WhenAll(pingTasks);
         }
 
-        private async Task PingPeriodically()
+        public async void BroadcastShutdown()
         {
-            while (!_pingPeriodicallyCancellationToken.Token.IsCancellationRequested)
+            List<Task> tasks = new();
+            foreach (Host host in _appStateStore.HostStore.GetHostList())
             {
-                await PingNetwork();
-                await Task.Delay(TimeSpan.FromSeconds(10));
+                tasks.Add(SendShutdown(host.IPAddress));
             }
+            await Task.WhenAll(tasks);
+        }
+
+        private async Task SendShutdown(IPAddress receiverIP)
+        {
+            try
+            {
+                using TcpClient tcpClient = new();
+                await tcpClient.ConnectAsync(receiverIP, _appStateStore.PacketListenerPort);
+                using NetworkStream networkStream = tcpClient.GetStream();
+
+                byte[] packet = PacketService.CreateShutdownPacket(_appStateStore.IPAddress!);
+                await networkStream.WriteAsync(packet, 0, packet.Length);
+                await networkStream.FlushAsync();
+            }
+            catch { }
         }
 
         public void StartPingingPeriodically()
@@ -116,6 +133,15 @@ namespace LAN_Fileshare.Services
         public void StopPingingPeriodically()
         {
             _pingPeriodicallyCancellationToken.Cancel();
+        }
+
+        private async Task PingPeriodically()
+        {
+            while (!_pingPeriodicallyCancellationToken.Token.IsCancellationRequested)
+            {
+                await PingNetwork();
+                await Task.Delay(TimeSpan.FromSeconds(10));
+            }
         }
 
         private async Task TryConnection(IPAddress ip, int port)

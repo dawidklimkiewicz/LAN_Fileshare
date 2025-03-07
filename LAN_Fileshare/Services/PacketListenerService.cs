@@ -79,6 +79,7 @@ namespace LAN_Fileshare.Services
                 case PacketType.Ping: ProcessPingPacket(networkStream); break;
                 case PacketType.HostInfo: ProcessHostInfoPacket(networkStream); break;
                 case PacketType.HostInfoReply: ProcessHostInfoReplyPacket(networkStream); break;
+                case PacketType.Shutdown: ProcessShutdownPacket(networkStream); break;
             }
 
             try
@@ -169,10 +170,23 @@ namespace LAN_Fileshare.Services
             }
         }
 
+        private void ProcessShutdownPacket(NetworkStream networkStream)
+        {
+            IPAddress remoteIP = PacketService.ReadShutdownPacket(networkStream);
+            Host? host = _appStateStore.HostStore.Get(remoteIP);
+
+            if (host != null)
+            {
+                _appStateStore.HostStore.RemoveHost(host);
+            }
+        }
+
         public void Stop()
         {
             _packetListenerCancellationToken.Cancel();
-            _packetListener.Dispose();
+            _packetListener.Stop();
+            _packetListener.Server.Close();
+            _packetListener.Server.Dispose();
         }
     }
 }

@@ -41,10 +41,19 @@ namespace LAN_Fileshare.Services
             return SerializePacket(PacketType.Acknowledge, []);
         }
 
-        public static byte[] CreateKeepAlivePacket()
+        public static byte[] CreateShutdownPacket(IPAddress senderIP)
         {
-            return SerializePacket(PacketType.KeepAlive, []);
+            List<byte[]> fields = [senderIP.GetAddressBytes()];
+            return SerializePacket(PacketType.Shutdown, fields);
         }
+
+        public static IPAddress ReadShutdownPacket(NetworkStream packetData)
+        {
+            byte[] senderAddressBuffer = new byte[4];
+            packetData.ReadExactly(senderAddressBuffer, 0, 4);
+            return new IPAddress(senderAddressBuffer);
+        }
+
 
         /// <summary>
         /// (1B) Type | (4B) IPAddress

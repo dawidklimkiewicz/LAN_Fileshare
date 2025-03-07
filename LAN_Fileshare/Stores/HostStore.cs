@@ -3,6 +3,7 @@ using LAN_Fileshare.Messages;
 using LAN_Fileshare.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.NetworkInformation;
 
 namespace LAN_Fileshare.Stores
@@ -23,6 +24,14 @@ namespace LAN_Fileshare.Stores
             lock (HostListLock)
             {
                 return _hosts.Any(host => host.PhysicalAddress.Equals(physicalAddress));
+            }
+        }
+
+        public Host? Get(IPAddress ipAddress)
+        {
+            lock (HostListLock)
+            {
+                return _hosts.FirstOrDefault(host => host!.IPAddress.Equals(ipAddress), null);
             }
         }
 

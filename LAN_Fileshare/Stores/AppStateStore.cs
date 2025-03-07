@@ -36,6 +36,7 @@ namespace LAN_Fileshare.Stores
         {
             _ipAddress = null;
             _physicalAddress = null;
+            StrongReferenceMessenger.Default.Send(new NetworkInfoUpdated(this));
         }
     }
 }

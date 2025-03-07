@@ -40,6 +40,7 @@ namespace LAN_Fileshare
                 {
                     DataContext = new MainWindowViewModel(_appStateStore),
                 };
+                desktop.Exit += Desktop_Exit;
             }
 
             _networkService.StartPingingPeriodically();
@@ -48,6 +49,11 @@ namespace LAN_Fileshare
             NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;
 
             base.OnFrameworkInitializationCompleted();
+        }
+
+        private void Desktop_Exit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
+        {
+            _networkService.BroadcastShutdown();
         }
 
         private void NetworkChange_NetworkAddressChanged(object? sender, System.EventArgs e)
@@ -87,5 +93,7 @@ namespace LAN_Fileshare
                 BindingPlugins.DataValidators.Remove(plugin);
             }
         }
+
+
     }
 }
