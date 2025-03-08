@@ -91,7 +91,7 @@ namespace LAN_Fileshare.Services
                 string ipAddressString = $"{(address >> 24) & 255}.{(address >> 16) & 255}.{(address >> 8) & 255}.{address & 255}";
                 IPAddress pingAddress = IPAddress.Parse(ipAddressString);
 
-                if (pingAddress.Equals(_appStateStore.IPAddress)) continue;
+                //  if (pingAddress.Equals(_appStateStore.IPAddress)) continue;
 
                 pingTasks.Add(TryConnection(pingAddress, _appStateStore.PacketListenerPort));
             }
@@ -126,7 +126,7 @@ namespace LAN_Fileshare.Services
                 await tcpClient.ConnectAsync(ip, port);
                 using NetworkStream networkStream = tcpClient.GetStream();
 
-                byte[] pingPacket = PacketService.CreatePingPacket(_appStateStore.IPAddress!);
+                byte[] pingPacket = PacketService.Create.Ping(_appStateStore.IPAddress!);
                 byte[] ackBuffer = new byte[1];
 
                 await networkStream.WriteAsync(pingPacket, 0, pingPacket.Length);

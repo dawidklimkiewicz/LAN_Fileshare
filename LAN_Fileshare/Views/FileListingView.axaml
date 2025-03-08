@@ -1,0 +1,71 @@
+<UserControl
+    x:Class="LAN_Fileshare.Views.FileListingView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:view="using:LAN_Fileshare.Views"
+    xmlns:vm="using:LAN_Fileshare.ViewModels"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:FileListingViewModel"
+    mc:Ignorable="d">
+
+    <Grid
+        Background="{DynamicResource HostsSidebarBackgroundColor}"
+        ColumnDefinitions="*,*"
+        RowDefinitions="40,*">
+        <TextBlock
+            Grid.Row="0"
+            Grid.Column="0"
+            Padding="10"
+            Background="{DynamicResource DarkerBackgroundColor}"
+            Text="Downloads" />
+        <Border
+            Grid.RowSpan="2"
+            BorderBrush="{DynamicResource HostsSidebarSeparatorColor}"
+            BorderThickness="0,0,1,0" />
+
+        <Grid
+            Grid.Row="0"
+            Grid.Column="1"
+            Background="{DynamicResource DarkerBackgroundColor}"
+            ColumnDefinitions="*,*">
+            <TextBlock
+                Grid.Column="0"
+                Padding="10"
+                Text="Uploads" />
+            <Button
+                Grid.Column="1"
+                Width="30"
+                Height="30"
+                Margin="0,0,10,0"
+                HorizontalAlignment="Right"
+                Command="{Binding OpenFileDialogCommand}" />
+        </Grid>
+
+        <ListBox
+            Grid.Row="1"
+            Grid.Column="0"
+            Background="Transparent"
+            BorderBrush="{DynamicResource HostsSidebarSeparatorColor}"
+            BorderThickness="0,0,1,0" />
+
+        <ItemsControl
+            x:Name="FileUploadsListBox"
+            Grid.Row="1"
+            Grid.Column="1"
+            Background="Transparent"
+            DragDrop.AllowDrop="True"
+            DragDrop.DragLeave="FileUploadsList_DragLeave"
+            DragDrop.DragOver="FileUploadsList_DragOver"
+            DragDrop.Drop="FileUploadsList_Drop"
+            ItemsSource="{Binding FileUploadList}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="vm:FileUploadItemViewModel">
+                    <view:FileUploadItemView />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</UserControl>

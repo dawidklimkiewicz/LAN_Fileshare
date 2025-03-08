@@ -8,6 +8,8 @@
             Ping,
             HostInfo,
             HostInfoReply,
+            FileInformation,
+            RemoveFile,
         }
     }
 }

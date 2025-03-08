@@ -36,11 +36,9 @@ namespace LAN_Fileshare
                 // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
                 // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
                 DisableAvaloniaDataAnnotationValidation();
-                desktop.MainWindow = new MainWindow
-                {
-                    DataContext = new MainWindowViewModel(_appStateStore),
-                };
-                desktop.Exit += Desktop_Exit;
+                MainWindow mainWindow = new();
+                mainWindow.DataContext = new MainWindowViewModel(_appStateStore, new FileDialogService(mainWindow));
+                desktop.MainWindow = mainWindow;
             }
 
             _networkService.StartPingingPeriodically();
@@ -49,11 +47,6 @@ namespace LAN_Fileshare
             NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;
 
             base.OnFrameworkInitializationCompleted();
-        }
-
-        private void Desktop_Exit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
-        {
-            _networkService.BroadcastShutdown();
         }
 
         private void NetworkChange_NetworkAddressChanged(object? sender, System.EventArgs e)

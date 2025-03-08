@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using LAN_Fileshare.Messages;
+using LAN_Fileshare.Models;
 using LAN_Fileshare.Services;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -18,6 +19,7 @@ namespace LAN_Fileshare.Stores
 
         public int PacketListenerPort { get; set; } = 53788;
         public HostStore HostStore { get; set; }
+        public Host? SelectedHost { get; set; }
 
         public AppStateStore()
         {
