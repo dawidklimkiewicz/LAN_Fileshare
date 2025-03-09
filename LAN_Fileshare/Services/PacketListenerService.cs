@@ -82,6 +82,7 @@ namespace LAN_Fileshare.Services
                 case PacketType.HostInfoReply: ProcessHostInfoReplyPacket(networkStream); break;
                 case PacketType.FileInformation: ProcessFileInfoPacket(networkStream); break;
                 case PacketType.RemoveFile: ProcessRemoveFilePacket(networkStream); break;
+                case PacketType.FileRequest: ProcessFileRequestPacket(networkStream); break;
             }
 
             try
@@ -206,6 +207,25 @@ namespace LAN_Fileshare.Services
                 {
                     host.FileDownloadList.Remove(fileDownload);
                 }
+            }
+        }
+
+        private void ProcessFileRequestPacket(NetworkStream networkStream)
+        {
+            var packetFields = PacketService.Read.FileRequest(networkStream);
+            IPAddress senderIP = packetFields.senderIP;
+            Guid fileId = packetFields.fileId;
+            int listenerPort = packetFields.listenerPort;
+            long startingByte = packetFields.startingByte;
+
+            Host? host = _appStateStore.HostStore.Get(senderIP);
+            FileUpload? file = host?.FileUploadList.Get(fileId);
+
+            if (host != null && file != null)
+            {
+                FileDataSender sender = new(host, file, listenerPort, startingByte);
+                Task senderTask = sender.StartSending();
+                _appStateStore.ActiveFileTransfers.Add(senderTask);
             }
         }
 

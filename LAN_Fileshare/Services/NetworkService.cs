@@ -122,8 +122,6 @@ namespace LAN_Fileshare.Services
             }
         }
 
-
-        // TODO Create a method that sends a packet - DRY
         private async Task TryConnection(IPAddress ip, int port)
         {
             try
@@ -145,7 +143,6 @@ namespace LAN_Fileshare.Services
             catch (Exception) { }
         }
 
-        // TODO Create a method that sends a packet - DRY
         public async Task SendFileInformation(List<FileUpload> files, IPAddress receiverIP, int port)
         {
             try
@@ -168,8 +165,6 @@ namespace LAN_Fileshare.Services
                 Trace.WriteLine($"Failed to send file information - {ex}");
             }
         }
-
-        // TODO Create a method that sends a packet - DRY
         public async Task SendRemoveFile(Guid fileId, IPAddress receiverIP, int port)
         {
             try
@@ -192,7 +187,6 @@ namespace LAN_Fileshare.Services
                 Trace.WriteLine($"Failed to send file information - {ex}");
             }
         }
-
 
         private IPAddress GetNetworkAddress(IPAddress ipAddress, IPAddress subnetMask)
         {

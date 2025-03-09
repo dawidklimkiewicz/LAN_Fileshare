@@ -91,12 +91,48 @@ namespace LAN_Fileshare.Services
             }
 
             /// <summary>
-            /// <para>(1B) Type | (4B) IPAddress | (16B) File id  
+            /// (1B) Type | (4B) IPAddress | (16B) File id  
             /// </summary>
             public static byte[] RemoveFile(IPAddress senderIP, Guid fileId)
             {
                 List<byte[]> fields = [senderIP.GetAddressBytes(), fileId.ToByteArray()];
                 return SerializePacket(PacketType.RemoveFile, fields);
+            }
+
+            /// <summary>
+            /// (1B) Type | (4B) IPAddress | (4B) Listener port | (16B) File id  | (8B) Starting byte 
+            /// </summary>
+            public static byte[] FileRequest(IPAddress senderIP, int listenerPort, Guid fileId, long startingByte)
+            {
+                List<byte[]> fields = [senderIP.GetAddressBytes(), BitConverter.GetBytes(listenerPort), fileId.ToByteArray(), BitConverter.GetBytes(startingByte)];
+                return SerializePacket(PacketType.FileRequest, fields);
+            }
+
+            /// <summary>
+            /// (1B) Type | (4B) Data length | (X B) File data 
+            /// </summary>
+            public static byte[] FileData(byte[] data)
+            {
+                List<byte[]> fields = [BitConverter.GetBytes(data.Length), data];
+                return SerializePacket(PacketType.FileData, fields);
+            }
+
+            /// <summary>
+            /// (1B) Type | (8B) Last received byte 
+            /// </summary>
+            public static byte[] FileDataAck(long lastReceivedByte)
+            {
+                List<byte[]> fields = [BitConverter.GetBytes(lastReceivedByte)];
+                return SerializePacket(PacketType.FileDataAck, fields);
+            }
+
+            /// <summary>
+            /// (1B) Type | (8B) Last received byte 
+            /// </summary>
+            public static byte[] StopFileTransmission(long lastReceivedByte)
+            {
+                List<byte[]> fields = [BitConverter.GetBytes(lastReceivedByte)];
+                return SerializePacket(PacketType.StopFileTransmission, fields);
             }
         }
 
@@ -115,6 +151,7 @@ namespace LAN_Fileshare.Services
                 return (PacketType)packetTypeBuffer[0];
             }
 
+            // TODO extract reading method, similar to creating
             public static IPAddress Ping(NetworkStream packetData)
             {
                 byte[] senderAddressBuffer = new byte[4];
@@ -186,6 +223,47 @@ namespace LAN_Fileshare.Services
                 networkStream.ReadExactly(fileIdBuffer);
                 return (new IPAddress(senderAddressBuffer), new Guid(fileIdBuffer));
 
+            }
+
+            public static (IPAddress senderIP, int listenerPort, Guid fileId, long startingByte) FileRequest(NetworkStream networkStream)
+            {
+                byte[] senderIpBuffer = new byte[4];
+                byte[] listenerPortBuffer = new byte[4];
+                byte[] fileIdBuffer = new byte[16];
+                byte[] startingByteBuffer = new byte[8];
+
+                networkStream.ReadExactly(senderIpBuffer, 0, senderIpBuffer.Length);
+                networkStream.ReadExactly(listenerPortBuffer, 0, listenerPortBuffer.Length);
+                networkStream.ReadExactly(fileIdBuffer, 0, fileIdBuffer.Length);
+                networkStream.ReadExactly(startingByteBuffer, 0, startingByteBuffer.Length);
+
+                return (new IPAddress(senderIpBuffer), BitConverter.ToInt32(listenerPortBuffer), new Guid(fileIdBuffer), BitConverter.ToInt64(startingByteBuffer));
+            }
+
+            public static byte[] FileData(NetworkStream networkStream)
+            {
+                byte[] dataLengthBuffer = new byte[4];
+                networkStream.ReadExactly(dataLengthBuffer, 0, dataLengthBuffer.Length);
+                long dataLength = BitConverter.ToInt32(dataLengthBuffer);
+
+                byte[] dataBuffer = new byte[dataLength];
+                networkStream.ReadExactly(dataBuffer, 0, dataBuffer.Length);
+
+                return dataBuffer;
+            }
+
+            public static long FileDataAck(NetworkStream networkStream)
+            {
+                byte[] lastReceivedByteBuffer = new byte[8];
+                networkStream.ReadExactly(lastReceivedByteBuffer, 0, lastReceivedByteBuffer.Length);
+                return BitConverter.ToInt64(lastReceivedByteBuffer);
+            }
+
+            public static long StopFileTransmission(NetworkStream networkStream)
+            {
+                byte[] lastReceivedByteBuffer = new byte[8];
+                networkStream.ReadExactly(lastReceivedByteBuffer, 0, lastReceivedByteBuffer.Length);
+                return BitConverter.ToInt64(lastReceivedByteBuffer);
             }
         }
     }

@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using LAN_Fileshare.Messages;
 using LAN_Fileshare.Models;
 using LAN_Fileshare.Services;
 using LAN_Fileshare.Stores;
@@ -9,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace LAN_Fileshare.ViewModels
 {
-    public partial class FileDownloadItemViewModel : ObservableObject
+    public partial class FileDownloadItemViewModel : ObservableObject, IRecipient<BytesTransmittedChangedMessage>, IDisposable
     {
         private readonly FileListingViewModel _parentViewModel;
         private readonly AppStateStore _appStateStore;
@@ -41,8 +43,21 @@ namespace LAN_Fileshare.ViewModels
             FileDownload = file;
             Name = file.Name;
             Size = file.Size;
-            FileState = file.FileState;
+            FileState = file.State;
             BytesTransmitted = file.BytesTransmitted;
+
+            StrongReferenceMessenger.Default.Register<BytesTransmittedChangedMessage>(this);
+        }
+
+        [RelayCommand]
+        private void RequestFile(Guid fileId)
+        {
+            if (_parentViewModel.SelectedHost != null)
+            {
+                FileDataReceiver fileDataReceiver = new(_appStateStore, _parentViewModel.SelectedHost, FileDownload);
+                Task listener = fileDataReceiver.SendFileRequest();
+                _appStateStore.ActiveFileTransfers.Add(listener);
+            }
         }
 
         [RelayCommand]
@@ -87,6 +102,19 @@ namespace LAN_Fileshare.ViewModels
             _lastBytesUpdateTime = DateTime.Now;
 
             return transmittedSinceLastUpdate / secondsElapsed;
+        }
+
+        public void Receive(BytesTransmittedChangedMessage message)
+        {
+            if (message.File is FileDownload && message.File.Id == Id)
+            {
+                BytesTransmitted = message.Value;
+            }
+        }
+
+        public void Dispose()
+        {
+            StrongReferenceMessenger.Default.Unregister<BytesTransmittedChangedMessage>(this);
         }
     }
 }
