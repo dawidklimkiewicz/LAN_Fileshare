@@ -44,7 +44,7 @@ namespace LAN_Fileshare.ViewModels
             FileUpload = file;
             Name = file.Name;
             Size = file.Size;
-            FileState = file.FileState;
+            FileState = file.State;
             BytesTransmitted = file.BytesTransmitted;
 
             StrongReferenceMessenger.Default.Register<BytesTransmittedChangedMessage>(this);

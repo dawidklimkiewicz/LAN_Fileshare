@@ -16,7 +16,16 @@ namespace LAN_Fileshare.Models
         public long Size { get; set; }
         public DateTime TimeCreated { get; set; }
         public DateTime? TimeFinished { get; set; }
-        public FileState FileState { get; set; } = FileState.Paused;
+        private FileState _state;
+        public FileState State
+        {
+            get => _state;
+            set
+            {
+                _state = value;
+                StrongReferenceMessenger.Default.Send(new FileStateChangedMessage(_state, this));
+            }
+        }
 
         private long _bytesTransmitted;
         public long BytesTransmitted
@@ -41,6 +50,7 @@ namespace LAN_Fileshare.Models
             Id = fileId;
             Name = name;
             Size = size;
+            _state = FileState.Paused;
         }
 
         private void SendBytesTransmittedUpdate(object? state)

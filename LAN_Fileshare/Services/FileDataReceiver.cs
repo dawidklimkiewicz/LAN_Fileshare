@@ -41,6 +41,7 @@ namespace LAN_Fileshare.Services
 
         public async Task SendFileRequest()
         {
+            _fileToDownload.State = FileState.Transmitting;
             try
             {
                 _listenerPort = FindAvailablePort();
@@ -157,7 +158,7 @@ namespace LAN_Fileshare.Services
             if (_fileToDownload.Size == _fileToDownload.BytesTransmitted)
             {
                 _fileToDownload.TimeFinished = DateTime.Now;
-                _fileToDownload.FileState = FileState.Finished;
+                _fileToDownload.State = FileState.Finished;
 
                 // TODO check if file already exists and if it does then add an index
 
@@ -173,7 +174,7 @@ namespace LAN_Fileshare.Services
             }
             else
             {
-                _fileToDownload.FileState = FileState.Paused;
+                _fileToDownload.State = FileState.Paused;
             }
         }
     }

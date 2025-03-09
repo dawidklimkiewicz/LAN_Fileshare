@@ -43,7 +43,7 @@ namespace LAN_Fileshare.ViewModels
             FileDownload = file;
             Name = file.Name;
             Size = file.Size;
-            FileState = file.FileState;
+            FileState = file.State;
             BytesTransmitted = file.BytesTransmitted;
 
             StrongReferenceMessenger.Default.Register<BytesTransmittedChangedMessage>(this);

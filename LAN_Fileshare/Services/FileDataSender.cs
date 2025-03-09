@@ -11,6 +11,8 @@ namespace LAN_Fileshare.Services
 {
     public class FileDataSender : IDisposable
     {
+
+        // TODO test larger buffer sizes
         private const int BUFFER_SIZE = 1024 * 1024;
 
         private readonly Host _receiverHost;
@@ -29,6 +31,8 @@ namespace LAN_Fileshare.Services
 
         public async Task StartSending()
         {
+            _fileToSend.State = FileState.Transmitting;
+
             try
             {
                 byte[] dataBuffer1 = new byte[BUFFER_SIZE];
@@ -87,6 +91,16 @@ namespace LAN_Fileshare.Services
             _cts.Cancel();
             _cts.Dispose();
             _fileReader.Dispose();
+
+            if (_fileToSend.BytesTransmitted == _fileToSend.Size)
+            {
+                _fileToSend.TimeFinished = DateTime.Now;
+                _fileToSend.State = FileState.Finished;
+            }
+            else
+            {
+                _fileToSend.State = FileState.Paused;
+            }
         }
     }
 }
