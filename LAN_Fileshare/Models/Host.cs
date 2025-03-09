@@ -23,8 +23,8 @@ namespace LAN_Fileshare.Models
             Username = username;
             DownloadPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
             IsBlocked = false;
-            FileUploadList = new();
-            FileDownloadList = new();
+            FileUploadList = new(this);
+            FileDownloadList = new(this);
         }
     }
 }

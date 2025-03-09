@@ -10,6 +10,12 @@ namespace LAN_Fileshare.Models
     {
         private readonly object _lock = new();
         private List<T> _items = new();
+        private Host _parentHost;
+
+        public FileList(Host parentHost)
+        {
+            _parentHost = parentHost;
+        }
 
         public IReadOnlyList<T> GetAll()
         {
@@ -55,12 +61,12 @@ namespace LAN_Fileshare.Models
 
         private void OnFileAdded(T file)
         {
-            StrongReferenceMessenger.Default.Send(new FileAddedMessage(file));
+            StrongReferenceMessenger.Default.Send(new FileAddedMessage(file, _parentHost));
         }
 
         private void OnFileRemoved(T file)
         {
-            StrongReferenceMessenger.Default.Send(new FileRemovedMessage(file));
+            StrongReferenceMessenger.Default.Send(new FileRemovedMessage(file, _parentHost));
         }
     }
 }

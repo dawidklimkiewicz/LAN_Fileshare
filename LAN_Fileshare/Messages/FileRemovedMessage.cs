@@ -5,8 +5,12 @@ namespace LAN_Fileshare.Messages
 {
     public class FileRemovedMessage : ValueChangedMessage<IFile>
     {
-        public FileRemovedMessage(IFile value) : base(value)
+        public IFile File { get; }
+        public Host Host { get; }
+        public FileRemovedMessage(IFile value, Host host) : base(value)
         {
+            File = value;
+            Host = host;
         }
     }
 }

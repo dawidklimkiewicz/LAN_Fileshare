@@ -19,7 +19,7 @@
         Padding="10,5"
         Background="{DynamicResource HostsSidebarBackgroundColor}"
         BorderBrush="{DynamicResource HostsSidebarSeparatorColor}"
-        BorderThickness="0,1,0,0">
+        BorderThickness="0,1,1,0">
         <Grid RowDefinitions="*, *">
             <Grid Grid.Row="0" ColumnDefinitions="2*,*">
                 <TextBlock

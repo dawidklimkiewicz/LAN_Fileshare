@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace LAN_Fileshare.ViewModels
 {
-    public partial class FileListingViewModel : ObservableObject, IRecipient<SelectedHostChangedMessage>, IRecipient<FileAddedMessage>, IDisposable
+    public partial class FileListingViewModel : ObservableObject, IRecipient<SelectedHostChangedMessage>, IRecipient<FileAddedMessage>, IRecipient<FileRemovedMessage>, IDisposable
     {
         private readonly AppStateStore _appStateStore;
         private readonly FileDialogService _fileDialogService;
@@ -31,6 +31,7 @@ namespace LAN_Fileshare.ViewModels
 
             StrongReferenceMessenger.Default.Register<SelectedHostChangedMessage>(this);
             StrongReferenceMessenger.Default.Register<FileAddedMessage>(this);
+            StrongReferenceMessenger.Default.Register<FileRemovedMessage>(this);
         }
 
         private void GetFileViewModels()
@@ -87,15 +88,35 @@ namespace LAN_Fileshare.ViewModels
 
         public void Receive(FileAddedMessage message)
         {
-            if (message.File is FileUpload)
+            if (SelectedHost == null) return;
+
+            if (message.File is FileUpload && SelectedHost.PhysicalAddress.Equals(message.Host.PhysicalAddress))
             {
                 FileUploadItemViewModel viewModel = new FileUploadItemViewModel((FileUpload)message.File, this, _appStateStore);
                 FileUploadList.Add(viewModel);
             }
-            else if (message.File is FileDownload)
+            else if (message.File is FileDownload && SelectedHost.PhysicalAddress.Equals(message.Host.PhysicalAddress))
             {
                 FileDownloadItemViewModel viewModel = new FileDownloadItemViewModel((FileDownload)message.File, this, _appStateStore);
                 FileDownloadList.Add(viewModel);
+            }
+        }
+
+        public void Receive(FileRemovedMessage message)
+        {
+            if (SelectedHost == null) return;
+
+            if (message.File is FileUpload && SelectedHost.PhysicalAddress.Equals(message.Host.PhysicalAddress))
+            {
+                FileUploadItemViewModel? viewModel = FileUploadList.FirstOrDefault(file => file.Id.Equals(message.File.Id));
+                if (viewModel == null) return;
+                FileUploadList.Remove(viewModel);
+            }
+            else if (message.File is FileDownload && SelectedHost.PhysicalAddress.Equals(message.Host.PhysicalAddress))
+            {
+                FileDownloadItemViewModel? viewModel = FileDownloadList.FirstOrDefault(file => file.Id.Equals(message.File.Id));
+                if (viewModel == null) return;
+                FileDownloadList.Remove(viewModel);
             }
         }
 
@@ -103,6 +124,7 @@ namespace LAN_Fileshare.ViewModels
         {
             StrongReferenceMessenger.Default.Unregister<SelectedHostChangedMessage>(this);
             StrongReferenceMessenger.Default.Unregister<FileAddedMessage>(this);
+            StrongReferenceMessenger.Default.Unregister<FileRemovedMessage>(this);
         }
     }
 }
