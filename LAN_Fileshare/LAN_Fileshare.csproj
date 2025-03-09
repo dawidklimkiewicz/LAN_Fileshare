@@ -26,6 +26,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\FileDownloadItemView.axaml.cs">
+      <DependentUpon>FileDownloadItemView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\FileListingView.axaml.cs">
+      <DependentUpon>FileListingView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\FileUploadItemView.axaml.cs">
+      <DependentUpon>FileUploadItemView.axaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\HostListingView.axaml.cs">
       <DependentUpon>HostListingView.axaml</DependentUpon>
     </Compile>

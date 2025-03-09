@@ -11,11 +11,26 @@ namespace LAN_Fileshare.ViewModels
     public class HostListingViewModel : ViewModelBase, IRecipient<HostAddedMessage>, IRecipient<HostRemovedMessage>, IDisposable
     {
         private readonly ObservableCollection<HostListingItemViewModel> _hostListingItemViewModels;
+        private readonly AppStateStore _appStateStore;
+
         public IEnumerable<HostListingItemViewModel> HostListingItemViewModels => _hostListingItemViewModels;
         public bool IsAnyHostAvailable => _hostListingItemViewModels != null ? _hostListingItemViewModels.Count > 0 : false;
+        private HostListingItemViewModel _selectedHostListingItemViewModel = null!;
+        public HostListingItemViewModel SelectedHostListingItemViewModel
+        {
+            get => _selectedHostListingItemViewModel;
+            set
+            {
+                _selectedHostListingItemViewModel = value;
+                _appStateStore.SelectedHost = value?.Host;
+                OnPropertyChanged(nameof(SelectedHostListingItemViewModel));
+                StrongReferenceMessenger.Default.Send(new SelectedHostChangedMessage(value!));
+            }
+        }
 
         public HostListingViewModel(AppStateStore appStateStore)
         {
+            _appStateStore = appStateStore;
             _hostListingItemViewModels = new();
 
             StrongReferenceMessenger.Default.Register<HostAddedMessage>(this);
