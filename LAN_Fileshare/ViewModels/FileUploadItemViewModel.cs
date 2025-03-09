@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using LAN_Fileshare.Messages;
 using LAN_Fileshare.Models;
 using LAN_Fileshare.Services;
 using LAN_Fileshare.Stores;
@@ -9,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace LAN_Fileshare.ViewModels
 {
-    public partial class FileUploadItemViewModel : ObservableObject
+    public partial class FileUploadItemViewModel : ObservableObject, IRecipient<BytesTransmittedChangedMessage>, IDisposable
     {
         private readonly FileListingViewModel _parentViewModel;
         private readonly AppStateStore _appStateStore;
@@ -44,6 +46,8 @@ namespace LAN_Fileshare.ViewModels
             Size = file.Size;
             FileState = file.FileState;
             BytesTransmitted = file.BytesTransmitted;
+
+            StrongReferenceMessenger.Default.Register<BytesTransmittedChangedMessage>(this);
         }
 
         [RelayCommand]
@@ -88,6 +92,19 @@ namespace LAN_Fileshare.ViewModels
             _lastBytesUpdateTime = DateTime.Now;
 
             return transmittedSinceLastUpdate / secondsElapsed;
+        }
+
+        public void Receive(BytesTransmittedChangedMessage message)
+        {
+            if (message.File is FileUpload && message.File.Id == Id)
+            {
+                BytesTransmitted = message.Value;
+            }
+        }
+
+        public void Dispose()
+        {
+            StrongReferenceMessenger.Default.Unregister<BytesTransmittedChangedMessage>(this);
         }
     }
 }

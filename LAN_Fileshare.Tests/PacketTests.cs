@@ -63,41 +63,53 @@ namespace LAN_Fileshare.Tests
         }
 
         [Test]
-        public async Task RemoveFile_CorrectlyReadsPacket()
+        public async Task CreateAndReadRemoveFilePacket_Match_True()
         {
-            IPAddress expectedSenderIp = IPAddress.Parse("192.168.1.10");
-            Guid expectedFileId = Guid.NewGuid();
+            IPAddress senderIP = IPAddress.Parse("192.168.100.1");
+            Guid fileId = Guid.NewGuid();
 
-            byte[] senderIpBytes = expectedSenderIp.GetAddressBytes();
-            byte[] fileIdBytes = expectedFileId.ToByteArray();
-            byte[] packet = senderIpBytes.Concat(fileIdBytes).ToArray();
+            byte[] packet = PacketService.Create.RemoveFile(senderIP, fileId);
 
-            using TcpListener listener = new(IPAddress.Loopback, 53778);
-            listener.Start();
-
-            Task serverTask = Task.Run(async () =>
+            await TestPacketTransmission(packet, PacketService.Read.RemoveFile, receivedPacket =>
             {
-                using TcpClient server = await listener.AcceptTcpClientAsync();
-                using NetworkStream serverStream = server.GetStream();
-
-                var (senderIp, fileId) = PacketService.Read.RemoveFile(serverStream);
-
-                Assert.That(senderIp, Is.EqualTo(expectedSenderIp));
-                Assert.That(fileId, Is.EqualTo(expectedFileId));
+                Assert.That(receivedPacket.senderIP, Is.EqualTo(senderIP));
+                Assert.That(receivedPacket.fileId, Is.EqualTo(fileId));
             });
-
-            Task clientTask = Task.Run(async () =>
-            {
-                using TcpClient client = new();
-                await client.ConnectAsync(IPAddress.Loopback, 53778);
-                using NetworkStream clientStream = client.GetStream();
-
-                await clientStream.WriteAsync(packet, 0, packet.Length);
-                await clientStream.FlushAsync();
-            });
-
-            await Task.WhenAll(clientTask, serverTask);
         }
+
+        [Test]
+        public async Task CreateAndReadFileRequestPacket_Match_True()
+        {
+            IPAddress senderIP = IPAddress.Parse("192.168.100.1");
+            int listenerPort = 12345;
+            Guid fileId = Guid.NewGuid();
+            long startingByte = 23908572;
+
+            byte[] packet = PacketService.Create.FileRequest(senderIP, listenerPort, fileId, startingByte);
+
+            await TestPacketTransmission(packet, PacketService.Read.FileRequest, receivedPacket =>
+            {
+                Assert.That(receivedPacket.senderIP, Is.EqualTo(senderIP));
+                Assert.That(receivedPacket.listenerPort, Is.EqualTo(listenerPort));
+                Assert.That(receivedPacket.fileId, Is.EqualTo(fileId));
+                Assert.That(receivedPacket.startingByte, Is.EqualTo(startingByte));
+            });
+        }
+
+        [Test]
+        public async Task CreateAndReadFileDataPacket_Match_True()
+        {
+            byte[] data = [1, 2, 1, 1, 5, 1, 3, 5, 6, 7, 1, 3, 4, 1, 3];
+            long dataLength = data.Length;
+
+            byte[] packet = PacketService.Create.FileData(data);
+
+            await TestPacketTransmission(packet, PacketService.Read.FileData, receivedPacket =>
+            {
+                Assert.That(receivedPacket, Is.EqualTo(data));
+            });
+        }
+
 
         // Checks if sent and received packets match
         private async Task TestPacketTransmission<T>(byte[] packetToSend, Func<NetworkStream, T> packetReader, Action<T> assertPacket)

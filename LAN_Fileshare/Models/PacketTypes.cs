@@ -10,6 +10,10 @@
             HostInfoReply,
             FileInformation,
             RemoveFile,
+            FileRequest,
+            FileData,
+            StopFileTransmission,
+            FileDataAck,
         }
     }
 }
