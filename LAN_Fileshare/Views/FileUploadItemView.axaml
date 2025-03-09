@@ -36,28 +36,37 @@
                     <Button
                         Width="30"
                         Height="30"
+                        Margin="0,0,5,0"
+                        Command="{Binding RemoveFileCommand}"
+                        CommandParameter="{Binding Id}"
+                        IsVisible="{Binding IsPaused}"
                         ToolTip.Tip="Remove" />
                 </StackPanel>
             </Grid>
             <Grid Grid.Row="1" ColumnDefinitions="auto, auto, auto, auto">
-                <StackPanel
-                    Grid.Column="0"
-                    VerticalAlignment="Center"
-                    Orientation="Horizontal">
-                    <TextBlock FontSize="12" Text="{Binding BytesTransmitted, Converter={StaticResource SizeToString}}" />
-                    <TextBlock FontSize="12" Text=" / " />
-                    <TextBlock FontSize="12" Text="{Binding Size, Converter={StaticResource SizeToString}}" />
-                </StackPanel>
                 <ProgressBar
-                    Grid.Column="1"
+                    Grid.Column="0"
                     Height="12"
-                    Margin="20,0"
                     VerticalAlignment="Center"
                     FontSize="11"
                     Maximum="100"
                     Minimum="0"
                     ShowProgressText="True"
                     Value="{Binding Progress}" />
+                <StackPanel
+                    Grid.Column="1"
+                    Margin="20,0,0,0"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal">
+                    <TextBlock FontSize="12" Text="{Binding BytesTransmitted, Converter={StaticResource SizeToString}}" />
+                    <TextBlock FontSize="12" Text=" / " />
+                    <TextBlock FontSize="12" Text="{Binding Size, Converter={StaticResource SizeToString}}" />
+                    <TextBlock
+                        Margin="7,0"
+                        FontSize="12"
+                        IsVisible="{Binding IsTransmitting}"
+                        Text="|" />
+                </StackPanel>
                 <StackPanel
                     Grid.Column="2"
                     VerticalAlignment="Center"

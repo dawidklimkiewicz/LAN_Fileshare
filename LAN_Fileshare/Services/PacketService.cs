@@ -143,10 +143,12 @@ namespace LAN_Fileshare.Services
                 return (ip, physicalAddress, username);
             }
 
-            public static List<FileDownload> FileInformation(NetworkStream networkStream)
+            public static (IPAddress senderIP, List<FileDownload> files) FileInformation(NetworkStream networkStream)
             {
                 byte[] fileCountBuffer = new byte[4];
+                byte[] senderAddressBuffer = new byte[4];
 
+                networkStream.ReadExactly(senderAddressBuffer, 0, 4);
                 networkStream.ReadExactly(fileCountBuffer);
                 int fileCount = BitConverter.ToInt32(fileCountBuffer);
 
@@ -172,17 +174,18 @@ namespace LAN_Fileshare.Services
 
                     receivedFiles.Add(new FileDownload(id, fileName, size));
                 }
-                return receivedFiles;
+                return (new IPAddress(senderAddressBuffer), receivedFiles);
             }
 
-            public Guid RemoveFile(NetworkStream networkStream)
+            public static (IPAddress senderIP, Guid fileId) RemoveFile(NetworkStream networkStream)
             {
                 byte[] fileIdBuffer = new byte[16];
+                byte[] senderAddressBuffer = new byte[4];
 
-                networkStream.Read(fileIdBuffer, 0, fileIdBuffer.Length);
-                Guid id = new(fileIdBuffer);
+                networkStream.ReadExactly(senderAddressBuffer, 0, 4);
+                networkStream.ReadExactly(fileIdBuffer);
+                return (new IPAddress(senderAddressBuffer), new Guid(fileIdBuffer));
 
-                return id;
             }
         }
     }

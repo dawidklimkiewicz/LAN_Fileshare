@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using LAN_Fileshare.Messages;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LAN_Fileshare.Models
 {
@@ -14,6 +16,14 @@ namespace LAN_Fileshare.Models
             lock (_lock)
             {
                 return _items.AsReadOnly();
+            }
+        }
+
+        public T? Get(Guid id)
+        {
+            lock (_lock)
+            {
+                return _items.FirstOrDefault(file => file.Id.Equals(id));
             }
         }
 

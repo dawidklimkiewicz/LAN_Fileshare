@@ -1,4 +1,5 @@
-﻿using LAN_Fileshare.Stores;
+﻿using LAN_Fileshare.Models;
+using LAN_Fileshare.Stores;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -100,6 +101,8 @@ namespace LAN_Fileshare.Services
 
         public void StartPingingPeriodically()
         {
+            if (_pingPeriodicallyCancellationToken != null) return; // prevents multiple runs
+
             _pingPeriodicallyCancellationToken = new();
             _ = Task.Run(() => PingPeriodically());
         }
@@ -107,17 +110,20 @@ namespace LAN_Fileshare.Services
         public void StopPingingPeriodically()
         {
             _pingPeriodicallyCancellationToken.Cancel();
+            _pingPeriodicallyCancellationToken = null!;
         }
 
         private async Task PingPeriodically()
         {
             while (!_pingPeriodicallyCancellationToken.Token.IsCancellationRequested)
             {
-                await PingNetwork();
-                await Task.Delay(TimeSpan.FromSeconds(10));
+                await PingNetwork().ConfigureAwait(false);
+                await Task.Delay(TimeSpan.FromSeconds(10), _pingPeriodicallyCancellationToken.Token);
             }
         }
 
+
+        // TODO Create a method that sends a packet - DRY
         private async Task TryConnection(IPAddress ip, int port)
         {
             try
@@ -137,6 +143,54 @@ namespace LAN_Fileshare.Services
             }
             catch (SocketException) { }
             catch (Exception) { }
+        }
+
+        // TODO Create a method that sends a packet - DRY
+        public async Task SendFileInformation(List<FileUpload> files, IPAddress receiverIP, int port)
+        {
+            try
+            {
+                using TcpClient tcpClient = new();
+                await tcpClient.ConnectAsync(receiverIP, port);
+                using NetworkStream networkStream = tcpClient.GetStream();
+
+                byte[] packet = PacketService.Create.FileInformation(_appStateStore.IPAddress!, files);
+                byte[] ackBuffer = new byte[1];
+
+                await networkStream.WriteAsync(packet, 0, packet.Length);
+                await networkStream.FlushAsync();
+
+                networkStream.ReadExactly(ackBuffer, 0, ackBuffer.Length);
+                tcpClient.Close();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"Failed to send file information - {ex}");
+            }
+        }
+
+        // TODO Create a method that sends a packet - DRY
+        public async Task SendRemoveFile(Guid fileId, IPAddress receiverIP, int port)
+        {
+            try
+            {
+                using TcpClient tcpClient = new();
+                await tcpClient.ConnectAsync(receiverIP, port);
+                using NetworkStream networkStream = tcpClient.GetStream();
+
+                byte[] packet = PacketService.Create.RemoveFile(_appStateStore.IPAddress!, fileId);
+                byte[] ackBuffer = new byte[1];
+
+                await networkStream.WriteAsync(packet, 0, packet.Length);
+                await networkStream.FlushAsync();
+
+                networkStream.ReadExactly(ackBuffer, 0, ackBuffer.Length);
+                tcpClient.Close();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"Failed to send file information - {ex}");
+            }
         }
 
 

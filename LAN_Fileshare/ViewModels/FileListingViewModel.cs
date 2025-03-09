@@ -8,6 +8,7 @@ using LAN_Fileshare.Stores;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -41,12 +42,12 @@ namespace LAN_Fileshare.ViewModels
             {
                 foreach (FileUpload file in SelectedHost.FileUploadList.GetAll())
                 {
-                    FileUploadList.Add(new FileUploadItemViewModel(file));
+                    FileUploadList.Add(new FileUploadItemViewModel(file, this, _appStateStore));
                 }
 
                 foreach (FileDownload file in SelectedHost.FileDownloadList.GetAll())
                 {
-                    FileDownloadList.Add(new FileDownloadItemViewModel(file));
+                    FileDownloadList.Add(new FileDownloadItemViewModel(file, this, _appStateStore));
                 }
             }
         }
@@ -56,10 +57,24 @@ namespace LAN_Fileshare.ViewModels
         {
             string[]? files = await _fileDialogService.OpenFileDialogAsync();
 
-            if (files != null && SelectedHost != null)
+            if (SelectedHost != null && files != null)
             {
-                IEnumerable<FileUpload> newFiles = files.Select(file => new FileUpload(file));
-                SelectedHost.FileUploadList.AddRange(newFiles);
+                if (files.Length == 0 || files.Length > 100) return;
+                List<FileUpload> filesList = new();
+
+                foreach (string path in files)
+                {
+                    if (SelectedHost.FileUploadList.GetAll().Any(f => f.Path == path) || new FileInfo(path).Length == 0) continue;
+                    else
+                    {
+                        FileUpload newFile = new(path);
+                        filesList.Add(newFile);
+                    }
+                }
+                SelectedHost.FileUploadList.AddRange(filesList);
+
+                NetworkService networkService = new(_appStateStore);
+                await networkService.SendFileInformation(filesList, SelectedHost.IPAddress, _appStateStore.PacketListenerPort);
             }
         }
 
@@ -74,12 +89,12 @@ namespace LAN_Fileshare.ViewModels
         {
             if (message.File is FileUpload)
             {
-                FileUploadItemViewModel viewModel = new FileUploadItemViewModel((FileUpload)message.File);
+                FileUploadItemViewModel viewModel = new FileUploadItemViewModel((FileUpload)message.File, this, _appStateStore);
                 FileUploadList.Add(viewModel);
             }
             else if (message.File is FileDownload)
             {
-                FileDownloadItemViewModel viewModel = new FileDownloadItemViewModel((FileDownload)message.File);
+                FileDownloadItemViewModel viewModel = new FileDownloadItemViewModel((FileDownload)message.File, this, _appStateStore);
                 FileDownloadList.Add(viewModel);
             }
         }

@@ -39,33 +39,43 @@
                 Grid.Column="1"
                 Width="30"
                 Height="30"
-                Margin="0,0,10,0"
+                Margin="0,0,15,0"
                 HorizontalAlignment="Right"
                 Command="{Binding OpenFileDialogCommand}" />
         </Grid>
 
-        <ListBox
+        <ScrollViewer
             Grid.Row="1"
             Grid.Column="0"
             Background="Transparent"
-            BorderBrush="{DynamicResource HostsSidebarSeparatorColor}"
-            BorderThickness="0,0,1,0" />
+            BorderThickness="0,0,1,0">
+            <ItemsControl ItemsSource="{Binding FileDownloadList}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="vm:FileDownloadItemViewModel">
+                        <view:FileDownloadItemView />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
 
-        <ItemsControl
-            x:Name="FileUploadsListBox"
+
+        <ScrollViewer
             Grid.Row="1"
             Grid.Column="1"
-            Background="Transparent"
-            DragDrop.AllowDrop="True"
-            DragDrop.DragLeave="FileUploadsList_DragLeave"
-            DragDrop.DragOver="FileUploadsList_DragOver"
-            DragDrop.Drop="FileUploadsList_Drop"
-            ItemsSource="{Binding FileUploadList}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="vm:FileUploadItemViewModel">
-                    <view:FileUploadItemView />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+            Background="Transparent">
+            <ItemsControl
+                x:Name="FileUploadsListBox"
+                DragDrop.AllowDrop="True"
+                DragDrop.DragLeave="FileUploadsList_DragLeave"
+                DragDrop.DragOver="FileUploadsList_DragOver"
+                DragDrop.Drop="FileUploadsList_Drop"
+                ItemsSource="{Binding FileUploadList}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="vm:FileUploadItemViewModel">
+                        <view:FileUploadItemView />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </UserControl>
