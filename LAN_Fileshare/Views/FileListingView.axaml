@@ -20,6 +20,7 @@
             Grid.Column="0"
             Padding="10"
             Background="{DynamicResource DarkerBackgroundColor}"
+            FontSize="18"
             Text="Downloads" />
         <Border
             Grid.RowSpan="2"
@@ -34,6 +35,7 @@
             <TextBlock
                 Grid.Column="0"
                 Padding="10"
+                FontSize="18"
                 Text="Uploads" />
             <Button
                 Grid.Column="1"

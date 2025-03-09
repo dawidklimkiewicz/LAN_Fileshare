@@ -25,4 +25,20 @@
         <SolidColorBrush x:Key="SelectedItemColor">#666</SolidColorBrush>
         <SolidColorBrush x:Key="HostListHoverColor">#555</SolidColorBrush>
     </Application.Resources>
+
+    <TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon
+                Clicked="TrayIcon_Clicked"
+                Icon="/Assets/app-logo.ico"
+                ToolTipText="LAN Fileshare">
+                <TrayIcon.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Click="NativeMenuItem_Open" Header="Open" />
+                        <NativeMenuItem Click="NativeMenuItem_Close" Header="Close" />
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
+        </TrayIcons>
+    </TrayIcon.Icons>
 </Application>

@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
@@ -6,6 +7,7 @@ using LAN_Fileshare.Services;
 using LAN_Fileshare.Stores;
 using LAN_Fileshare.ViewModels;
 using LAN_Fileshare.Views;
+using System;
 using System.Linq;
 using System.Net.NetworkInformation;
 
@@ -17,6 +19,7 @@ namespace LAN_Fileshare
         private PacketListenerService _packetListenerService = null!;
         private NetworkService _networkService = null!;
         private HostCheck _hostCheckService = null!;
+        private MainWindow _mainWindow = null!;
 
         public override void Initialize()
         {
@@ -36,9 +39,11 @@ namespace LAN_Fileshare
                 // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
                 // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
                 DisableAvaloniaDataAnnotationValidation();
-                MainWindow mainWindow = new();
-                mainWindow.DataContext = new MainWindowViewModel(_appStateStore, new FileDialogService(mainWindow));
-                desktop.MainWindow = mainWindow;
+                _mainWindow = new();
+                _mainWindow.DataContext = new MainWindowViewModel(_appStateStore, new FileDialogService(_mainWindow));
+                _mainWindow.Closing += _mainWindow_Closing;
+                desktop.MainWindow = _mainWindow;
+                desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             }
 
             _networkService.StartPingingPeriodically();
@@ -47,6 +52,12 @@ namespace LAN_Fileshare
             NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;
 
             base.OnFrameworkInitializationCompleted();
+        }
+
+        private void _mainWindow_Closing(object? sender, WindowClosingEventArgs e)
+        {
+            e.Cancel = true;
+            _mainWindow.Hide();
         }
 
         private void NetworkChange_NetworkAddressChanged(object? sender, System.EventArgs e)
@@ -87,6 +98,19 @@ namespace LAN_Fileshare
             }
         }
 
+        private void NativeMenuItem_Open(object? sender, System.EventArgs e)
+        {
+            _mainWindow.Show();
+        }
 
+        private void NativeMenuItem_Close(object? sender, System.EventArgs e)
+        {
+            Environment.Exit(0);
+        }
+
+        private void TrayIcon_Clicked(object? sender, System.EventArgs e)
+        {
+            _mainWindow.Show();
+        }
     }
 }

@@ -21,7 +21,10 @@
         BorderBrush="{DynamicResource HostsSidebarSeparatorColor}"
         BorderThickness="0,1,1,0">
         <Grid RowDefinitions="*, *">
-            <Grid Grid.Row="0" ColumnDefinitions="2*,*">
+            <Grid
+                Grid.Row="0"
+                Margin="0,0,0,7"
+                ColumnDefinitions="2*,*">
                 <TextBlock
                     Grid.Column="0"
                     Margin="0,2"
