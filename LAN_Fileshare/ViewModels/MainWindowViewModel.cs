@@ -3,11 +3,12 @@ using CommunityToolkit.Mvvm.Messaging;
 using LAN_Fileshare.Messages;
 using LAN_Fileshare.Services;
 using LAN_Fileshare.Stores;
+using System;
 using System.Net;
 
 namespace LAN_Fileshare.ViewModels
 {
-    public partial class MainWindowViewModel : ViewModelBase, IRecipient<NetworkInfoUpdated>
+    public partial class MainWindowViewModel : ViewModelBase, IRecipient<NetworkInfoUpdated>, IDisposable
     {
         private readonly AppStateStore _appStateStore;
         private ViewModelBase currentViewModel;
@@ -31,11 +32,18 @@ namespace LAN_Fileshare.ViewModels
 
             HostListingViewModel = new(appStateStore);
             FileListingViewModel = new(appStateStore, fileDialogService);
+
+            StrongReferenceMessenger.Default.Register<NetworkInfoUpdated>(this);
         }
 
         public void Receive(NetworkInfoUpdated message)
         {
             LocalIPAddress = message.Value.IPAddress;
+        }
+
+        public void Dispose()
+        {
+            StrongReferenceMessenger.Default.Unregister<NetworkInfoUpdated>(this);
         }
     }
 }
