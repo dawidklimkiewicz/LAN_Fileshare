@@ -16,7 +16,7 @@ namespace LAN_Fileshare.Services
     {
         private readonly AppStateStore _appStateStore;
         private TcpListener _packetListener = null!;
-        CancellationTokenSource _packetListenerCancellationToken = null!;
+        CancellationTokenSource? _packetListenerCancellationTokenSource = null!;
 
         public PacketListenerService(AppStateStore appStateStore)
         {
@@ -25,31 +25,51 @@ namespace LAN_Fileshare.Services
 
         public void Start()
         {
-            _packetListenerCancellationToken = new();
+            if (_packetListener != null) Stop(); // prevents multiple runs
+
+            _packetListenerCancellationTokenSource = new();
             _packetListener = new(IPAddress.Any, _appStateStore.PacketListenerPort);
-            _ = Task.Run(() => StartListener());
+            _packetListener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+
+            _ = Task.Run(() => StartListener(_packetListenerCancellationTokenSource.Token));
         }
 
-        public async Task StartListener()
+        public async Task StartListener(CancellationToken token)
         {
             try
             {
                 _packetListener.Start();
 
-                while (!_packetListenerCancellationToken.Token.IsCancellationRequested)
+                while (!token.IsCancellationRequested)
                 {
+                    if (_packetListener == null || _packetListener.Server?.IsBound == false)
+                    {
+                        Start();
+                        return;
+                    }
+
                     Trace.WriteLine("WAITING FOR CONNECTION");
+                    try
+                    {
+                        TcpClient tcpClient = await _packetListener.AcceptTcpClientAsync(token);
+                        Trace.WriteLine("ACCEPTED CLIENT");
 
-                    TcpClient tcpClient = await _packetListener.AcceptTcpClientAsync(_packetListenerCancellationToken.Token);
-                    Trace.WriteLine("ACCEPTED CLIENT");
-
-                    _ = Task.Run(() => HandleClientAsync(tcpClient));
+                        _ = Task.Run(() => HandleClientAsync(tcpClient));
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        Trace.WriteLine("Listener stopped.");
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine($"Error accepting client: {ex}");
+                    }
                 }
             }
-
             catch (Exception ex)
             {
-                Trace.WriteLine(ex);
+                Trace.WriteLine($"Listener error: {ex}");
             }
         }
 
@@ -231,10 +251,17 @@ namespace LAN_Fileshare.Services
 
         public void Stop()
         {
-            _packetListenerCancellationToken.Cancel();
-            _packetListener.Stop();
-            _packetListener.Server.Close();
-            _packetListener.Server.Dispose();
+            if (_packetListenerCancellationTokenSource != null && !_packetListenerCancellationTokenSource.IsCancellationRequested)
+            {
+                _packetListenerCancellationTokenSource.Cancel();
+                _packetListenerCancellationTokenSource = null;
+            }
+
+            if (_packetListener != null)
+            {
+                _packetListener.Stop();
+                _packetListener = null!;
+            }
         }
     }
 }

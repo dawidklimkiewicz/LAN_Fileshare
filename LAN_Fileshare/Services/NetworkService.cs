@@ -14,7 +14,7 @@ namespace LAN_Fileshare.Services
 {
     public class NetworkService
     {
-        private CancellationTokenSource _pingPeriodicallyCancellationToken = null!;
+        private CancellationTokenSource? _pingPeriodicallyCancellationTokenSource = null!;
         private readonly AppStateStore _appStateStore;
 
         public NetworkService(AppStateStore appStateStore)
@@ -63,7 +63,9 @@ namespace LAN_Fileshare.Services
                         && x?.NetworkInterfaceType != NetworkInterfaceType.Tunnel
                         && x?.OperationalStatus == OperationalStatus.Up
                         && !x.Name.Contains("vEthernet")
-                        && !x.Description.Contains("VirtualBox"), null);
+                        && !x.Description.Contains("VirtualBox")
+                        && x.Speed > 0
+                        && !x.IsReceiveOnly, null);
         }
 
         /// <summary>
@@ -101,25 +103,35 @@ namespace LAN_Fileshare.Services
 
         public void StartPingingPeriodically()
         {
-            if (_pingPeriodicallyCancellationToken != null) return; // prevents multiple runs
+            if (_pingPeriodicallyCancellationTokenSource != null && !_pingPeriodicallyCancellationTokenSource.IsCancellationRequested) return; // prevents multiple runs
 
-            _pingPeriodicallyCancellationToken = new();
-            _ = Task.Run(() => PingPeriodically());
+            Trace.WriteLine($"STARTED PINGING");
+            _pingPeriodicallyCancellationTokenSource = new();
+            _ = Task.Run(() => PingPeriodically(_pingPeriodicallyCancellationTokenSource.Token));
         }
 
         public void StopPingingPeriodically()
         {
-            _pingPeriodicallyCancellationToken.Cancel();
-            _pingPeriodicallyCancellationToken = null!;
+            if (_pingPeriodicallyCancellationTokenSource == null) return;
+
+            _pingPeriodicallyCancellationTokenSource.Cancel();
+            _pingPeriodicallyCancellationTokenSource.Dispose();
+            _pingPeriodicallyCancellationTokenSource = null;
+
+            Trace.WriteLine($"STOPPED PINGING");
         }
 
-        private async Task PingPeriodically()
+        private async Task PingPeriodically(CancellationToken token)
         {
-            while (!_pingPeriodicallyCancellationToken.Token.IsCancellationRequested)
+            try
             {
-                await PingNetwork().ConfigureAwait(false);
-                await Task.Delay(TimeSpan.FromSeconds(10), _pingPeriodicallyCancellationToken.Token);
+                while (!token.IsCancellationRequested)
+                {
+                    await PingNetwork().ConfigureAwait(false);
+                    await Task.Delay(TimeSpan.FromSeconds(10), token);
+                }
             }
+            catch { }
         }
 
         private async Task TryConnection(IPAddress ip, int port)

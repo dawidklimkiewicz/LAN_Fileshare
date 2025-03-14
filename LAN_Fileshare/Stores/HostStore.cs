@@ -56,9 +56,16 @@ namespace LAN_Fileshare.Stores
 
         public void RemoveAllHosts()
         {
+            List<Host> removedHosts = new();
             lock (HostListLock)
             {
+                removedHosts = _hosts.ToList();
                 _hosts.Clear();
+            }
+
+            foreach (Host host in removedHosts)
+            {
+                OnHostRemoved(host);
             }
         }
 
@@ -66,7 +73,7 @@ namespace LAN_Fileshare.Stores
         {
             lock (HostListLock)
             {
-                return _hosts.AsReadOnly();
+                return _hosts.ToList();
             }
         }
 
