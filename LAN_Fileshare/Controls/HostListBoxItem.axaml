@@ -1,0 +1,85 @@
+<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:LAN_Fileshare.Controls"
+    x:ClassModifier="internal">
+    <Design.PreviewWith>
+        <Border Padding="0">
+            <ListBox
+                Width="240"
+                Height="200"
+                Padding="10,0,20,0"
+                Background="Red">
+                <c:HostListBoxItem HostIp="192.168.100.100" Hostname="TestTesTfsdfsdfdfsdfsd" />
+                <c:HostListBoxItem HostIp="192.168.100.100" Hostname="Test" />
+                <c:HostListBoxItem HostIp="192.168.100.100" Hostname="Test" />
+                <c:HostListBoxItem HostIp="192.168.100.100" Hostname="Test" />
+                <c:HostListBoxItem HostIp="192.168.100.100" Hostname="Test" />
+                <c:HostListBoxItem HostIp="192.168.100.100" Hostname="Test" />
+                <c:HostListBoxItem HostIp="192.168.100.100" Hostname="Test" />
+            </ListBox>
+        </Border>
+    </Design.PreviewWith>
+
+    <ControlTheme x:Key="{x:Type c:HostListBoxItem}" TargetType="c:HostListBoxItem">
+        <Setter Property="Template">
+            <ControlTemplate TargetType="c:HostListBoxItem">
+                <Border
+                    x:Name="HostItemBorder"
+                    Margin="0,0,0,3"
+                    Padding="10"
+                    Background="{StaticResource HostItemBackground}"
+                    BorderBrush="Transparent"
+                    BorderThickness="1"
+                    CornerRadius="10">
+                    <ContentPresenter
+                        Name="PART_ContentPresenter"
+                        HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Content="{TemplateBinding Content}"
+                        CornerRadius="{TemplateBinding CornerRadius}">
+                        <ContentPresenter.ContentTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock
+                                        FontSize="20"
+                                        Foreground="{DynamicResource PrimaryTextColor}"
+                                        Text="{Binding $parent[c:HostListBoxItem].Hostname}"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <TextBlock
+                                        FontSize="15"
+                                        Foreground="{DynamicResource SecondaryTextColor}"
+                                        Text="{Binding $parent[c:HostListBoxItem].HostIp}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ContentPresenter.ContentTemplate>
+                    </ContentPresenter>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+
+        <!--  PointerOver State  -->
+        <Style Selector="^:pointerover /template/ Border#HostItemBorder">
+            <Setter Property="Background" Value="{DynamicResource HostItemBackgroundSelected}" />
+        </Style>
+
+        <Style Selector="^:selected /template/ Border#HostItemBorder">
+            <Setter Property="Background" Value="{DynamicResource HostItemBackgroundSelected}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryTextColor}" />
+        </Style>
+
+        <!--<Style Selector="^c|HostListBoxItem:pointerover /template/ Border#HostItemBorder">
+            <Setter Property="Background" Value="{DynamicResource HostItemBackgroundSelected}" />
+        </Style>
+
+        <Style Selector="^c|HostListBox:selected /template/ Border#HostItemBorder">
+            <Setter Property="Background" Value="{DynamicResource HostItemBackgroundSelected}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryTextColor}" />
+        </Style>-->
+    </ControlTheme>
+</ResourceDictionary>

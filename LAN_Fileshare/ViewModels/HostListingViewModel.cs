@@ -10,7 +10,7 @@ namespace LAN_Fileshare.ViewModels
 {
     public class HostListingViewModel : ViewModelBase, IRecipient<HostAddedMessage>, IRecipient<HostRemovedMessage>, IDisposable
     {
-        private readonly ObservableCollection<HostListingItemViewModel> _hostListingItemViewModels;
+        protected readonly ObservableCollection<HostListingItemViewModel> _hostListingItemViewModels;
         private readonly AppStateStore _appStateStore;
 
         public IEnumerable<HostListingItemViewModel> HostListingItemViewModels => _hostListingItemViewModels;

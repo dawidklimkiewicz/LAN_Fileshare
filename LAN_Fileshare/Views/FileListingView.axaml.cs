@@ -11,7 +11,7 @@ public partial class FileListingView : UserControl
     public FileListingView()
     {
         InitializeComponent();
-        dragOverBrush = (IBrush?)Application.Current?.FindResource("HostsSidebarSeparatorColor");
+        dragOverBrush = (IBrush?)Application.Current?.FindResource("DragHoverBackgroundColor");
     }
 
     private void FileUploadsList_DragOver(object sender, DragEventArgs e)

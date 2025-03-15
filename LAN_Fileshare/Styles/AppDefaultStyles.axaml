@@ -1,10 +1,48 @@
-<Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <Design.PreviewWith>
-    <Border Padding="20">
-      <!-- Add Controls for Previewer Here -->
-    </Border>
-  </Design.PreviewWith>
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <ListBox
+            Width="240"
+            Height="200"
+            Classes="HostListBox">
+            <ListBoxItem Classes="HostListBox">Test</ListBoxItem>
+            <ListBoxItem Classes="HostListBox">Test</ListBoxItem>
+            <ListBoxItem Classes="HostListBox">Test</ListBoxItem>
+            <ListBoxItem Classes="HostListBox">Test</ListBoxItem>
+            <ListBoxItem Classes="HostListBox">Test</ListBoxItem>
+            <ListBoxItem Classes="HostListBox">Test</ListBoxItem>
+            <ListBoxItem Classes="HostListBox">Test</ListBoxItem>
+        </ListBox>
+    </Design.PreviewWith>
 
-  <!-- Add Styles Here -->
+    <!--<Style Selector="ListBoxItem.HostListBox">
+        <Setter Property="Background" Value="{DynamicResource HostItemBackground}" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Margin" Value="0,0,0,3" />
+    </Style>
+
+    <Style Selector="ListBoxItem.HostListBox:pointerover">
+        <Setter Property="Background" Value="{DynamicResource HostItemBackgroundSelected}" />
+    </Style>
+
+    <Style Selector="ListBoxItem.HostListBox:selected">
+        <Setter Property="Background" Value="{DynamicResource HostItemBackgroundSelected}" />
+    </Style>-->
+
+    <!--<Style Selector="ListBox.HostListBox">
+        <Setter Property="Padding" Value="10,0,20,0" />
+    </Style>
+
+	<Style Selector="ListBox ListBoxItem">
+		<Setter Property="Background" Value="{DynamicResource HostItemBackground}" />
+		<Setter Property="CornerRadius" Value="10" />
+		<Setter Property="Margin" Value="0,0,0,3" />
+	</Style>
+
+	<Style Selector="ListBox ListBoxItem:pointerover">
+		<Setter Property="Background" Value="{DynamicResource HostItemBackgroundSelected}" />
+	</Style>
+
+	<Style Selector="ListBox ListBoxItem:selected">
+		<Setter Property="Background" Value="{DynamicResource HostItemBackgroundSelected}" />
+	</Style>-->
 </Styles>

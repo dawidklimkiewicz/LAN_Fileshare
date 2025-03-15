@@ -17,7 +17,7 @@
     Icon="/Assets/app-logo.ico"
     mc:Ignorable="d">
 
-    <Grid ColumnDefinitions="210,*">
+    <Grid ColumnDefinitions="240,*">
         <views:HostListingView />
 
         <Grid

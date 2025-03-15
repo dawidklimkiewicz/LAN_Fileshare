@@ -12,15 +12,26 @@
 
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="/Styles/AppDefaultStyles.axaml" />
     </Application.Styles>
 
     <Application.Resources>
-        <SolidColorBrush x:Key="HostsSidebarBackgroundColor">#1f1f1f</SolidColorBrush>
+
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="/Controls/HostListBoxItem.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+
+        <SolidColorBrush x:Key="PrimaryBackgroundColor">#efefef</SolidColorBrush>
+        <SolidColorBrush x:Key="SecondaryBackgroundColor">#242429</SolidColorBrush>
+        <SolidColorBrush x:Key="PrimaryTextColor">#FFF</SolidColorBrush>
+        <SolidColorBrush x:Key="SecondaryTextColor">#D6D6D6</SolidColorBrush>
+        <SolidColorBrush x:Key="HostItemBackground">#2f2f37</SolidColorBrush>
+        <SolidColorBrush x:Key="HostItemBackgroundSelected">#545463</SolidColorBrush>
+
         <SolidColorBrush x:Key="DarkerBackgroundColor">#1a1a1a</SolidColorBrush>
         <SolidColorBrush x:Key="DragHoverBackgroundColor">#2f2f2f</SolidColorBrush>
-        <SolidColorBrush x:Key="HostsSidebarSeparatorColor">#4f4e4e</SolidColorBrush>
-        <SolidColorBrush x:Key="PrimaryTextColor">#eee</SolidColorBrush>
-        <SolidColorBrush x:Key="SecondaryTextColor">#ddd</SolidColorBrush>
         <SolidColorBrush x:Key="ListItemBackgroundColor">#444</SolidColorBrush>
         <SolidColorBrush x:Key="SelectedItemColor">#666</SolidColorBrush>
         <SolidColorBrush x:Key="HostListHoverColor">#555</SolidColorBrush>
