@@ -56,8 +56,18 @@ namespace LAN_Fileshare.ViewModels
         [RelayCommand]
         private async Task OpenFileDialog()
         {
-            string[]? files = await _fileDialogService.OpenFileDialogAsync();
+            string[]? filePaths = await _fileDialogService.OpenFileDialogAsync();
+            await UploadFiles(filePaths);
+        }
 
+        [RelayCommand]
+        private async Task DropFiles(string[]? filePaths)
+        {
+            await UploadFiles(filePaths);
+        }
+
+        private async Task UploadFiles(string[]? files)
+        {
             if (SelectedHost != null && files != null)
             {
                 if (files.Length == 0 || files.Length > 100) return;

@@ -1,0 +1,73 @@
+<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:LAN_Fileshare.Controls"
+    x:ClassModifier="internal">
+    <Design.PreviewWith>
+        <Border Width="400">
+            <c:FileTabControl>
+                <TabItem Header="Arch">
+                    <Border Height="100" Background="White">
+                        <TextBlock
+                            FontSize="20"
+                            Foreground="Black"
+                            Text="Content" />
+                    </Border>
+                </TabItem>
+                <TabItem Header="Leaf">
+                    <Border Height="100" Background="White" />
+                </TabItem>
+            </c:FileTabControl>
+        </Border>
+    </Design.PreviewWith>
+
+    <Thickness x:Key="TabControlTopPlacementItemMargin">0 0 0 2</Thickness>
+
+    <ControlTheme x:Key="{x:Type c:FileTabControl}" TargetType="c:FileTabControl">
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="Padding" Value="{DynamicResource TabItemMargin}" />
+        <Setter Property="Background" Value="{DynamicResource DarkerBackgroundColor}" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border
+                    HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                    VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}">
+
+                    <Grid RowDefinitions="auto, auto">
+                        <Grid ColumnDefinitions="auto, *">
+                            <ItemsPresenter
+                                Name="PART_ItemsPresenter"
+                                Grid.Column="0"
+                                Width="150"
+                                HorizontalAlignment="Left"
+                                ItemsPanel="{TemplateBinding ItemsPanel}" />
+                            <TextBox
+                                Grid.Column="1"
+                                Width="250"
+                                Margin="20,7,0,7"
+                                HorizontalAlignment="Left"
+                                VerticalContentAlignment="Center"
+                                CornerRadius="7"
+                                FontSize="16" />
+                        </Grid>
+                        <ContentPresenter
+                            Name="PART_SelectedContentHost"
+                            Grid.Row="1"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Content="{TemplateBinding SelectedContent}"
+                            ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        <Style Selector="^[TabStripPlacement=Top] /template/ ItemsPresenter#PART_ItemsPresenter">
+            <Setter Property="Margin" Value="{DynamicResource TabControlTopPlacementItemMargin}" />
+        </Style>
+
+    </ControlTheme>
+</ResourceDictionary>

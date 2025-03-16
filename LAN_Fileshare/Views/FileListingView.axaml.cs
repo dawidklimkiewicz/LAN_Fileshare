@@ -2,6 +2,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using LAN_Fileshare.ViewModels;
+using System.Linq;
 
 namespace LAN_Fileshare.Views;
 
@@ -12,6 +14,7 @@ public partial class FileListingView : UserControl
     {
         InitializeComponent();
         dragOverBrush = (IBrush?)Application.Current?.FindResource("DragHoverBackgroundColor");
+
     }
 
     private void FileUploadsList_DragOver(object sender, DragEventArgs e)
@@ -30,5 +33,17 @@ public partial class FileListingView : UserControl
     private void FileUploadsList_Drop(object sender, DragEventArgs e)
     {
         FileUploadsListBox.Background = Brushes.Transparent;
+
+        if (e.Data.Contains(DataFormats.Files))
+        {
+            var files = e.Data.GetFiles();
+            var viewmodel = (FileListingViewModel?)DataContext;
+
+            if (viewmodel != null && files != null)
+            {
+                string[]? filePaths = files.Select(f => f.Path.LocalPath).ToArray();
+                viewmodel.DropFilesCommand.Execute(filePaths);
+            }
+        }
     }
 }

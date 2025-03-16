@@ -2,6 +2,7 @@
     x:Class="LAN_Fileshare.Views.FileListingView"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:LAN_Fileshare.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:view="using:LAN_Fileshare.Views"
@@ -11,73 +12,87 @@
     x:DataType="vm:FileListingViewModel"
     mc:Ignorable="d">
 
-    <Grid
-        Background="{DynamicResource HostsSidebarBackgroundColor}"
-        ColumnDefinitions="*,*"
-        RowDefinitions="40,*">
-        <TextBlock
-            Grid.Row="0"
-            Grid.Column="0"
-            Padding="10"
-            Background="{DynamicResource DarkerBackgroundColor}"
-            FontSize="18"
-            Text="Downloads" />
-        <Border
-            Grid.RowSpan="2"
-            BorderBrush="{DynamicResource HostsSidebarSeparatorColor}"
-            BorderThickness="0,0,1,0" />
+    <TabControl>
+        <TabItem Header="Uploads">
+            <Grid RowDefinitions="auto, *">
+                <ScrollViewer
+                    x:Name="FileUploadsListBox"
+                    Grid.Row="1"
+                    Margin="5,5,5,2"
+                    DragDrop.AllowDrop="True"
+                    DragDrop.DragLeave="FileUploadsList_DragLeave"
+                    DragDrop.DragOver="FileUploadsList_DragOver"
+                    DragDrop.Drop="FileUploadsList_Drop">
+                    <ItemsControl ItemsSource="{Binding FileUploadList}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="vm:FileUploadItemViewModel">
+                                <view:FileUploadItemView Margin="0,0,0,3" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
 
-        <Grid
-            Grid.Row="0"
-            Grid.Column="1"
-            Background="{DynamicResource DarkerBackgroundColor}"
-            ColumnDefinitions="*,*">
-            <TextBlock
-                Grid.Column="0"
-                Padding="10"
-                FontSize="18"
-                Text="Uploads" />
-            <Button
-                Grid.Column="1"
-                Width="30"
-                Height="30"
-                Margin="0,0,15,0"
-                HorizontalAlignment="Right"
-                Command="{Binding OpenFileDialogCommand}" />
-        </Grid>
+            <TabItem.Styles>
+                <Style Selector="TabItem:selected /template/ Border#PART_SelectedPipe">
+                    <Setter Property="Background" Value="White" />
+                </Style>
+            </TabItem.Styles>
+        </TabItem>
 
-        <ScrollViewer
-            Grid.Row="1"
-            Grid.Column="0"
-            Background="Transparent"
-            BorderThickness="0,0,1,0">
-            <ItemsControl ItemsSource="{Binding FileDownloadList}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="vm:FileDownloadItemViewModel">
-                        <view:FileDownloadItemView />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+        <TabItem Header="Downloads">
+            <ScrollViewer>
+                <ItemsControl ItemsSource="{Binding FileDownloadList}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="vm:FileDownloadItemViewModel">
+                            <view:FileDownloadItemView />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
 
+            <TabItem.Styles>
+                <Style Selector="TabItem:selected /template/ Border#PART_SelectedPipe">
+                    <Setter Property="Background" Value="White" />
+                </Style>
+            </TabItem.Styles>
+        </TabItem>
 
-        <ScrollViewer
-            Grid.Row="1"
-            Grid.Column="1"
-            Background="Transparent">
-            <ItemsControl
-                x:Name="FileUploadsListBox"
-                DragDrop.AllowDrop="True"
-                DragDrop.DragLeave="FileUploadsList_DragLeave"
-                DragDrop.DragOver="FileUploadsList_DragOver"
-                DragDrop.Drop="FileUploadsList_Drop"
-                ItemsSource="{Binding FileUploadList}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate DataType="vm:FileUploadItemViewModel">
-                        <view:FileUploadItemView />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
-    </Grid>
+        <TabControl.Styles>
+            <Style Selector="TabControl">
+                <Setter Property="Template">
+                    <ControlTemplate>
+                        <Border Background="{TemplateBinding Background}">
+                            <Grid RowDefinitions="auto, *">
+                                <Grid Background="{DynamicResource DarkerBackgroundColor}" ColumnDefinitions="auto, *">
+                                    <ItemsPresenter
+                                        Name="PART_ItemsPresenter"
+                                        Grid.Column="0"
+                                        HorizontalAlignment="Left"
+                                        ItemsPanel="{TemplateBinding ItemsPanel}" />
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Width="250"
+                                        Margin="20,7,0,7"
+                                        HorizontalAlignment="Left"
+                                        VerticalContentAlignment="Center"
+                                        CornerRadius="7"
+                                        FontSize="16" />
+                                </Grid>
+                                <ContentPresenter
+                                    Name="PART_SelectedContentHost"
+                                    Grid.Row="1"
+                                    HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                    VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                    Background="Transparent"
+                                    Content="{TemplateBinding SelectedContent}"
+                                    ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter>
+            </Style>
+        </TabControl.Styles>
+    </TabControl>
+
 </UserControl>

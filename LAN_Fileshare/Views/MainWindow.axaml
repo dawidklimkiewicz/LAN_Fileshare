@@ -17,13 +17,13 @@
     Icon="/Assets/app-logo.ico"
     mc:Ignorable="d">
 
-    <Grid ColumnDefinitions="240,*">
+    <Grid
+        x:Name="MainBackground"
+        Background="{StaticResource PrimaryBackgroundColor}"
+        ColumnDefinitions="240,*">
         <views:HostListingView />
 
-        <Grid
-            Grid.Column="1"
-            Background="{StaticResource HostsSidebarBackgroundColor}"
-            RowDefinitions="*,auto">
+        <Grid Grid.Column="1" RowDefinitions="*,auto">
             <views:FileListingView DataContext="{Binding FileListingViewModel}" IsVisible="{Binding IsAnyHostSelected}" />
             <TextBlock
                 HorizontalAlignment="Center"

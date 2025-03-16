@@ -1,48 +1,81 @@
 <Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Design.PreviewWith>
-        <ListBox
-            Width="240"
-            Height="200"
-            Classes="HostListBox">
-            <ListBoxItem Classes="HostListBox">Test</ListBoxItem>
-            <ListBoxItem Classes="HostListBox">Test</ListBoxItem>
-            <ListBoxItem Classes="HostListBox">Test</ListBoxItem>
-            <ListBoxItem Classes="HostListBox">Test</ListBoxItem>
-            <ListBoxItem Classes="HostListBox">Test</ListBoxItem>
-            <ListBoxItem Classes="HostListBox">Test</ListBoxItem>
-            <ListBoxItem Classes="HostListBox">Test</ListBoxItem>
-        </ListBox>
+        <Border
+            Width="200"
+            Height="100"
+            Background="DarkGray">
+
+            <StackPanel>
+                <Button
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    Classes="iconButton">
+                    <Label Classes="iconButtonLabel" Content="&#xE4F6;" />
+                </Button>
+                <Button
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Classes="iconButton"
+                    Classes.isExpanded="True">
+                    <Label Classes="iconButtonLabel" Content="&#xE136;" />
+                </Button>
+
+                <ProgressBar
+                    Width="50"
+                    Height="10"
+                    Value="100" />
+                <ProgressBar
+                    Width="50"
+                    Height="10"
+                    Margin="0,5,0,0"
+                    Value="90" />
+            </StackPanel>
+        </Border>
     </Design.PreviewWith>
 
-    <!--<Style Selector="ListBoxItem.HostListBox">
-        <Setter Property="Background" Value="{DynamicResource HostItemBackground}" />
-        <Setter Property="CornerRadius" Value="10" />
-        <Setter Property="Margin" Value="0,0,0,3" />
+    <Style Selector="Label.iconButtonLabel">
+        <Setter Property="FontFamily" Value="{DynamicResource Phosphor}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="FontSize" Value="27" />
+        <Setter Property="Margin" Value="0" />
     </Style>
 
-    <Style Selector="ListBoxItem.HostListBox:pointerover">
-        <Setter Property="Background" Value="{DynamicResource HostItemBackgroundSelected}" />
+    <Style Selector="Button.iconButton">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Height" Value="35" />
+        <Setter Property="Width" Value="35" />
     </Style>
 
-    <Style Selector="ListBoxItem.HostListBox:selected">
-        <Setter Property="Background" Value="{DynamicResource HostItemBackgroundSelected}" />
-    </Style>-->
-
-    <!--<Style Selector="ListBox.HostListBox">
-        <Setter Property="Padding" Value="10,0,20,0" />
+    <Style Selector="Button.iconButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
     </Style>
 
-	<Style Selector="ListBox ListBoxItem">
-		<Setter Property="Background" Value="{DynamicResource HostItemBackground}" />
-		<Setter Property="CornerRadius" Value="10" />
-		<Setter Property="Margin" Value="0,0,0,3" />
-	</Style>
+    <Style Selector="Button.iconButton:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
 
-	<Style Selector="ListBox ListBoxItem:pointerover">
-		<Setter Property="Background" Value="{DynamicResource HostItemBackgroundSelected}" />
-	</Style>
+    <Style Selector="Button.isExpanded">
+        <Setter Property="RenderTransformOrigin" Value="17.5,17.5" />
+        <Setter Property="RenderTransform">
+            <Setter.Value>
+                <RotateTransform Angle="180" />
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-	<Style Selector="ListBox ListBoxItem:selected">
-		<Setter Property="Background" Value="{DynamicResource HostItemBackgroundSelected}" />
-	</Style>-->
+    <Style Selector="ProgressBar">
+        <Setter Property="Foreground">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+                    <GradientStop Offset="0.0" Color="#234C97" />
+                    <GradientStop Offset="1.0" Color="#4285fc" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
 </Styles>

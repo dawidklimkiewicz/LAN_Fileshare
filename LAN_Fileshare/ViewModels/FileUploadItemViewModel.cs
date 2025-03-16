@@ -28,10 +28,14 @@ namespace LAN_Fileshare.ViewModels
         public double TransmissionSpeed => CalculateDownloadSpeed();
         public FileUpload FileUpload { get; set; }
         public string Name { get; set; }
+        public string Path { get; set; }
         public long Size { get; set; }
         public FileState FileState { get; set; }
         public bool IsPaused => FileState == FileState.Paused;
         public bool IsTransmitting => FileState == FileState.Transmitting;
+
+        [ObservableProperty]
+        private bool _isExpanded = false;
         public Guid Id { get; set; }
 
 
@@ -43,6 +47,7 @@ namespace LAN_Fileshare.ViewModels
             Id = file.Id;
             FileUpload = file;
             Name = file.Name;
+            Path = file.Path;
             Size = file.Size;
             FileState = file.State;
             BytesTransmitted = file.BytesTransmitted;
@@ -51,6 +56,12 @@ namespace LAN_Fileshare.ViewModels
         }
 
         [RelayCommand]
+        private void ToggleExpand()
+        {
+            IsExpanded = !IsExpanded;
+        }
+
+        [RelayCommand(CanExecute = nameof(RemoveFileCanExecute))]
         private async Task RemoveFile(Guid fileId)
         {
             FileUploadItemViewModel? fileUploadViewModel = _parentViewModel.FileUploadList.FirstOrDefault(f => f.Id == fileId);
@@ -68,6 +79,12 @@ namespace LAN_Fileshare.ViewModels
 
             NetworkService networkService = new(_appStateStore);
             await networkService.SendRemoveFile(fileId, _parentViewModel.SelectedHost!.IPAddress, _appStateStore.PacketListenerPort);
+        }
+
+        private bool RemoveFileCanExecute()
+        {
+            if (FileState == FileState.Transmitting) return false;
+            else return true;
         }
 
         private TimeSpan CalculateRemainingTime()
