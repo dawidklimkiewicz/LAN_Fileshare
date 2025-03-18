@@ -32,6 +32,9 @@ namespace LAN_Fileshare.ViewModels
         public FileState FileState { get; set; }
         public bool IsPaused => FileState == FileState.Paused;
         public bool IsTransmitting => FileState == FileState.Transmitting;
+
+        [ObservableProperty]
+        private bool _isExpanded = false;
         public Guid Id { get; set; }
 
         public FileDownloadItemViewModel(FileDownload file, FileListingViewModel parentViewModel, AppStateStore appStateStore)
@@ -50,6 +53,12 @@ namespace LAN_Fileshare.ViewModels
         }
 
         [RelayCommand]
+        private void ToggleExpand()
+        {
+            IsExpanded = !IsExpanded;
+        }
+
+        [RelayCommand]
         private void RequestFile(Guid fileId)
         {
             if (_parentViewModel.SelectedHost != null)
@@ -60,7 +69,7 @@ namespace LAN_Fileshare.ViewModels
             }
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(RemoveFileCanExecute))]
         private async Task RemoveFile(Guid fileId)
         {
             FileUploadItemViewModel? fileUploadViewModel = _parentViewModel.FileUploadList.FirstOrDefault(f => f.Id == fileId);
@@ -78,6 +87,12 @@ namespace LAN_Fileshare.ViewModels
 
             NetworkService networkService = new(_appStateStore);
             await networkService.SendRemoveFile(fileId, _parentViewModel.SelectedHost!.IPAddress, _appStateStore.PacketListenerPort);
+        }
+
+        private bool RemoveFileCanExecute()
+        {
+            if (FileState == FileState.Transmitting) return false;
+            else return true;
         }
 
         private TimeSpan CalculateRemainingTime()

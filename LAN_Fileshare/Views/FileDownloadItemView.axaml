@@ -15,93 +15,110 @@
         <conv:EstimatedTimeLeftToStringConverter x:Key="EstimatedTimeConverter" />
         <conv:TransmissionSpeedToStringConverter x:Key="SpeedConverter" />
     </UserControl.Resources>
+
     <Border
-        Padding="10,5"
-        Background="{DynamicResource HostsSidebarBackgroundColor}"
-        BorderBrush="{DynamicResource HostsSidebarSeparatorColor}"
-        BorderThickness="0,1,1,0">
-        <Grid RowDefinitions="*, *">
-            <Grid
-                Grid.Row="0"
-                Margin="0,0,0,7"
-                ColumnDefinitions="2*,*">
-                <TextBlock
-                    Grid.Column="0"
-                    Margin="0,2"
-                    FontSize="16"
-                    Text="{Binding Name}" />
+        Background="{DynamicResource DarkerBackgroundColor}"
+        ClipToBounds="True"
+        CornerRadius="10">
+        <Grid RowDefinitions="*, auto">
+            <StackPanel Margin="15,10,15,3">
+
+                <Grid VerticalAlignment="Top" ColumnDefinitions="*, auto">
+                    <TextBlock FontSize="18" Text="{Binding Name}" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button
+                            Classes="iconButton"
+                            Classes.isExpanded="{Binding IsExpanded}"
+                            Command="{Binding ToggleExpandCommand}">
+                            <Label Classes="iconButtonLabel" Content="&#xE136;" />
+                        </Button>
+                        <Button
+                            Classes="iconButton"
+                            Command="{Binding RemoveFileCommand}"
+                            CommandParameter="{Binding Id}">
+                            <Label Classes="iconButtonLabel" Content="&#xE4F6;" />
+                        </Button>
+                        <Button
+                            Classes="iconButton"
+                            Command="{Binding RequestFileCommand}"
+                            CommandParameter="{Binding Id}"
+                            IsVisible="{Binding IsPaused}"
+                            ToolTip.Tip="Download">
+                            <Label Classes="iconButtonLabel" Content="&#xE20C;" />
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
                 <StackPanel
-                    Grid.Column="1"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Orientation="Horizontal"
-                    Spacing="4">
-                    <Button
-                        Width="30"
-                        Height="30"
-                        Command="{Binding RemoveFileCommand}"
-                        CommandParameter="{Binding Id}"
-                        IsVisible="{Binding IsPaused}"
-                        ToolTip.Tip="Remove" />
-                    <Button
-                        Width="30"
-                        Height="30"
-                        Margin="0,0,5,0"
-                        Command="{Binding RequestFileCommand}"
-                        CommandParameter="{Binding Id}"
-                        IsVisible="{Binding IsPaused}"
-                        ToolTip.Tip="Download" />
-                </StackPanel>
-            </Grid>
-            <Grid Grid.Row="1" ColumnDefinitions="auto, auto, auto, auto">
-                <ProgressBar
-                    Grid.Column="0"
-                    Height="12"
-                    VerticalAlignment="Center"
-                    FontSize="11"
-                    Maximum="100"
-                    Minimum="0"
-                    ShowProgressText="True"
-                    Value="{Binding Progress}" />
-                <StackPanel
-                    Grid.Column="1"
-                    Margin="20,0,0,0"
-                    VerticalAlignment="Center"
-                    Orientation="Horizontal">
-                    <TextBlock FontSize="12" Text="{Binding BytesTransmitted, Converter={StaticResource SizeToString}}" />
-                    <TextBlock FontSize="12" Text=" / " />
-                    <TextBlock FontSize="12" Text="{Binding Size, Converter={StaticResource SizeToString}}" />
-                    <TextBlock
-                        Margin="7,0"
-                        FontSize="12"
-                        IsVisible="{Binding IsTransmitting}"
-                        Text="|" />
-                </StackPanel>
-                <StackPanel
-                    Grid.Column="2"
-                    VerticalAlignment="Center"
-                    IsVisible="{Binding IsTransmitting}"
-                    Orientation="Horizontal">
-                    <TextBlock FontSize="12" Text="Time left: " />
-                    <TextBlock FontSize="12" Text="{Binding EstimatedTimeRemaining, Converter={StaticResource EstimatedTimeConverter}}" />
-                </StackPanel>
-                <StackPanel
-                    Grid.Column="3"
-                    IsVisible="{Binding IsTransmitting}"
-                    Orientation="Horizontal">
-                    <TextBlock
-                        Margin="7,0"
-                        VerticalAlignment="Center"
-                        FontSize="12"
-                        Foreground="{StaticResource SecondaryTextColor}"
-                        Text="|" />
-                    <TextBlock
-                        VerticalAlignment="Center"
-                        FontSize="12"
-                        Text="{Binding TransmissionSpeed, Converter={StaticResource SpeedConverter}}" />
+                    Grid.Row="1"
+                    Margin="0,0,0,10"
+                    IsVisible="{Binding IsExpanded}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextColor}"
+                            Text="Added: " />
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextColor}"
+                            Text="" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextColor}"
+                            Text="Started: " />
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextColor}"
+                            Text="" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextColor}"
+                            Text="Finished: " />
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextColor}"
+                            Text="" />
+                    </StackPanel>
                 </StackPanel>
 
-            </Grid>
+                <Grid Grid.Row="2" ColumnDefinitions="*, *, *">
+                    <TextBlock Foreground="{DynamicResource SecondaryTextColor}" Text="{Binding FileState}" />
+                    <StackPanel
+                        Grid.Column="1"
+                        HorizontalAlignment="Center"
+                        Orientation="Horizontal">
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextColor}"
+                            Text="{Binding BytesTransmitted, Converter={StaticResource SizeToString}}" />
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextColor}"
+                            Text=" / " />
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextColor}"
+                            Text="{Binding Size, Converter={StaticResource SizeToString}}" />
+                    </StackPanel>
+                    <TextBlock
+                        Grid.Column="2"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        FontSize="12"
+                        Foreground="{DynamicResource SecondaryTextColor}"
+                        Text="{Binding TransmissionSpeed, Converter={StaticResource SpeedConverter}}" />
+                </Grid>
+            </StackPanel>
+
+            <ProgressBar
+                Grid.Row="1"
+                Height="3"
+                Background="{DynamicResource ProgressBarGradient}"
+                Value="{Binding Progress}" />
         </Grid>
     </Border>
 </UserControl>

@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using LAN_Fileshare.ViewModels;
+using System.IO;
 using System.Linq;
 
 namespace LAN_Fileshare.Views;
@@ -38,10 +39,10 @@ public partial class FileListingView : UserControl
         {
             var files = e.Data.GetFiles();
             var viewmodel = (FileListingViewModel?)DataContext;
+            string[]? filePaths = files?.Select(f => f.Path.LocalPath).Where(path => !Directory.Exists(path)).ToArray() ?? null;
 
-            if (viewmodel != null && files != null)
+            if (viewmodel != null && filePaths != null)
             {
-                string[]? filePaths = files.Select(f => f.Path.LocalPath).ToArray();
                 viewmodel.DropFilesCommand.Execute(filePaths);
             }
         }
