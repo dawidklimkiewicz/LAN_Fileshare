@@ -58,6 +58,19 @@ namespace LAN_Fileshare.Models
             _state = FileState.Paused;
         }
 
+        public FileUpload(Guid id, string name, string path, long size, DateTime timeCreated, DateTime? timeFinished, long bytesTransmitted)
+        {
+            Id = id;
+            Name = name;
+            Path = path;
+            Size = size;
+            TimeCreated = timeCreated;
+            TimeFinished = timeFinished;
+            _bytesTransmitted = bytesTransmitted;
+            _state = FileState.Paused;
+        }
+
+        // For testing purposes
         public FileUpload(Guid id, string name, long size)
         {
             Id = id;

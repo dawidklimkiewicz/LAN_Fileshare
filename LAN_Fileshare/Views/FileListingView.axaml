@@ -14,24 +14,21 @@
 
     <TabControl>
         <TabItem Header="Uploads">
-            <Grid RowDefinitions="auto, *">
-                <ScrollViewer
-                    x:Name="FileUploadsListBox"
-                    Grid.Row="1"
-                    Margin="5,5,5,2"
-                    DragDrop.AllowDrop="True"
-                    DragDrop.DragLeave="FileUploadsList_DragLeave"
-                    DragDrop.DragOver="FileUploadsList_DragOver"
-                    DragDrop.Drop="FileUploadsList_Drop">
-                    <ItemsControl ItemsSource="{Binding FileUploadList}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="vm:FileUploadItemViewModel">
-                                <view:FileUploadItemView Margin="0,0,0,3" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </Grid>
+            <ScrollViewer
+                x:Name="FileUploadsListBox"
+                Margin="5,5,5,2"
+                DragDrop.AllowDrop="True"
+                DragDrop.DragLeave="FileUploadsList_DragLeave"
+                DragDrop.DragOver="FileUploadsList_DragOver"
+                DragDrop.Drop="FileUploadsList_Drop">
+                <ItemsControl ItemsSource="{Binding FileUploadList}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="vm:FileUploadItemViewModel">
+                            <view:FileUploadItemView Margin="0,0,0,3" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
 
             <TabItem.Styles>
                 <Style Selector="TabItem:selected /template/ Border#PART_SelectedPipe">
@@ -41,7 +38,7 @@
         </TabItem>
 
         <TabItem Header="Downloads">
-            <ScrollViewer>
+            <ScrollViewer Margin="5,5,5,2">
                 <ItemsControl ItemsSource="{Binding FileDownloadList}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="vm:FileDownloadItemViewModel">

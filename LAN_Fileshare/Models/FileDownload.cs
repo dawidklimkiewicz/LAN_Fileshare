@@ -53,6 +53,17 @@ namespace LAN_Fileshare.Models
             _state = FileState.Paused;
         }
 
+        public FileDownload(Guid fileId, string name, long size, DateTime timeCreated, DateTime? timeFinished, long bytesTransmitted)
+        {
+            Id = fileId;
+            Name = name;
+            Size = size;
+            TimeCreated = timeCreated;
+            TimeFinished = timeFinished;
+            _bytesTransmitted = bytesTransmitted;
+            _state = FileState.Paused;
+        }
+
         private void SendBytesTransmittedUpdate(object? state)
         {
             lock (_bytesTransmittedLock)

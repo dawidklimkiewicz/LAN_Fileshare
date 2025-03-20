@@ -17,6 +17,12 @@ namespace LAN_Fileshare.Models
             _parentHost = parentHost;
         }
 
+        public FileList(Host parentHost, List<T> files)
+        {
+            _parentHost = parentHost;
+            _items = new List<T>(files);
+        }
+
         public IReadOnlyList<T> GetAll()
         {
             lock (_lock)
