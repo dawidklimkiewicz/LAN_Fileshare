@@ -14,7 +14,6 @@ namespace LAN_Fileshare.EntityFramework.DTOs
         public bool IsBlocked { get; set; }
         public bool AutoDownload { get; set; }
 
-        public ICollection<FileDownloadDto> FileDownloads { get; set; } = null!;
         public ICollection<FileUploadDto> FileUploads { get; set; } = null!;
         public ICollection<DownloadTransmissionStatisticsDto> DownloadTransmissionStatistics { get; set; } = null!;
         public ICollection<UploadTransmissionStatisticsDto> UploadTransmissionStatistics { get; set; } = null!;

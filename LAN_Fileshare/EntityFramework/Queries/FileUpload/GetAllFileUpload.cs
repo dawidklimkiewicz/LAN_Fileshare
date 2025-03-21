@@ -23,7 +23,7 @@ namespace LAN_Fileshare.EntityFramework.Queries.FileUpload
                 .SelectMany(h => h.FileUploads)
                 .ToListAsync();
 
-            return dtos.Select(f => new Models.FileUpload(f.Id, f.Name, f.Path, f.Size, f.TimeCreated, f.TimeFinished, f.BytesTransmitted)).ToList();
+            return dtos.Select(f => new Models.FileUpload(f.Id, f.Name, f.Path, f.Size, f.TimeCreated, f.BytesTransmitted)).ToList();
         }
     }
 }

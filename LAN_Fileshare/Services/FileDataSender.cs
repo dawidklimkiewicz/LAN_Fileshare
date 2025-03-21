@@ -94,7 +94,6 @@ namespace LAN_Fileshare.Services
 
             if (_fileToSend.BytesTransmitted == _fileToSend.Size)
             {
-                _fileToSend.TimeFinished = DateTime.Now;
                 _fileToSend.State = FileState.Finished;
             }
             else

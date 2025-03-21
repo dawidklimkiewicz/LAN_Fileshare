@@ -15,7 +15,6 @@ namespace LAN_Fileshare.Models
         public string Name { get; set; }
         public long Size { get; set; }
         public DateTime TimeCreated { get; set; }
-        public DateTime? TimeFinished { get; set; }
         private FileState _state;
         public FileState State
         {
@@ -53,13 +52,12 @@ namespace LAN_Fileshare.Models
             _state = FileState.Paused;
         }
 
-        public FileDownload(Guid fileId, string name, long size, DateTime timeCreated, DateTime? timeFinished, long bytesTransmitted)
+        public FileDownload(Guid fileId, string name, long size, DateTime timeCreated, long bytesTransmitted)
         {
             Id = fileId;
             Name = name;
             Size = size;
             TimeCreated = timeCreated;
-            TimeFinished = timeFinished;
             _bytesTransmitted = bytesTransmitted;
             _state = FileState.Paused;
         }

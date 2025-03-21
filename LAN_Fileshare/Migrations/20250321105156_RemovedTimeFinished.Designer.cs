@@ -3,6 +3,7 @@ using System;
 using LAN_Fileshare.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LAN_Fileshare.Migrations
 {
     [DbContext(typeof(MainDbContext))]
-    partial class MainDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250321105156_RemovedTimeFinished")]
+    partial class RemovedTimeFinished
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
@@ -42,6 +45,36 @@ namespace LAN_Fileshare.Migrations
                     b.HasIndex("HostPhysicalAddress");
 
                     b.ToTable("DownloadTransmissionStatistics");
+                });
+
+            modelBuilder.Entity("LAN_Fileshare.EntityFramework.DTOs.FileDownloadDto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("BytesTransmitted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("HostPhysicalAddress")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("TimeCreated")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HostPhysicalAddress");
+
+                    b.ToTable("FileDownloads");
                 });
 
             modelBuilder.Entity("LAN_Fileshare.EntityFramework.DTOs.FileUploadDto", b =>
@@ -164,6 +197,17 @@ namespace LAN_Fileshare.Migrations
                     b.Navigation("Host");
                 });
 
+            modelBuilder.Entity("LAN_Fileshare.EntityFramework.DTOs.FileDownloadDto", b =>
+                {
+                    b.HasOne("LAN_Fileshare.EntityFramework.DTOs.HostDto", "Host")
+                        .WithMany("FileDownloads")
+                        .HasForeignKey("HostPhysicalAddress")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Host");
+                });
+
             modelBuilder.Entity("LAN_Fileshare.EntityFramework.DTOs.FileUploadDto", b =>
                 {
                     b.HasOne("LAN_Fileshare.EntityFramework.DTOs.HostDto", "Host")
@@ -189,6 +233,8 @@ namespace LAN_Fileshare.Migrations
             modelBuilder.Entity("LAN_Fileshare.EntityFramework.DTOs.HostDto", b =>
                 {
                     b.Navigation("DownloadTransmissionStatistics");
+
+                    b.Navigation("FileDownloads");
 
                     b.Navigation("FileUploads");
 

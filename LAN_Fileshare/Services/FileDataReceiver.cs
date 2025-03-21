@@ -26,13 +26,13 @@ namespace LAN_Fileshare.Services
         private object _writerLock = new();
 
 
-        public FileDataReceiver(AppStateStore appStateStore, Host fileOwnerHost, FileDownload fileToDownload)
+        public FileDataReceiver(AppStateStore appStateStore, Host fileOwnerHost, FileDownload fileToDownload, CancellationToken cancellationToken)
         {
             _fileOwnerHost = fileOwnerHost;
             _fileToDownload = fileToDownload;
             _appStateStore = appStateStore;
 
-            _ct = new();
+            _ct = cancellationToken;
             _temporaryDownloadPath = Path.Combine(appStateStore.TemporaryDownloadDirectory, fileToDownload.Id.ToString());
             CreateDownloadFolder();
             _fileWriter = new BinaryWriter(new FileStream(_temporaryDownloadPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None));
@@ -157,7 +157,6 @@ namespace LAN_Fileshare.Services
 
             if (_fileToDownload.Size == _fileToDownload.BytesTransmitted)
             {
-                _fileToDownload.TimeFinished = DateTime.Now;
                 _fileToDownload.State = FileState.Finished;
 
                 // TODO check if file already exists and if it does then add an index

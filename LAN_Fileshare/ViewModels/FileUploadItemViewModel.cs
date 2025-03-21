@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace LAN_Fileshare.ViewModels
 {
-    public partial class FileUploadItemViewModel : ObservableObject, IRecipient<BytesTransmittedChangedMessage>, IDisposable
+    public partial class FileUploadItemViewModel : ObservableObject, IRecipient<BytesTransmittedChangedMessage>, IRecipient<FileStateChangedMessage>, IDisposable
     {
         private readonly FileListingViewModel _parentViewModel;
         private readonly AppStateStore _appStateStore;
@@ -30,29 +30,33 @@ namespace LAN_Fileshare.ViewModels
         public string Name { get; set; }
         public string Path { get; set; }
         public long Size { get; set; }
-        public FileState FileState { get; set; }
         public bool IsPaused => FileState == FileState.Paused;
         public bool IsTransmitting => FileState == FileState.Transmitting;
+        public bool IsFinished => FileState == FileState.Finished;
+        public DateTime TimeCreated { get; set; }
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsPaused), nameof(IsFinished), nameof(IsTransmitting))]
+        private FileState _fileState;
 
         [ObservableProperty]
         private bool _isExpanded = false;
-        public Guid Id { get; set; }
-
 
         public FileUploadItemViewModel(FileUpload file, FileListingViewModel parentViewModel, AppStateStore appStateStore)
         {
             _parentViewModel = parentViewModel;
             _appStateStore = appStateStore;
 
-            Id = file.Id;
             FileUpload = file;
             Name = file.Name;
             Path = file.Path;
             Size = file.Size;
             FileState = file.State;
             BytesTransmitted = file.BytesTransmitted;
+            TimeCreated = file.TimeCreated;
 
             StrongReferenceMessenger.Default.Register<BytesTransmittedChangedMessage>(this);
+            StrongReferenceMessenger.Default.Register<FileStateChangedMessage>(this);
         }
 
         [RelayCommand]
@@ -62,23 +66,17 @@ namespace LAN_Fileshare.ViewModels
         }
 
         [RelayCommand(CanExecute = nameof(RemoveFileCanExecute))]
-        private async Task RemoveFile(Guid fileId)
+        private async Task RemoveFile()
         {
-            FileUploadItemViewModel? fileUploadViewModel = _parentViewModel.FileUploadList.FirstOrDefault(f => f.Id == fileId);
-            FileDownloadItemViewModel? fileDownloadViewModel = _parentViewModel.FileDownloadList.FirstOrDefault(f => f.Id == fileId);
+            FileUploadItemViewModel? fileUploadViewModel = _parentViewModel.FileUploadList.FirstOrDefault(f => f.FileUpload.Id == FileUpload.Id);
 
             if (fileUploadViewModel != null)
             {
                 _parentViewModel.FileUploadList.Remove(fileUploadViewModel);
             }
 
-            if (fileDownloadViewModel != null)
-            {
-                _parentViewModel.FileDownloadList.Remove(fileDownloadViewModel);
-            }
-
             NetworkService networkService = new(_appStateStore);
-            await networkService.SendRemoveFile(fileId, _parentViewModel.SelectedHost!.IPAddress, _appStateStore.PacketListenerPort);
+            await networkService.SendRemoveFile(FileUpload.Id, _parentViewModel.SelectedHost!.IPAddress, _appStateStore.PacketListenerPort);
         }
 
         private bool RemoveFileCanExecute()
@@ -113,15 +111,24 @@ namespace LAN_Fileshare.ViewModels
 
         public void Receive(BytesTransmittedChangedMessage message)
         {
-            if (message.File is FileUpload && message.File.Id == Id)
+            if (message.File is FileUpload && message.File.Id == FileUpload.Id)
             {
                 BytesTransmitted = message.Value;
+            }
+        }
+
+        public void Receive(FileStateChangedMessage message)
+        {
+            if (message.File.Id == FileUpload.Id)
+            {
+                FileState = message.Value;
             }
         }
 
         public void Dispose()
         {
             StrongReferenceMessenger.Default.Unregister<BytesTransmittedChangedMessage>(this);
+            StrongReferenceMessenger.Default.Unregister<FileStateChangedMessage>(this);
         }
     }
 }

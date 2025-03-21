@@ -22,7 +22,7 @@ namespace LAN_Fileshare
         private NetworkService _networkService = null!;
         private HostCheck _hostCheckService = null!;
         private MainWindow _mainWindow = null!;
-        private MainDbContextFactory _mainDbContextFactory;
+        private MainDbContextFactory _mainDbContextFactory = null!;
 
         public override void Initialize()
         {

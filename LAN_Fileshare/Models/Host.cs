@@ -29,7 +29,7 @@ namespace LAN_Fileshare.Models
             FileDownloadList = new(this);
         }
 
-        public Host(PhysicalAddress physicalAddress, IPAddress ipAddress, string username, string downloadPath, bool isBlocked, bool autoDownload, List<FileUpload> fileUploads, List<FileDownload> fileDownloads)
+        public Host(PhysicalAddress physicalAddress, IPAddress ipAddress, string username, string downloadPath, bool isBlocked, bool autoDownload, List<FileUpload> fileUploads)
         {
             PhysicalAddress = physicalAddress;
             IPAddress = ipAddress;
@@ -38,7 +38,7 @@ namespace LAN_Fileshare.Models
             IsBlocked = isBlocked;
             AutoDownload = autoDownload;
             FileUploadList = new(this, fileUploads);
-            FileDownloadList = new(this, fileDownloads);
+            FileDownloadList = new(this);
         }
     }
 }

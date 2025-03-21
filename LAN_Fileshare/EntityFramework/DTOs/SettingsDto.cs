@@ -8,8 +8,8 @@ namespace LAN_Fileshare.EntityFramework.DTOs
         public int Id { get; set; }
         public string Username { get; set; } = null!;
         public string DefaultDownloadPath { get; set; } = null!;
-        public bool AutoDownloadDefault { get; set; } = false;
-        public bool CopyUploadedFileToWorkspace { get; set; } = false;
+        public bool AutoDownloadDefault { get; set; }
+        public bool CopyUploadedFileToWorkspace { get; set; }
         public long CopyUploadedFileToWorkspaceMaxSize { get; set; }
     }
 }

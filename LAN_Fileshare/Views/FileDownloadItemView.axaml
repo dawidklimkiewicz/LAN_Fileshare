@@ -14,6 +14,8 @@
         <conv:FileSizeToStringConverter x:Key="SizeToString" />
         <conv:EstimatedTimeLeftToStringConverter x:Key="EstimatedTimeConverter" />
         <conv:TransmissionSpeedToStringConverter x:Key="SpeedConverter" />
+        <conv:DateTimeToStringConverter x:Key="DateTimeConverter" />
+        <conv:DownloadFileStateToStringConverter x:Key="FileStateConverter" />
     </UserControl.Resources>
 
     <Border
@@ -35,13 +37,18 @@
                         <Button
                             Classes="iconButton"
                             Command="{Binding RemoveFileCommand}"
-                            CommandParameter="{Binding Id}">
+                            IsVisible="{Binding !IsTransmitting}">
                             <Label Classes="iconButtonLabel" Content="&#xE4F6;" />
                         </Button>
                         <Button
                             Classes="iconButton"
+                            Command="{Binding PauseDownloadCommand}"
+                            IsVisible="{Binding IsTransmitting}">
+                            <Label Classes="iconButtonLabel" Content="&#xE39E;" />
+                        </Button>
+                        <Button
+                            Classes="iconButton"
                             Command="{Binding RequestFileCommand}"
-                            CommandParameter="{Binding Id}"
                             IsVisible="{Binding IsPaused}"
                             ToolTip.Tip="Download">
                             <Label Classes="iconButtonLabel" Content="&#xE20C;" />
@@ -61,32 +68,12 @@
                         <TextBlock
                             FontSize="12"
                             Foreground="{DynamicResource SecondaryTextColor}"
-                            Text="" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock
-                            FontSize="12"
-                            Foreground="{DynamicResource SecondaryTextColor}"
-                            Text="Started: " />
-                        <TextBlock
-                            FontSize="12"
-                            Foreground="{DynamicResource SecondaryTextColor}"
-                            Text="" />
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock
-                            FontSize="12"
-                            Foreground="{DynamicResource SecondaryTextColor}"
-                            Text="Finished: " />
-                        <TextBlock
-                            FontSize="12"
-                            Foreground="{DynamicResource SecondaryTextColor}"
-                            Text="" />
+                            Text="{Binding TimeCreated, Converter={StaticResource DateTimeConverter}}" />
                     </StackPanel>
                 </StackPanel>
 
                 <Grid Grid.Row="2" ColumnDefinitions="*, *, *">
-                    <TextBlock Foreground="{DynamicResource SecondaryTextColor}" Text="{Binding FileState}" />
+                    <TextBlock Foreground="{DynamicResource SecondaryTextColor}" Text="{Binding FileState, Converter={StaticResource FileStateConverter}}" />
                     <StackPanel
                         Grid.Column="1"
                         HorizontalAlignment="Center"

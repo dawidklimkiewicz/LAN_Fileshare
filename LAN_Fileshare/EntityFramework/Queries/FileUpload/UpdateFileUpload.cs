@@ -25,7 +25,6 @@ namespace LAN_Fileshare.EntityFramework.Queries.FileUpload
 
             dto.Path = fileUpload.Path;
             dto.BytesTransmitted = fileUpload.BytesTransmitted;
-            dto.TimeFinished = fileUpload.TimeFinished;
 
             context.FileUploads.Update(dto);
             await context.SaveChangesAsync();

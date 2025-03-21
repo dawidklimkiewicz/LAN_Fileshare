@@ -32,7 +32,6 @@ namespace LAN_Fileshare.EntityFramework.Queries.FileUpload
                 Size = fileUpload.Size,
                 BytesTransmitted = fileUpload.BytesTransmitted,
                 TimeCreated = fileUpload.TimeCreated,
-                TimeFinished = fileUpload.TimeFinished
             };
 
             context.FileUploads.Add(fileUploadDto);

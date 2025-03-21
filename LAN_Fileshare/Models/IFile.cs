@@ -9,6 +9,5 @@ namespace LAN_Fileshare.Models
         string Name { get; set; }
         long Size { get; set; }
         DateTime TimeCreated { get; set; }
-        DateTime? TimeFinished { get; set; }
     }
 }

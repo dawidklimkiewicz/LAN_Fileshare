@@ -14,6 +14,5 @@ namespace LAN_Fileshare.EntityFramework.DTOs
         public long Size { get; set; }
         public long BytesTransmitted { get; set; }
         public DateTime TimeCreated { get; set; }
-        public DateTime? TimeFinished { get; set; }
     }
 }

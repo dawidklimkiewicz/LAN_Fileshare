@@ -118,13 +118,13 @@ namespace LAN_Fileshare.ViewModels
 
             if (message.File is FileUpload && SelectedHost.PhysicalAddress.Equals(message.Host.PhysicalAddress))
             {
-                FileUploadItemViewModel? viewModel = FileUploadList.FirstOrDefault(file => file.Id.Equals(message.File.Id));
+                FileUploadItemViewModel? viewModel = FileUploadList.FirstOrDefault(file => file.FileUpload.Id.Equals(message.File.Id));
                 if (viewModel == null) return;
                 FileUploadList.Remove(viewModel);
             }
             else if (message.File is FileDownload && SelectedHost.PhysicalAddress.Equals(message.Host.PhysicalAddress))
             {
-                FileDownloadItemViewModel? viewModel = FileDownloadList.FirstOrDefault(file => file.Id.Equals(message.File.Id));
+                FileDownloadItemViewModel? viewModel = FileDownloadList.FirstOrDefault(file => file.FileDownload.Id.Equals(message.File.Id));
                 if (viewModel == null) return;
                 FileDownloadList.Remove(viewModel);
             }
