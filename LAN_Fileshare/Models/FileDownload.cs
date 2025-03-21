@@ -44,14 +44,6 @@ namespace LAN_Fileshare.Models
             }
         }
 
-        public FileDownload(Guid fileId, string name, long size)
-        {
-            Id = fileId;
-            Name = name;
-            Size = size;
-            _state = FileState.Paused;
-        }
-
         public FileDownload(Guid fileId, string name, long size, DateTime timeCreated, long bytesTransmitted)
         {
             Id = fileId;

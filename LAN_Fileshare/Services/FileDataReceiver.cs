@@ -82,7 +82,7 @@ namespace LAN_Fileshare.Services
 
                 while (!_ct.IsCancellationRequested)
                 {
-                    await _fileOwnerNetworkStream.ReadExactlyAsync(packetTypeBuffer, _ct);
+                    await _fileOwnerNetworkStream.ReadExactlyAsync(packetTypeBuffer);
 
                     if ((PacketType)packetTypeBuffer[0] != PacketType.FileData) break;
 
@@ -93,7 +93,7 @@ namespace LAN_Fileshare.Services
 
                     WriteFileData(fileData);
                     if (lastReceivedByte >= _fileToDownload.Size) break;
-                    await _fileOwnerNetworkStream.WriteAsync(responsePacket, _ct);
+                    await _fileOwnerNetworkStream.WriteAsync(responsePacket);
                 }
 
             }
@@ -107,7 +107,7 @@ namespace LAN_Fileshare.Services
                 {
                     Trace.WriteLine($"Sending StopTransmission packet for {_fileToDownload.Name}");
                     byte[] packet = PacketService.Create.StopFileTransmission(_fileToDownload.BytesTransmitted);
-                    await _fileOwnerNetworkStream.WriteAsync(packet, _ct);
+                    await _fileOwnerNetworkStream.WriteAsync(packet);
 
                     byte[] ackBuffer = new byte[1];
                     await _fileOwnerNetworkStream.ReadExactlyAsync(ackBuffer);

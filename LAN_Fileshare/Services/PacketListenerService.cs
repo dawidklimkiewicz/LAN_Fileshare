@@ -207,8 +207,9 @@ namespace LAN_Fileshare.Services
                     GetOrCreateHost getOrCreateHost = new(_mainDbContextFactory);
                     Host newHost = await getOrCreateHost.Execute(remotePhysicalAddress, remoteIP, remoteUsername);
                     _appStateStore.HostStore.AddHost(newHost);
+
                     NetworkService networkService = new(_appStateStore);
-                    await networkService.SendInitialFileInformation(newHost.FileUploadList.ToList(), _appStateStore.IPAddress!, _appStateStore.PacketListenerPort);
+                    await networkService.SendInitialFileInformation(newHost.FileUploadList.ToList(), remoteIP, _appStateStore.PacketListenerPort);
                 }
                 catch (Exception ex)
                 {
@@ -229,7 +230,7 @@ namespace LAN_Fileshare.Services
                 host.FileDownloadList.AddRange(files);
 
                 NetworkService networkService = new(_appStateStore);
-                await networkService.SendInitialFileInformationReply(host.FileUploadList.ToList(), _appStateStore.IPAddress!, _appStateStore.PacketListenerPort);
+                await networkService.SendInitialFileInformationReply(host.FileUploadList.ToList(), senderIP, _appStateStore.PacketListenerPort);
             }
         }
 

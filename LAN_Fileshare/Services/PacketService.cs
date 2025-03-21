@@ -73,7 +73,7 @@ namespace LAN_Fileshare.Services
 
             /// <summary>
             /// <para>(1B) Type | (4B) IPAddress | (4B) File Count | (X Bytes) Files</para>
-            /// <para>Each file = (16B) Id | (8B) Size | (4B) Name length | (X Bytes) Name</para>
+            /// <para>Each file = (16B) Id | (8B) Size | (4B) Name length | (X Bytes) Name | (64 B) Time created | (8 B) Bytes transmitted</para> 
             /// </summary>
             public static byte[] FileInformation(IPAddress senderIP, List<FileUpload> files)
             {
@@ -85,6 +85,8 @@ namespace LAN_Fileshare.Services
                     fields.Add(BitConverter.GetBytes(file.Size));
                     fields.Add(BitConverter.GetBytes(Encoding.UTF8.GetByteCount(file.Name)));
                     fields.Add(Encoding.UTF8.GetBytes(file.Name));
+                    fields.Add(BitConverter.GetBytes(file.TimeCreated.ToBinary()));
+                    fields.Add(BitConverter.GetBytes(file.BytesTransmitted));
                 }
 
                 return SerializePacket(PacketType.FileInformation, fields);
@@ -92,7 +94,7 @@ namespace LAN_Fileshare.Services
 
             /// <summary>
             /// <para>(1B) Type | (4B) IPAddress | (4B) File Count | (X Bytes) Files</para>
-            /// <para>Each file = (16B) Id | (8B) Size | (4B) Name length | (X Bytes) Name</para>
+            /// <para>Each file = (16B) Id | (8B) Size | (4B) Name length | (X Bytes) Name | (64 B) Time created | (8 B) Bytes transmitted</para>
             /// </summary>
             public static byte[] InitialFileInformation(IPAddress senderIP, List<FileUpload> files)
             {
@@ -104,6 +106,8 @@ namespace LAN_Fileshare.Services
                     fields.Add(BitConverter.GetBytes(file.Size));
                     fields.Add(BitConverter.GetBytes(Encoding.UTF8.GetByteCount(file.Name)));
                     fields.Add(Encoding.UTF8.GetBytes(file.Name));
+                    fields.Add(BitConverter.GetBytes(file.TimeCreated.ToBinary()));
+                    fields.Add(BitConverter.GetBytes(file.BytesTransmitted));
                 }
 
                 return SerializePacket(PacketType.InitialFileInformation, fields);
@@ -111,7 +115,7 @@ namespace LAN_Fileshare.Services
 
             /// <summary>
             /// <para>(1B) Type | (4B) IPAddress | (4B) File Count | (X Bytes) Files</para>
-            /// <para>Each file = (16B) Id | (8B) Size | (4B) Name length | (X Bytes) Name</para>
+            /// <para>Each file = (16B) Id | (8B) Size | (4B) Name length | (X Bytes) Name | (64 B) Time created | (8 B) Bytes transmitted</para>
             /// </summary>
             public static byte[] InitialFileInformationReply(IPAddress senderIP, List<FileUpload> files)
             {
@@ -123,6 +127,8 @@ namespace LAN_Fileshare.Services
                     fields.Add(BitConverter.GetBytes(file.Size));
                     fields.Add(BitConverter.GetBytes(Encoding.UTF8.GetByteCount(file.Name)));
                     fields.Add(Encoding.UTF8.GetBytes(file.Name));
+                    fields.Add(BitConverter.GetBytes(file.TimeCreated.ToBinary()));
+                    fields.Add(BitConverter.GetBytes(file.BytesTransmitted));
                 }
 
                 return SerializePacket(PacketType.InitialFileInformationReply, fields);
@@ -234,6 +240,8 @@ namespace LAN_Fileshare.Services
                     byte[] fileIdBuffer = new byte[16];
                     byte[] fileSizeBuffer = new byte[8];
                     byte[] fileNameSizeBuffer = new byte[4];
+                    byte[] timeCreatedBuffer = new byte[64];
+                    byte[] bytesTransmittedBuffer = new byte[8];
 
                     networkStream.ReadExactly(fileIdBuffer);
                     networkStream.ReadExactly(fileSizeBuffer);
@@ -247,7 +255,13 @@ namespace LAN_Fileshare.Services
                     networkStream.ReadExactly(fileNameBuffer);
                     string fileName = Encoding.UTF8.GetString(fileNameBuffer);
 
-                    receivedFiles.Add(new FileDownload(id, fileName, size));
+                    networkStream.ReadExactly(timeCreatedBuffer);
+                    DateTime timeCreated = DateTime.FromBinary(BitConverter.ToInt64(timeCreatedBuffer));
+
+                    networkStream.ReadExactly(bytesTransmittedBuffer);
+                    long bytesTransmitted = BitConverter.ToInt64(bytesTransmittedBuffer);
+
+                    receivedFiles.Add(new FileDownload(id, fileName, size, timeCreated, bytesTransmitted));
                 }
                 return (new IPAddress(senderAddressBuffer), receivedFiles);
             }

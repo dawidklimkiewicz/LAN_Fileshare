@@ -6,7 +6,6 @@ using LAN_Fileshare.Models;
 using LAN_Fileshare.Services;
 using LAN_Fileshare.Stores;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -146,10 +145,8 @@ namespace LAN_Fileshare.ViewModels
 
         public void Receive(FileStateChangedMessage message)
         {
-            Trace.WriteLine("NOWY STAN?");
             if (message.File.Id == FileDownload.Id)
             {
-                Trace.WriteLine($"NOWY STAN: {message.Value}");
                 FileState = message.Value;
             }
         }
