@@ -75,7 +75,8 @@ namespace LAN_Fileshare.Models
             Id = id;
             Name = name;
             Size = size;
-            _state = FileState.Paused;
+            TimeCreated = DateTime.Now;
+            BytesTransmitted = 1000;
         }
 
         private void SendBytesTransmittedUpdate(object? state)

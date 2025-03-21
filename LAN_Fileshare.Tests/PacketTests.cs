@@ -57,6 +57,8 @@ namespace LAN_Fileshare.Tests
                         Assert.That(receivedPacket.files[i].Id, Is.EqualTo(files[i].Id));
                         Assert.That(receivedPacket.files[i].Name, Is.EqualTo(files[i].Name));
                         Assert.That(receivedPacket.files[i].Size, Is.EqualTo(files[i].Size));
+                        Assert.That(receivedPacket.files[i].TimeCreated, Is.EqualTo(files[i].TimeCreated));
+                        Assert.That(receivedPacket.files[i].BytesTransmitted, Is.EqualTo(files[i].BytesTransmitted));
                     }
                 }
             );

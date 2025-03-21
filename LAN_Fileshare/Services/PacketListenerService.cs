@@ -284,7 +284,7 @@ namespace LAN_Fileshare.Services
 
             if (host != null && file != null)
             {
-                FileDataSender sender = new(host, file, listenerPort, startingByte);
+                FileDataSender sender = new(host, file, listenerPort, startingByte, _mainDbContextFactory);
                 Task senderTask = sender.StartSending();
                 _appStateStore.ActiveFileTransfers.Add(senderTask);
             }

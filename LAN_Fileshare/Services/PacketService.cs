@@ -240,7 +240,7 @@ namespace LAN_Fileshare.Services
                     byte[] fileIdBuffer = new byte[16];
                     byte[] fileSizeBuffer = new byte[8];
                     byte[] fileNameSizeBuffer = new byte[4];
-                    byte[] timeCreatedBuffer = new byte[64];
+                    byte[] timeCreatedBuffer = new byte[8];
                     byte[] bytesTransmittedBuffer = new byte[8];
 
                     networkStream.ReadExactly(fileIdBuffer);

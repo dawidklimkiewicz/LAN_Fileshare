@@ -15,6 +15,7 @@
         <conv:TransmissionSpeedToStringConverter x:Key="SpeedConverter" />
         <conv:DateTimeToStringConverter x:Key="DateTimeConverter" />
         <conv:UploadFileStateToStringConverter x:Key="FileStateConverter" />
+        <conv:ProgressToStringConverter x:Key="ProgressConverter" />
     </UserControl.Resources>
 
     <Border
@@ -33,7 +34,10 @@
                             Command="{Binding ToggleExpandCommand}">
                             <Label Classes="iconButtonLabel" Content="&#xE136;" />
                         </Button>
-                        <Button Classes="iconButton" Command="{Binding RemoveFileCommand}">
+                        <Button
+                            Classes="iconButton"
+                            Command="{Binding RemoveFileCommand}"
+                            IsVisible="{Binding !IsTransmitting}">
                             <Label Classes="iconButtonLabel" Content="&#xE4F6;" />
                         </Button>
                     </StackPanel>
@@ -75,13 +79,27 @@
                             Foreground="{DynamicResource SecondaryTextColor}"
                             Text="{Binding Size, Converter={StaticResource SizeToString}}" />
                     </StackPanel>
-                    <TextBlock
+                    <StackPanel
                         Grid.Column="2"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
-                        FontSize="12"
-                        Foreground="{DynamicResource SecondaryTextColor}"
-                        Text="{Binding TransmissionSpeed, Converter={StaticResource SpeedConverter}}" />
+                        Orientation="Horizontal"
+                        Spacing="20">
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextColor}"
+                            Text="{Binding Progress, Converter={StaticResource ProgressConverter}}" />
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextColor}"
+                            IsVisible="{Binding IsTransmitting}"
+                            Text="{Binding TransmissionSpeed, Converter={StaticResource SpeedConverter}}" />
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextColor}"
+                            IsVisible="{Binding IsTransmitting}"
+                            Text="{Binding EstimatedTimeRemaining, Converter={StaticResource EstimatedTimeConverter}}" />
+                    </StackPanel>
                 </Grid>
             </StackPanel>
 

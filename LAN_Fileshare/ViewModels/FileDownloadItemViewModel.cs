@@ -23,8 +23,6 @@ namespace LAN_Fileshare.ViewModels
         private DateTime _lastBytesUpdateTime;
 
         public int Progress => (int)((float)BytesTransmitted / Size * 100);
-        public TimeSpan EstimatedTimeRemaining => CalculateRemainingTime();
-        public double TransmissionSpeed => CalculateDownloadSpeed();
         public FileDownload FileDownload { get; set; }
         public string Name { get; set; }
         public long Size { get; set; }
@@ -32,6 +30,12 @@ namespace LAN_Fileshare.ViewModels
         public bool IsTransmitting => FileState == FileState.Transmitting;
         public bool IsFinished => FileState == FileState.Finished;
         public DateTime TimeCreated { get; set; }
+
+        [ObservableProperty]
+        public TimeSpan _estimatedTimeRemaining;
+
+        [ObservableProperty]
+        private double _transmissionSpeed;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsPaused), [nameof(IsFinished), nameof(IsTransmitting)])]
@@ -111,20 +115,20 @@ namespace LAN_Fileshare.ViewModels
             else return true;
         }
 
-        private TimeSpan CalculateRemainingTime()
+        private void CalculateRemainingTime()
         {
             long bytesRemaining = Size - BytesTransmitted;
             if (TransmissionSpeed > 1000)
             {
-                return TimeSpan.FromSeconds(bytesRemaining / TransmissionSpeed);
+                EstimatedTimeRemaining = TimeSpan.FromSeconds(bytesRemaining / TransmissionSpeed);
             }
             else
             {
-                return TimeSpan.Zero;
+                EstimatedTimeRemaining = TimeSpan.Zero;
             }
         }
 
-        private double CalculateDownloadSpeed()
+        private void CalculateDownloadSpeed()
         {
             long transmittedSinceLastUpdate = BytesTransmitted - _lastTransmittedBytes;
             double secondsElapsed = (DateTime.Now - _lastBytesUpdateTime).TotalSeconds;
@@ -132,7 +136,7 @@ namespace LAN_Fileshare.ViewModels
             _lastTransmittedBytes = BytesTransmitted;
             _lastBytesUpdateTime = DateTime.Now;
 
-            return transmittedSinceLastUpdate / secondsElapsed;
+            TransmissionSpeed = transmittedSinceLastUpdate / secondsElapsed;
         }
 
         public void Receive(BytesTransmittedChangedMessage message)
@@ -140,6 +144,8 @@ namespace LAN_Fileshare.ViewModels
             if (message.File is FileDownload && message.File.Id == FileDownload.Id)
             {
                 BytesTransmitted = message.Value;
+                CalculateDownloadSpeed();
+                CalculateRemainingTime();
             }
         }
 
