@@ -48,7 +48,7 @@ namespace LAN_Fileshare.Models
         public FileUpload(string filePath)
         {
             Id = Guid.NewGuid();
-            FileInfo fileInfo = new FileInfo(filePath);
+            FileInfo fileInfo = new(filePath);
             Path = filePath;
             Name = fileInfo.Name;
             Size = fileInfo.Length;
@@ -57,12 +57,13 @@ namespace LAN_Fileshare.Models
             _state = FileState.Paused;
         }
 
-        public FileUpload(Guid id, string name, string path, long size, DateTime timeCreated, long bytesTransmitted)
+        public FileUpload(Guid id, string path, DateTime timeCreated, long bytesTransmitted)
         {
+            FileInfo fileInfo = new(path);
             Id = id;
-            Name = name;
+            Name = fileInfo.Name;
             Path = path;
-            Size = size;
+            Size = fileInfo.Length;
             TimeCreated = timeCreated;
             _bytesTransmitted = bytesTransmitted;
             _state = FileState.Paused;

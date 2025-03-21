@@ -155,6 +155,52 @@ namespace LAN_Fileshare.Services
             catch (Exception) { }
         }
 
+        public async Task SendInitialFileInformation(List<FileUpload> files, IPAddress receiverIP, int port)
+        {
+            try
+            {
+                using TcpClient tcpClient = new();
+                await tcpClient.ConnectAsync(receiverIP, port);
+                using NetworkStream networkStream = tcpClient.GetStream();
+
+                byte[] packet = PacketService.Create.InitialFileInformation(_appStateStore.IPAddress!, files);
+                byte[] ackBuffer = new byte[1];
+
+                await networkStream.WriteAsync(packet, 0, packet.Length);
+                await networkStream.FlushAsync();
+
+                networkStream.ReadExactly(ackBuffer, 0, ackBuffer.Length);
+                tcpClient.Close();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"Failed to send file information - {ex}");
+            }
+        }
+
+        public async Task SendInitialFileInformationReply(List<FileUpload> files, IPAddress receiverIP, int port)
+        {
+            try
+            {
+                using TcpClient tcpClient = new();
+                await tcpClient.ConnectAsync(receiverIP, port);
+                using NetworkStream networkStream = tcpClient.GetStream();
+
+                byte[] packet = PacketService.Create.InitialFileInformationReply(_appStateStore.IPAddress!, files);
+                byte[] ackBuffer = new byte[1];
+
+                await networkStream.WriteAsync(packet, 0, packet.Length);
+                await networkStream.FlushAsync();
+
+                networkStream.ReadExactly(ackBuffer, 0, ackBuffer.Length);
+                tcpClient.Close();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"Failed to send file information - {ex}");
+            }
+        }
+
         public async Task SendFileInformation(List<FileUpload> files, IPAddress receiverIP, int port)
         {
             try

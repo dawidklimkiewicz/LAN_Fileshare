@@ -36,29 +36,29 @@ namespace LAN_Fileshare
                 context.Database.Migrate();
             }
 
-            _packetListenerService = new(_appStateStore);
+            _packetListenerService = new(_appStateStore, _mainDbContextFactory);
             _networkService = new(_appStateStore);
             _hostCheckService = new(_appStateStore);
 
         }
 
-        public override void OnFrameworkInitializationCompleted()
+        public override async void OnFrameworkInitializationCompleted()
         {
-            _packetListenerService.Start();
-
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
                 // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
                 DisableAvaloniaDataAnnotationValidation();
                 _mainWindow = new();
-                _mainWindow.DataContext = new MainWindowViewModel(_appStateStore, new FileDialogService(_mainWindow));
+                _mainWindow.DataContext = new MainWindowViewModel(_appStateStore, new FileDialogService(_mainWindow), _mainDbContextFactory);
                 _mainWindow.Closing += _mainWindow_Closing;
                 desktop.MainWindow = _mainWindow;
                 desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             }
 
-            _networkService.StartPingingPeriodically();
+            _packetListenerService.Start();
+            //_networkService.StartPingingPeriodically();
+            await _networkService.PingNetwork();
             _hostCheckService.Start();
 
             NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;

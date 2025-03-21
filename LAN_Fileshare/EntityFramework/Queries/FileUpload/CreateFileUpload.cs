@@ -1,5 +1,6 @@
 ﻿using LAN_Fileshare.EntityFramework.DTOs;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace LAN_Fileshare.EntityFramework.Queries.FileUpload
@@ -13,7 +14,7 @@ namespace LAN_Fileshare.EntityFramework.Queries.FileUpload
             _contextFactory = contextFactory;
         }
 
-        public async Task Execute(Models.Host host, Models.FileUpload fileUpload)
+        public async Task Execute(Models.Host host, List<Models.FileUpload> fileUpload)
         {
             MainDbContext context = _contextFactory.Create();
 
@@ -23,18 +24,22 @@ namespace LAN_Fileshare.EntityFramework.Queries.FileUpload
                 throw new Exception("Host not found");
             }
 
-            FileUploadDto fileUploadDto = new()
-            {
-                Id = fileUpload.Id,
-                Host = hostDto,
-                Name = fileUpload.Name,
-                Path = fileUpload.Path,
-                Size = fileUpload.Size,
-                BytesTransmitted = fileUpload.BytesTransmitted,
-                TimeCreated = fileUpload.TimeCreated,
-            };
+            List<FileUploadDto> fileUploadDtos = new();
 
-            context.FileUploads.Add(fileUploadDto);
+            foreach (Models.FileUpload file in fileUpload)
+            {
+                FileUploadDto fileUploadDto = new()
+                {
+                    Id = file.Id,
+                    Host = hostDto,
+                    Path = file.Path,
+                    BytesTransmitted = file.BytesTransmitted,
+                    TimeCreated = file.TimeCreated,
+                };
+                fileUploadDtos.Add(fileUploadDto);
+            }
+
+            context.FileUploads.AddRange(fileUploadDtos);
             await context.SaveChangesAsync();
         }
     }

@@ -14,6 +14,8 @@
             FileData,
             StopFileTransmission,
             FileDataAck,
+            InitialFileInformation,
+            InitialFileInformationReply,
         }
     }
 }

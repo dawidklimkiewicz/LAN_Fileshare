@@ -1,4 +1,6 @@
-﻿using LAN_Fileshare.Models;
+﻿using LAN_Fileshare.EntityFramework;
+using LAN_Fileshare.EntityFramework.Queries.Host;
+using LAN_Fileshare.Models;
 using LAN_Fileshare.Stores;
 using System;
 using System.Collections.Generic;
@@ -15,12 +17,14 @@ namespace LAN_Fileshare.Services
     public class PacketListenerService
     {
         private readonly AppStateStore _appStateStore;
+        private readonly MainDbContextFactory _mainDbContextFactory;
         private TcpListener _packetListener = null!;
         CancellationTokenSource? _packetListenerCancellationTokenSource = null!;
 
-        public PacketListenerService(AppStateStore appStateStore)
+        public PacketListenerService(AppStateStore appStateStore, MainDbContextFactory mainDbContextFactory)
         {
             _appStateStore = appStateStore;
+            _mainDbContextFactory = mainDbContextFactory;
         }
 
         public void Start()
@@ -103,6 +107,8 @@ namespace LAN_Fileshare.Services
                 case PacketType.FileInformation: ProcessFileInfoPacket(networkStream); break;
                 case PacketType.RemoveFile: ProcessRemoveFilePacket(networkStream); break;
                 case PacketType.FileRequest: ProcessFileRequestPacket(networkStream); break;
+                case PacketType.InitialFileInformation: ProcessInitialFileInformationPacket(networkStream); break;
+                case PacketType.InitialFileInformationReply: ProcessFileInfoPacket(networkStream); break;
             }
 
             try
@@ -148,20 +154,28 @@ namespace LAN_Fileshare.Services
         private async void ProcessHostInfoPacket(NetworkStream networkStream)
         {
             var packetFields = PacketService.Read.HostInfo(networkStream);
-            IPAddress remoteIp = packetFields.SenderIp;
+            IPAddress remoteIP = packetFields.SenderIp;
             PhysicalAddress remotePhysicalAddress = packetFields.PhysicalAddress;
             string remoteUsername = packetFields.Username;
 
             if (!_appStateStore.HostStore.ContainsHost(remotePhysicalAddress))
             {
-                Host newHost = new(remotePhysicalAddress, remoteIp, remoteUsername);
-                _appStateStore.HostStore.AddHost(newHost);
+                try
+                {
+                    GetOrCreateHost getOrCreateHost = new(_mainDbContextFactory);
+                    Host newHost = await getOrCreateHost.Execute(remotePhysicalAddress, remoteIP, remoteUsername);
+                    _appStateStore.HostStore.AddHost(newHost);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine($"Error adding host to store: {ex}");
+                }
             }
 
             try
             {
                 using TcpClient tcpClient = new();
-                tcpClient.Connect(remoteIp, _appStateStore.PacketListenerPort);
+                tcpClient.Connect(remoteIP, _appStateStore.PacketListenerPort);
                 using NetworkStream responseStream = tcpClient.GetStream();
 
                 byte[] hostInfoReplyPacket = PacketService.Create.HostInfoReply(_appStateStore.IPAddress!, _appStateStore.PhysicalAddress!, _appStateStore.Username);
@@ -175,21 +189,47 @@ namespace LAN_Fileshare.Services
             }
             catch (Exception ex)
             {
-                Trace.WriteLine($"Error answering to HostInfo received from {remoteIp} : {ex}");
+                Trace.WriteLine($"Error answering to HostInfo received from {remoteIP} : {ex}");
             }
         }
 
-        private void ProcessHostInfoReplyPacket(NetworkStream networkStream)
+        private async void ProcessHostInfoReplyPacket(NetworkStream networkStream)
         {
             var packetFields = PacketService.Read.HostInfo(networkStream);
-            IPAddress senderIP = packetFields.SenderIp;
+            IPAddress remoteIP = packetFields.SenderIp;
             PhysicalAddress remotePhysicalAddress = packetFields.PhysicalAddress;
             string remoteUsername = packetFields.Username;
 
             if (!_appStateStore.HostStore.ContainsHost(remotePhysicalAddress))
             {
-                Host newHost = new(remotePhysicalAddress, senderIP, remoteUsername);
-                _appStateStore.HostStore.AddHost(newHost);
+                try
+                {
+                    GetOrCreateHost getOrCreateHost = new(_mainDbContextFactory);
+                    Host newHost = await getOrCreateHost.Execute(remotePhysicalAddress, remoteIP, remoteUsername);
+                    _appStateStore.HostStore.AddHost(newHost);
+                    NetworkService networkService = new(_appStateStore);
+                    await networkService.SendInitialFileInformation(newHost.FileUploadList.ToList(), _appStateStore.IPAddress!, _appStateStore.PacketListenerPort);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine($"Error receiving HostInfoReply packet: {ex}");
+                }
+            }
+        }
+
+        private async void ProcessInitialFileInformationPacket(NetworkStream netowrkStream)
+        {
+            var packetFields = PacketService.Read.FileInformation(netowrkStream);
+            IPAddress senderIP = packetFields.senderIP;
+            List<FileDownload> files = packetFields.files;
+
+            Host? host = _appStateStore.HostStore.Get(senderIP);
+            if (host != null)
+            {
+                host.FileDownloadList.AddRange(files);
+
+                NetworkService networkService = new(_appStateStore);
+                await networkService.SendInitialFileInformationReply(host.FileUploadList.ToList(), _appStateStore.IPAddress!, _appStateStore.PacketListenerPort);
             }
         }
 

@@ -91,6 +91,44 @@ namespace LAN_Fileshare.Services
             }
 
             /// <summary>
+            /// <para>(1B) Type | (4B) IPAddress | (4B) File Count | (X Bytes) Files</para>
+            /// <para>Each file = (16B) Id | (8B) Size | (4B) Name length | (X Bytes) Name</para>
+            /// </summary>
+            public static byte[] InitialFileInformation(IPAddress senderIP, List<FileUpload> files)
+            {
+                List<byte[]> fields = [senderIP.GetAddressBytes(), BitConverter.GetBytes(files.Count)];
+
+                foreach (FileUpload file in files)
+                {
+                    fields.Add(file.Id.ToByteArray());
+                    fields.Add(BitConverter.GetBytes(file.Size));
+                    fields.Add(BitConverter.GetBytes(Encoding.UTF8.GetByteCount(file.Name)));
+                    fields.Add(Encoding.UTF8.GetBytes(file.Name));
+                }
+
+                return SerializePacket(PacketType.InitialFileInformation, fields);
+            }
+
+            /// <summary>
+            /// <para>(1B) Type | (4B) IPAddress | (4B) File Count | (X Bytes) Files</para>
+            /// <para>Each file = (16B) Id | (8B) Size | (4B) Name length | (X Bytes) Name</para>
+            /// </summary>
+            public static byte[] InitialFileInformationReply(IPAddress senderIP, List<FileUpload> files)
+            {
+                List<byte[]> fields = [senderIP.GetAddressBytes(), BitConverter.GetBytes(files.Count)];
+
+                foreach (FileUpload file in files)
+                {
+                    fields.Add(file.Id.ToByteArray());
+                    fields.Add(BitConverter.GetBytes(file.Size));
+                    fields.Add(BitConverter.GetBytes(Encoding.UTF8.GetByteCount(file.Name)));
+                    fields.Add(Encoding.UTF8.GetBytes(file.Name));
+                }
+
+                return SerializePacket(PacketType.InitialFileInformationReply, fields);
+            }
+
+            /// <summary>
             /// (1B) Type | (4B) IPAddress | (16B) File id  
             /// </summary>
             public static byte[] RemoveFile(IPAddress senderIP, Guid fileId)
