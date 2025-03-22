@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using LAN_Fileshare.EntityFramework;
+using LAN_Fileshare.EntityFramework.Queries.FileUpload;
 using LAN_Fileshare.Messages;
 using LAN_Fileshare.Models;
 using LAN_Fileshare.Services;
@@ -8,6 +10,7 @@ using LAN_Fileshare.Stores;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,16 +21,18 @@ namespace LAN_Fileshare.ViewModels
     {
         private readonly AppStateStore _appStateStore;
         private readonly FileDialogService _fileDialogService;
+        private readonly MainDbContextFactory _mainDbContextFactory;
 
         public Host? SelectedHost { get; set; } = null;
         public bool IsAnyHostSelected => SelectedHost != null;
         public ObservableCollection<FileUploadItemViewModel> FileUploadList { get; } = new();
         public ObservableCollection<FileDownloadItemViewModel> FileDownloadList { get; } = new();
 
-        public FileListingViewModel(AppStateStore appStateStore, FileDialogService fileDialogService)
+        public FileListingViewModel(AppStateStore appStateStore, FileDialogService fileDialogService, MainDbContextFactory mainDbContextFactory)
         {
             _appStateStore = appStateStore;
             _fileDialogService = fileDialogService;
+            _mainDbContextFactory = mainDbContextFactory;
 
             StrongReferenceMessenger.Default.Register<SelectedHostChangedMessage>(this);
             StrongReferenceMessenger.Default.Register<FileAddedMessage>(this);
@@ -84,8 +89,19 @@ namespace LAN_Fileshare.ViewModels
                 }
                 SelectedHost.FileUploadList.AddRange(filesList);
 
-                NetworkService networkService = new(_appStateStore);
-                await networkService.SendFileInformation(filesList, SelectedHost.IPAddress, _appStateStore.PacketListenerPort);
+                try
+                {
+                    NetworkService networkService = new(_appStateStore);
+                    await networkService.SendFileInformation(filesList, SelectedHost.IPAddress, _appStateStore.PacketListenerPort);
+
+                    CreateFileUpload createFileUpload = new(_mainDbContextFactory);
+                    await createFileUpload.Execute(SelectedHost, filesList);
+                }
+
+                catch (Exception ex)
+                {
+                    Trace.WriteLine($"Error uploading files: {ex}");
+                }
             }
         }
 
@@ -118,13 +134,13 @@ namespace LAN_Fileshare.ViewModels
 
             if (message.File is FileUpload && SelectedHost.PhysicalAddress.Equals(message.Host.PhysicalAddress))
             {
-                FileUploadItemViewModel? viewModel = FileUploadList.FirstOrDefault(file => file.Id.Equals(message.File.Id));
+                FileUploadItemViewModel? viewModel = FileUploadList.FirstOrDefault(file => file.FileUpload.Id.Equals(message.File.Id));
                 if (viewModel == null) return;
                 FileUploadList.Remove(viewModel);
             }
             else if (message.File is FileDownload && SelectedHost.PhysicalAddress.Equals(message.Host.PhysicalAddress))
             {
-                FileDownloadItemViewModel? viewModel = FileDownloadList.FirstOrDefault(file => file.Id.Equals(message.File.Id));
+                FileDownloadItemViewModel? viewModel = FileDownloadList.FirstOrDefault(file => file.FileDownload.Id.Equals(message.File.Id));
                 if (viewModel == null) return;
                 FileDownloadList.Remove(viewModel);
             }

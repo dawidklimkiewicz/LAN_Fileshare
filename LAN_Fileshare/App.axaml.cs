@@ -3,10 +3,12 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using LAN_Fileshare.EntityFramework;
 using LAN_Fileshare.Services;
 using LAN_Fileshare.Stores;
 using LAN_Fileshare.ViewModels;
 using LAN_Fileshare.Views;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Net.NetworkInformation;
@@ -20,33 +22,43 @@ namespace LAN_Fileshare
         private NetworkService _networkService = null!;
         private HostCheck _hostCheckService = null!;
         private MainWindow _mainWindow = null!;
+        private MainDbContextFactory _mainDbContextFactory = null!;
 
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
 
-            _packetListenerService = new(_appStateStore);
+            string connectionString = "Data Source=database.db";
+            _mainDbContextFactory = new(new DbContextOptionsBuilder().UseSqlite(connectionString).Options);
+
+            using (MainDbContext context = _mainDbContextFactory.Create())
+            {
+                context.Database.Migrate();
+            }
+
+            _packetListenerService = new(_appStateStore, _mainDbContextFactory);
             _networkService = new(_appStateStore);
             _hostCheckService = new(_appStateStore);
+
         }
 
-        public override void OnFrameworkInitializationCompleted()
+        public override async void OnFrameworkInitializationCompleted()
         {
-            _packetListenerService.Start();
-
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
                 // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
                 DisableAvaloniaDataAnnotationValidation();
                 _mainWindow = new();
-                _mainWindow.DataContext = new MainWindowViewModel(_appStateStore, new FileDialogService(_mainWindow));
+                _mainWindow.DataContext = new MainWindowViewModel(_appStateStore, new FileDialogService(_mainWindow), _mainDbContextFactory);
                 _mainWindow.Closing += _mainWindow_Closing;
                 desktop.MainWindow = _mainWindow;
                 desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             }
 
-            _networkService.StartPingingPeriodically();
+            _packetListenerService.Start();
+            //_networkService.StartPingingPeriodically();
+            await _networkService.PingNetwork();
             _hostCheckService.Start();
 
             NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;

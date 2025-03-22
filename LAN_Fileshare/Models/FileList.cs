@@ -17,6 +17,12 @@ namespace LAN_Fileshare.Models
             _parentHost = parentHost;
         }
 
+        public FileList(Host parentHost, List<T> files)
+        {
+            _parentHost = parentHost;
+            AddRange(files);
+        }
+
         public IReadOnlyList<T> GetAll()
         {
             lock (_lock)
@@ -37,7 +43,7 @@ namespace LAN_Fileshare.Models
         {
             lock (_lock)
             {
-                _items.Add(file);
+                if (!_items.Any(f => f.Id.Equals(file.Id))) _items.Add(file);
             }
             OnFileAdded(file);
         }
@@ -67,6 +73,14 @@ namespace LAN_Fileshare.Models
         private void OnFileRemoved(T file)
         {
             StrongReferenceMessenger.Default.Send(new FileRemovedMessage(file, _parentHost));
+        }
+
+        public List<T> ToList()
+        {
+            lock (_lock)
+            {
+                return _items.ToList();
+            }
         }
     }
 }

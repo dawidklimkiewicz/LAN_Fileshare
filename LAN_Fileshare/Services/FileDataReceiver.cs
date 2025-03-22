@@ -26,13 +26,13 @@ namespace LAN_Fileshare.Services
         private object _writerLock = new();
 
 
-        public FileDataReceiver(AppStateStore appStateStore, Host fileOwnerHost, FileDownload fileToDownload)
+        public FileDataReceiver(AppStateStore appStateStore, Host fileOwnerHost, FileDownload fileToDownload, CancellationToken cancellationToken)
         {
             _fileOwnerHost = fileOwnerHost;
             _fileToDownload = fileToDownload;
             _appStateStore = appStateStore;
 
-            _ct = new();
+            _ct = cancellationToken;
             _temporaryDownloadPath = Path.Combine(appStateStore.TemporaryDownloadDirectory, fileToDownload.Id.ToString());
             CreateDownloadFolder();
             _fileWriter = new BinaryWriter(new FileStream(_temporaryDownloadPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None));
@@ -82,7 +82,7 @@ namespace LAN_Fileshare.Services
 
                 while (!_ct.IsCancellationRequested)
                 {
-                    await _fileOwnerNetworkStream.ReadExactlyAsync(packetTypeBuffer, _ct);
+                    await _fileOwnerNetworkStream.ReadExactlyAsync(packetTypeBuffer);
 
                     if ((PacketType)packetTypeBuffer[0] != PacketType.FileData) break;
 
@@ -93,7 +93,7 @@ namespace LAN_Fileshare.Services
 
                     WriteFileData(fileData);
                     if (lastReceivedByte >= _fileToDownload.Size) break;
-                    await _fileOwnerNetworkStream.WriteAsync(responsePacket, _ct);
+                    await _fileOwnerNetworkStream.WriteAsync(responsePacket);
                 }
 
             }
@@ -107,7 +107,7 @@ namespace LAN_Fileshare.Services
                 {
                     Trace.WriteLine($"Sending StopTransmission packet for {_fileToDownload.Name}");
                     byte[] packet = PacketService.Create.StopFileTransmission(_fileToDownload.BytesTransmitted);
-                    await _fileOwnerNetworkStream.WriteAsync(packet, _ct);
+                    await _fileOwnerNetworkStream.WriteAsync(packet);
 
                     byte[] ackBuffer = new byte[1];
                     await _fileOwnerNetworkStream.ReadExactlyAsync(ackBuffer);
@@ -157,7 +157,6 @@ namespace LAN_Fileshare.Services
 
             if (_fileToDownload.Size == _fileToDownload.BytesTransmitted)
             {
-                _fileToDownload.TimeFinished = DateTime.Now;
                 _fileToDownload.State = FileState.Finished;
 
                 // TODO check if file already exists and if it does then add an index

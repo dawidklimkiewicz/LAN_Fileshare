@@ -16,7 +16,6 @@ namespace LAN_Fileshare.Models
         public string Path { get; set; } = "";
         public long Size { get; set; }
         public DateTime TimeCreated { get; set; }
-        public DateTime? TimeFinished { get; set; }
 
         private FileState _state;
         public FileState State
@@ -49,7 +48,7 @@ namespace LAN_Fileshare.Models
         public FileUpload(string filePath)
         {
             Id = Guid.NewGuid();
-            FileInfo fileInfo = new FileInfo(filePath);
+            FileInfo fileInfo = new(filePath);
             Path = filePath;
             Name = fileInfo.Name;
             Size = fileInfo.Length;
@@ -58,12 +57,26 @@ namespace LAN_Fileshare.Models
             _state = FileState.Paused;
         }
 
+        public FileUpload(Guid id, string path, DateTime timeCreated, long bytesTransmitted)
+        {
+            FileInfo fileInfo = new(path);
+            Id = id;
+            Name = fileInfo.Name;
+            Path = path;
+            Size = fileInfo.Length;
+            TimeCreated = timeCreated;
+            _bytesTransmitted = bytesTransmitted;
+            _state = FileState.Paused;
+        }
+
+        // For testing purposes
         public FileUpload(Guid id, string name, long size)
         {
             Id = id;
             Name = name;
             Size = size;
-            _state = FileState.Paused;
+            TimeCreated = DateTime.Now;
+            BytesTransmitted = 1000;
         }
 
         private void SendBytesTransmittedUpdate(object? state)

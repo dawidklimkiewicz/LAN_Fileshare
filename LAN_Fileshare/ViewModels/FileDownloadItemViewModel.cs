@@ -7,49 +7,63 @@ using LAN_Fileshare.Services;
 using LAN_Fileshare.Stores;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LAN_Fileshare.ViewModels
 {
-    public partial class FileDownloadItemViewModel : ObservableObject, IRecipient<BytesTransmittedChangedMessage>, IDisposable
+    public partial class FileDownloadItemViewModel : ObservableObject, IRecipient<BytesTransmittedChangedMessage>, IRecipient<FileStateChangedMessage>, IDisposable
     {
         private readonly FileListingViewModel _parentViewModel;
         private readonly AppStateStore _appStateStore;
+        private CancellationTokenSource _transmissionCancellationTokenSource;
 
         // Variables for estimating remaining time
         private long _lastTransmittedBytes;
         private DateTime _lastBytesUpdateTime;
 
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(Progress))]
-        private long _bytesTransmitted;
         public int Progress => (int)((float)BytesTransmitted / Size * 100);
-        public TimeSpan EstimatedTimeRemaining => CalculateRemainingTime();
-        public double TransmissionSpeed => CalculateDownloadSpeed();
         public FileDownload FileDownload { get; set; }
         public string Name { get; set; }
         public long Size { get; set; }
-        public FileState FileState { get; set; }
         public bool IsPaused => FileState == FileState.Paused;
         public bool IsTransmitting => FileState == FileState.Transmitting;
+        public bool IsFinished => FileState == FileState.Finished;
+        public DateTime TimeCreated { get; set; }
+
+        [ObservableProperty]
+        public TimeSpan _estimatedTimeRemaining;
+
+        [ObservableProperty]
+        private double _transmissionSpeed;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsPaused), [nameof(IsFinished), nameof(IsTransmitting)])]
+        private FileState _fileState;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(Progress))]
+        private long _bytesTransmitted;
 
         [ObservableProperty]
         private bool _isExpanded = false;
-        public Guid Id { get; set; }
 
         public FileDownloadItemViewModel(FileDownload file, FileListingViewModel parentViewModel, AppStateStore appStateStore)
         {
             _parentViewModel = parentViewModel;
             _appStateStore = appStateStore;
 
-            Id = file.Id;
             FileDownload = file;
             Name = file.Name;
             Size = file.Size;
-            FileState = file.State;
+            _fileState = file.State;
             BytesTransmitted = file.BytesTransmitted;
+            TimeCreated = file.TimeCreated;
+
+            _transmissionCancellationTokenSource = new();
 
             StrongReferenceMessenger.Default.Register<BytesTransmittedChangedMessage>(this);
+            StrongReferenceMessenger.Default.Register<FileStateChangedMessage>(this);
         }
 
         [RelayCommand]
@@ -59,26 +73,32 @@ namespace LAN_Fileshare.ViewModels
         }
 
         [RelayCommand]
-        private void RequestFile(Guid fileId)
+        private void RequestFile()
         {
             if (_parentViewModel.SelectedHost != null)
             {
-                FileDataReceiver fileDataReceiver = new(_appStateStore, _parentViewModel.SelectedHost, FileDownload);
+                _transmissionCancellationTokenSource = new();
+                FileDataReceiver fileDataReceiver = new(_appStateStore, _parentViewModel.SelectedHost, FileDownload, _transmissionCancellationTokenSource.Token);
                 Task listener = fileDataReceiver.SendFileRequest();
                 _appStateStore.ActiveFileTransfers.Add(listener);
             }
         }
 
-        [RelayCommand(CanExecute = nameof(RemoveFileCanExecute))]
-        private async Task RemoveFile(Guid fileId)
+        [RelayCommand]
+        private void PauseDownload()
         {
-            FileUploadItemViewModel? fileUploadViewModel = _parentViewModel.FileUploadList.FirstOrDefault(f => f.Id == fileId);
-            FileDownloadItemViewModel? fileDownloadViewModel = _parentViewModel.FileDownloadList.FirstOrDefault(f => f.Id == fileId);
-
-            if (fileUploadViewModel != null)
+            if (_parentViewModel.SelectedHost != null && !_transmissionCancellationTokenSource.IsCancellationRequested)
             {
-                _parentViewModel.FileUploadList.Remove(fileUploadViewModel);
+                _transmissionCancellationTokenSource.Cancel();
             }
+        }
+
+        [RelayCommand(CanExecute = nameof(RemoveFileCanExecute))]
+        private async Task RemoveFile()
+        {
+            // TODO also remove from temp folder
+
+            FileDownloadItemViewModel? fileDownloadViewModel = _parentViewModel.FileDownloadList.FirstOrDefault(f => f.FileDownload.Id == FileDownload.Id);
 
             if (fileDownloadViewModel != null)
             {
@@ -86,7 +106,7 @@ namespace LAN_Fileshare.ViewModels
             }
 
             NetworkService networkService = new(_appStateStore);
-            await networkService.SendRemoveFile(fileId, _parentViewModel.SelectedHost!.IPAddress, _appStateStore.PacketListenerPort);
+            await networkService.SendRemoveFile(FileDownload.Id, _parentViewModel.SelectedHost!.IPAddress, _appStateStore.PacketListenerPort);
         }
 
         private bool RemoveFileCanExecute()
@@ -95,20 +115,20 @@ namespace LAN_Fileshare.ViewModels
             else return true;
         }
 
-        private TimeSpan CalculateRemainingTime()
+        private void CalculateRemainingTime()
         {
             long bytesRemaining = Size - BytesTransmitted;
             if (TransmissionSpeed > 1000)
             {
-                return TimeSpan.FromSeconds(bytesRemaining / TransmissionSpeed);
+                EstimatedTimeRemaining = TimeSpan.FromSeconds(bytesRemaining / TransmissionSpeed);
             }
             else
             {
-                return TimeSpan.Zero;
+                EstimatedTimeRemaining = TimeSpan.Zero;
             }
         }
 
-        private double CalculateDownloadSpeed()
+        private void CalculateDownloadSpeed()
         {
             long transmittedSinceLastUpdate = BytesTransmitted - _lastTransmittedBytes;
             double secondsElapsed = (DateTime.Now - _lastBytesUpdateTime).TotalSeconds;
@@ -116,20 +136,31 @@ namespace LAN_Fileshare.ViewModels
             _lastTransmittedBytes = BytesTransmitted;
             _lastBytesUpdateTime = DateTime.Now;
 
-            return transmittedSinceLastUpdate / secondsElapsed;
+            TransmissionSpeed = transmittedSinceLastUpdate / secondsElapsed;
         }
 
         public void Receive(BytesTransmittedChangedMessage message)
         {
-            if (message.File is FileDownload && message.File.Id == Id)
+            if (message.File is FileDownload && message.File.Id == FileDownload.Id)
             {
                 BytesTransmitted = message.Value;
+                CalculateDownloadSpeed();
+                CalculateRemainingTime();
+            }
+        }
+
+        public void Receive(FileStateChangedMessage message)
+        {
+            if (message.File.Id == FileDownload.Id)
+            {
+                FileState = message.Value;
             }
         }
 
         public void Dispose()
         {
             StrongReferenceMessenger.Default.Unregister<BytesTransmittedChangedMessage>(this);
+            StrongReferenceMessenger.Default.Unregister<FileStateChangedMessage>(this);
         }
     }
 }

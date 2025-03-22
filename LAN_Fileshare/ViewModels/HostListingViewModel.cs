@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+﻿using Avalonia.Threading;
+using CommunityToolkit.Mvvm.Messaging;
 using LAN_Fileshare.Messages;
 using LAN_Fileshare.Stores;
 using System;
@@ -37,9 +38,19 @@ namespace LAN_Fileshare.ViewModels
             StrongReferenceMessenger.Default.Register<HostRemovedMessage>(this);
         }
 
-        public void Receive(HostAddedMessage message)
+        public async void Receive(HostAddedMessage message)
         {
-            _hostListingItemViewModels.Add(new HostListingItemViewModel(message.Value));
+            try
+            {
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    _hostListingItemViewModels.Add(new HostListingItemViewModel(message.Value));
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error adding host to viewmodel: {ex}");
+            }
         }
         public void Receive(HostRemovedMessage message)
         {
