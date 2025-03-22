@@ -8,5 +8,11 @@ namespace LAN_Fileshare.Views
         {
             InitializeComponent();
         }
+
+        private void Grid_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+        {
+            // Clears search box focus when clicking anywhere else
+            FocusManager?.ClearFocus();
+        }
     }
 }
