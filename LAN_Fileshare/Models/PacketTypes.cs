@@ -16,7 +16,6 @@
             FileDataAck,
             InitialFileInformation,
             InitialFileInformationReply,
-            Disconnect,
         }
     }
 }
