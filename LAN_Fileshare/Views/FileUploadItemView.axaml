@@ -47,7 +47,18 @@
                     Grid.Row="1"
                     Margin="0,0,0,10"
                     IsVisible="{Binding IsExpanded}">
-                    <TextBlock FontSize="12" Text="{Binding Path}" />
+                    <Button
+                        Padding="0"
+                        Background="Transparent"
+                        Command="{Binding OpenFolderCommand}"
+                        Cursor="Hand">
+                        <TextBlock FontSize="12" Text="{Binding Path}" />
+                        <Button.Styles>
+                            <Style Selector="Button:pressed">
+                                <Setter Property="RenderTransform" Value="scale(1)" />
+                            </Style>
+                        </Button.Styles>
+                    </Button>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock
                             FontSize="12"

@@ -66,6 +66,12 @@ namespace LAN_Fileshare.ViewModels
         }
 
         [RelayCommand]
+        private void OpenFolder()
+        {
+            Process.Start("explorer.exe", @$"{System.IO.Path.GetDirectoryName(Path)}");
+        }
+
+        [RelayCommand]
         private void ToggleExpand()
         {
             IsExpanded = !IsExpanded;

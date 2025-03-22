@@ -117,7 +117,6 @@ namespace LAN_Fileshare
 
         private void NativeMenuItem_Close(object? sender, System.EventArgs e)
         {
-            // TODO signal shutdown to other hosts
             Environment.Exit(0);
         }
 
