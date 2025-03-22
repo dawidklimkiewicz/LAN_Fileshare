@@ -78,13 +78,13 @@ namespace LAN_Fileshare.ViewModels
         }
 
         [RelayCommand(CanExecute = nameof(RemoveFileCanExecute))]
-        private async Task RemoveFile()
+        public async Task RemoveFile()
         {
             FileUploadItemViewModel? fileUploadViewModel = _parentViewModel.FileUploadList.FirstOrDefault(f => f.FileUpload.Id == FileUpload.Id);
 
             if (fileUploadViewModel != null)
             {
-                _parentViewModel.FileUploadList.Remove(fileUploadViewModel);
+                _parentViewModel.SelectedHost?.FileUploadList.Remove(FileUpload);
             }
 
             NetworkService networkService = new(_appStateStore);

@@ -28,6 +28,11 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+                <ScrollViewer.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Command="{Binding ClearFinishedUploadsCommand}" Header="Remove finished files" />
+                    </ContextMenu>
+                </ScrollViewer.ContextMenu>
             </ScrollViewer>
 
             <TabItem.Styles>

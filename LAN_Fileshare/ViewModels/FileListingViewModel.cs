@@ -68,7 +68,6 @@ namespace LAN_Fileshare.ViewModels
             }
         }
 
-        [RelayCommand]
         private void SearchFiles()
         {
             FilteredFileDownloadList.Clear();
@@ -98,6 +97,26 @@ namespace LAN_Fileshare.ViewModels
                 {
                     FilteredFileDownloadList.Add(file);
                 }
+            }
+        }
+
+        [RelayCommand]
+        private async Task ClearFinishedUploads()
+        {
+            List<FileUploadItemViewModel> finishedUploads = FileUploadList.Where(file => file.IsFinished).ToList();
+            foreach (FileUploadItemViewModel file in finishedUploads)
+            {
+                await file.RemoveFile();
+            }
+        }
+
+        [RelayCommand]
+        private async Task ClearFinishedDownloads()
+        {
+            List<FileDownloadItemViewModel> finishedDwonloads = FileDownloadList.Where(file => file.IsFinished).ToList();
+            foreach (FileDownloadItemViewModel file in finishedDwonloads)
+            {
+                await file.RemoveFile();
             }
         }
 
@@ -163,11 +182,13 @@ namespace LAN_Fileshare.ViewModels
             {
                 FileUploadItemViewModel viewModel = new FileUploadItemViewModel((FileUpload)message.File, this, _appStateStore);
                 FileUploadList.Add(viewModel);
+                FilteredFileUploadList.Add(viewModel);
             }
             else if (message.File is FileDownload && SelectedHost.PhysicalAddress.Equals(message.Host.PhysicalAddress))
             {
                 FileDownloadItemViewModel viewModel = new FileDownloadItemViewModel((FileDownload)message.File, this, _appStateStore);
                 FileDownloadList.Add(viewModel);
+                FilteredFileDownloadList.Add(viewModel);
             }
         }
 
@@ -180,12 +201,14 @@ namespace LAN_Fileshare.ViewModels
                 FileUploadItemViewModel? viewModel = FileUploadList.FirstOrDefault(file => file.FileUpload.Id.Equals(message.File.Id));
                 if (viewModel == null) return;
                 FileUploadList.Remove(viewModel);
+                FilteredFileUploadList.Remove(viewModel);
             }
             else if (message.File is FileDownload && SelectedHost.PhysicalAddress.Equals(message.Host.PhysicalAddress))
             {
                 FileDownloadItemViewModel? viewModel = FileDownloadList.FirstOrDefault(file => file.FileDownload.Id.Equals(message.File.Id));
                 if (viewModel == null) return;
                 FileDownloadList.Remove(viewModel);
+                FilteredFileDownloadList.Remove(viewModel);
             }
         }
 
