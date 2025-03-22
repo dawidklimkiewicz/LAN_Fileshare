@@ -13,7 +13,6 @@ namespace LAN_Fileshare.Stores
 {
     public class AppStateStore
     {
-        public string TemporaryDownloadDirectory { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "lan-fileshare");
         public string DownloadDirectory { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
 
         private PhysicalAddress? _physicalAddress = null!;

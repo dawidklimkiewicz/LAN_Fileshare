@@ -6,6 +6,7 @@ using LAN_Fileshare.Models;
 using LAN_Fileshare.Services;
 using LAN_Fileshare.Stores;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -103,6 +104,12 @@ namespace LAN_Fileshare.ViewModels
             if (fileDownloadViewModel != null)
             {
                 _parentViewModel.FileDownloadList.Remove(fileDownloadViewModel);
+            }
+
+            string path = Path.Combine(FileDownload.TemporaryDownloadDirectory, FileDownload.Id.ToString());
+            if (File.Exists(path))
+            {
+                File.Delete(path);
             }
 
             NetworkService networkService = new(_appStateStore);
