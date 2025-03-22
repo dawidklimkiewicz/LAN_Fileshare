@@ -178,6 +178,12 @@ namespace LAN_Fileshare.Services
                 List<byte[]> fields = [BitConverter.GetBytes(lastReceivedByte)];
                 return SerializePacket(PacketType.StopFileTransmission, fields);
             }
+
+            public static byte[] Disconnect(IPAddress senderIP)
+            {
+                List<byte[]> fields = [senderIP.GetAddressBytes()];
+                return SerializePacket(PacketType.Disconnect, fields);
+            }
         }
 
 
@@ -316,6 +322,13 @@ namespace LAN_Fileshare.Services
                 byte[] lastReceivedByteBuffer = new byte[8];
                 networkStream.ReadExactly(lastReceivedByteBuffer, 0, lastReceivedByteBuffer.Length);
                 return BitConverter.ToInt64(lastReceivedByteBuffer);
+            }
+
+            public static IPAddress Disconnect(MemoryStream networkStream)
+            {
+                byte[] senderAddressBuffer = new byte[4];
+                networkStream.ReadExactly(senderAddressBuffer, 0, senderAddressBuffer.Length);
+                return new IPAddress(senderAddressBuffer);
             }
         }
     }

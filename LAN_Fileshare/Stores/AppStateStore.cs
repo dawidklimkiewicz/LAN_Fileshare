@@ -25,6 +25,7 @@ namespace LAN_Fileshare.Stores
         public string Username = "";
 
         public int PacketListenerPort { get; set; } = 53788;
+        public int DisconnectListenerPort { get; set; } = 53789;
         public HostStore HostStore { get; set; }
         public Host? SelectedHost { get; set; }
         public List<Task> ActiveFileTransfers = new();

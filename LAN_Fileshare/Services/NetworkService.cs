@@ -155,6 +155,22 @@ namespace LAN_Fileshare.Services
             catch (Exception) { }
         }
 
+        public async Task SignalDisconnect()
+        {
+            foreach (Host host in _appStateStore.HostStore.GetHostList())
+            {
+                try
+                {
+                    using UdpClient client = new();
+                    client.Connect(host.IPAddress, _appStateStore.DisconnectListenerPort);
+                    byte[] packet = PacketService.Create.Disconnect(_appStateStore.IPAddress!);
+                    await client.SendAsync(packet, packet.Length);
+                    client.Close();
+                }
+                catch { }
+            }
+        }
+
         public async Task SendInitialFileInformation(List<FileUpload> files, IPAddress receiverIP, int port)
         {
             try

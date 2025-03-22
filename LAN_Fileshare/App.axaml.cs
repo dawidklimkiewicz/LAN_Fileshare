@@ -115,9 +115,9 @@ namespace LAN_Fileshare
             _mainWindow.Show();
         }
 
-        private void NativeMenuItem_Close(object? sender, System.EventArgs e)
+        private async void NativeMenuItem_Close(object? sender, System.EventArgs e)
         {
-            // TODO signal shutdown to other hosts
+            await _networkService.SignalDisconnect();
             Environment.Exit(0);
         }
 
