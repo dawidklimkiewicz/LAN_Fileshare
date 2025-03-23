@@ -192,7 +192,7 @@ namespace LAN_Fileshare.ViewModels
             }
         }
 
-        public void Receive(FileRemovedMessage message)
+        public async void Receive(FileRemovedMessage message)
         {
             if (SelectedHost == null) return;
 
@@ -202,6 +202,16 @@ namespace LAN_Fileshare.ViewModels
                 if (viewModel == null) return;
                 FileUploadList.Remove(viewModel);
                 FilteredFileUploadList.Remove(viewModel);
+
+                try
+                {
+                    DeleteFileUpload deleteFileUpload = new(_mainDbContextFactory);
+                    await deleteFileUpload.Execute(viewModel.FileUpload.Id);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine($"Error deleting file in db: {ex}");
+                }
             }
             else if (message.File is FileDownload && SelectedHost.PhysicalAddress.Equals(message.Host.PhysicalAddress))
             {
