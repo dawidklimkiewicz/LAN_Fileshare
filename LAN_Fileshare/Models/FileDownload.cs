@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using LAN_Fileshare.Messages;
 using System;
+using System.IO;
 using System.Threading;
 
 namespace LAN_Fileshare.Models
@@ -11,6 +12,7 @@ namespace LAN_Fileshare.Models
         private object _bytesTransmittedLock = new();
         private long _bytesTransmittedLastValue;
 
+        public string TemporaryDownloadDirectory { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "lan-fileshare");
         public Guid Id { get; set; }
         public string Name { get; set; }
         public long Size { get; set; }

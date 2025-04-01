@@ -96,6 +96,15 @@ namespace LAN_Fileshare.Services
             _cts.Dispose();
             _fileReader.Dispose();
 
+            if (_fileToSend.BytesTransmitted == _fileToSend.Size)
+            {
+                _fileToSend.State = FileState.Finished;
+            }
+            else
+            {
+                _fileToSend.State = FileState.Paused;
+            }
+
             try
             {
                 UpdateFileUpload updateFileUpload = new(_mainDbContextFactory);
@@ -104,16 +113,6 @@ namespace LAN_Fileshare.Services
             catch (Exception ex)
             {
                 Trace.WriteLine($"Error updating file upload in database: {ex}");
-            }
-
-
-            if (_fileToSend.BytesTransmitted == _fileToSend.Size)
-            {
-                _fileToSend.State = FileState.Finished;
-            }
-            else
-            {
-                _fileToSend.State = FileState.Paused;
             }
         }
     }

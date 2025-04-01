@@ -21,13 +21,18 @@
                 DragDrop.DragLeave="FileUploadsList_DragLeave"
                 DragDrop.DragOver="FileUploadsList_DragOver"
                 DragDrop.Drop="FileUploadsList_Drop">
-                <ItemsControl ItemsSource="{Binding FileUploadList}">
+                <ItemsControl ItemsSource="{Binding FilteredFileUploadList}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="vm:FileUploadItemViewModel">
                             <view:FileUploadItemView Margin="0,0,0,3" />
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+                <ScrollViewer.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Command="{Binding ClearFinishedUploadsCommand}" Header="Remove finished files" />
+                    </ContextMenu>
+                </ScrollViewer.ContextMenu>
             </ScrollViewer>
 
             <TabItem.Styles>
@@ -39,7 +44,7 @@
 
         <TabItem Header="Downloads">
             <ScrollViewer Margin="5,5,5,2">
-                <ItemsControl ItemsSource="{Binding FileDownloadList}">
+                <ItemsControl ItemsSource="{Binding FilteredFileDownloadList}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="vm:FileDownloadItemViewModel">
                             <view:FileDownloadItemView Margin="0,0,0,3" />
@@ -70,11 +75,14 @@
                                     <TextBox
                                         Grid.Column="1"
                                         Width="250"
-                                        Margin="20,7,0,7"
+                                        Margin="20,0,0,0"
                                         HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
                                         VerticalContentAlignment="Center"
                                         CornerRadius="7"
-                                        FontSize="16" />
+                                        FontSize="16"
+                                        Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        Watermark="Search" />
                                 </Grid>
                                 <ContentPresenter
                                     Name="PART_SelectedContentHost"

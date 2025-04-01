@@ -27,6 +27,12 @@ namespace LAN_Fileshare.ViewModels
         public bool IsAnyHostSelected => SelectedHost != null;
         public ObservableCollection<FileUploadItemViewModel> FileUploadList { get; } = new();
         public ObservableCollection<FileDownloadItemViewModel> FileDownloadList { get; } = new();
+        public ObservableCollection<FileUploadItemViewModel> FilteredFileUploadList { get; } = new();
+        public ObservableCollection<FileDownloadItemViewModel> FilteredFileDownloadList { get; } = new();
+
+        [ObservableProperty]
+        private string _searchText = "";
+        partial void OnSearchTextChanged(string value) => SearchFiles();
 
         public FileListingViewModel(AppStateStore appStateStore, FileDialogService fileDialogService, MainDbContextFactory mainDbContextFactory)
         {
@@ -48,13 +54,69 @@ namespace LAN_Fileshare.ViewModels
             {
                 foreach (FileUpload file in SelectedHost.FileUploadList.GetAll())
                 {
-                    FileUploadList.Add(new FileUploadItemViewModel(file, this, _appStateStore));
+                    FileUploadItemViewModel viewModel = new FileUploadItemViewModel(file, this, _appStateStore);
+                    FileUploadList.Add(viewModel);
                 }
 
                 foreach (FileDownload file in SelectedHost.FileDownloadList.GetAll())
                 {
-                    FileDownloadList.Add(new FileDownloadItemViewModel(file, this, _appStateStore));
+                    FileDownloadItemViewModel viewModel = new FileDownloadItemViewModel(file, this, _appStateStore);
+                    FileDownloadList.Add(viewModel);
                 }
+
+                SearchFiles();
+            }
+        }
+
+        private void SearchFiles()
+        {
+            FilteredFileDownloadList.Clear();
+            FilteredFileUploadList.Clear();
+
+            if (SearchText == "")
+            {
+                foreach (FileUploadItemViewModel file in FileUploadList)
+                {
+                    FilteredFileUploadList.Add(file);
+                }
+                foreach (FileDownloadItemViewModel file in FileDownloadList)
+                {
+                    FilteredFileDownloadList.Add(file);
+                }
+            }
+            else
+            {
+                List<FileUploadItemViewModel> filteredUploads = FileUploadList.Where(file => file.Path.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+                List<FileDownloadItemViewModel> filteredDownloads = FileDownloadList.Where(file => file.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+
+                foreach (FileUploadItemViewModel file in filteredUploads)
+                {
+                    FilteredFileUploadList.Add(file);
+                }
+                foreach (FileDownloadItemViewModel file in filteredDownloads)
+                {
+                    FilteredFileDownloadList.Add(file);
+                }
+            }
+        }
+
+        [RelayCommand]
+        private async Task ClearFinishedUploads()
+        {
+            List<FileUploadItemViewModel> finishedUploads = FileUploadList.Where(file => file.IsFinished).ToList();
+            foreach (FileUploadItemViewModel file in finishedUploads)
+            {
+                await file.RemoveFile();
+            }
+        }
+
+        [RelayCommand]
+        private async Task ClearFinishedDownloads()
+        {
+            List<FileDownloadItemViewModel> finishedDwonloads = FileDownloadList.Where(file => file.IsFinished).ToList();
+            foreach (FileDownloadItemViewModel file in finishedDwonloads)
+            {
+                await file.RemoveFile();
             }
         }
 
@@ -120,15 +182,17 @@ namespace LAN_Fileshare.ViewModels
             {
                 FileUploadItemViewModel viewModel = new FileUploadItemViewModel((FileUpload)message.File, this, _appStateStore);
                 FileUploadList.Add(viewModel);
+                FilteredFileUploadList.Add(viewModel);
             }
             else if (message.File is FileDownload && SelectedHost.PhysicalAddress.Equals(message.Host.PhysicalAddress))
             {
                 FileDownloadItemViewModel viewModel = new FileDownloadItemViewModel((FileDownload)message.File, this, _appStateStore);
                 FileDownloadList.Add(viewModel);
+                FilteredFileDownloadList.Add(viewModel);
             }
         }
 
-        public void Receive(FileRemovedMessage message)
+        public async void Receive(FileRemovedMessage message)
         {
             if (SelectedHost == null) return;
 
@@ -137,12 +201,24 @@ namespace LAN_Fileshare.ViewModels
                 FileUploadItemViewModel? viewModel = FileUploadList.FirstOrDefault(file => file.FileUpload.Id.Equals(message.File.Id));
                 if (viewModel == null) return;
                 FileUploadList.Remove(viewModel);
+                FilteredFileUploadList.Remove(viewModel);
+
+                try
+                {
+                    DeleteFileUpload deleteFileUpload = new(_mainDbContextFactory);
+                    await deleteFileUpload.Execute(viewModel.FileUpload.Id);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine($"Error deleting file in db: {ex}");
+                }
             }
             else if (message.File is FileDownload && SelectedHost.PhysicalAddress.Equals(message.Host.PhysicalAddress))
             {
                 FileDownloadItemViewModel? viewModel = FileDownloadList.FirstOrDefault(file => file.FileDownload.Id.Equals(message.File.Id));
                 if (viewModel == null) return;
                 FileDownloadList.Remove(viewModel);
+                FilteredFileDownloadList.Remove(viewModel);
             }
         }
 

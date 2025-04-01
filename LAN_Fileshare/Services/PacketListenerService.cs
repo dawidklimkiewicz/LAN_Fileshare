@@ -1,4 +1,5 @@
 ﻿using LAN_Fileshare.EntityFramework;
+using LAN_Fileshare.EntityFramework.Queries.FileUpload;
 using LAN_Fileshare.EntityFramework.Queries.Host;
 using LAN_Fileshare.Models;
 using LAN_Fileshare.Stores;
@@ -247,7 +248,7 @@ namespace LAN_Fileshare.Services
             }
         }
 
-        private void ProcessRemoveFilePacket(NetworkStream netowrkStream)
+        private async void ProcessRemoveFilePacket(NetworkStream netowrkStream)
         {
             var packetFields = PacketService.Read.RemoveFile(netowrkStream);
             IPAddress senderIP = packetFields.senderIP;
@@ -262,6 +263,8 @@ namespace LAN_Fileshare.Services
                 if (fileUpload != null)
                 {
                     host.FileUploadList.Remove(fileUpload);
+                    DeleteFileUpload deleteFileUpload = new(_mainDbContextFactory);
+                    await deleteFileUpload.Execute(fileUpload.Id);
                 }
 
                 if (fileDownload != null)

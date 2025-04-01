@@ -6,6 +6,7 @@ using LAN_Fileshare.Models;
 using LAN_Fileshare.Services;
 using LAN_Fileshare.Stores;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -94,15 +95,20 @@ namespace LAN_Fileshare.ViewModels
         }
 
         [RelayCommand(CanExecute = nameof(RemoveFileCanExecute))]
-        private async Task RemoveFile()
+        public async Task RemoveFile()
         {
-            // TODO also remove from temp folder
-
             FileDownloadItemViewModel? fileDownloadViewModel = _parentViewModel.FileDownloadList.FirstOrDefault(f => f.FileDownload.Id == FileDownload.Id);
 
             if (fileDownloadViewModel != null)
             {
-                _parentViewModel.FileDownloadList.Remove(fileDownloadViewModel);
+                _parentViewModel.SelectedHost?.FileDownloadList.Remove(FileDownload);
+            }
+
+            // Delete downloaded parts of the file
+            string path = Path.Combine(FileDownload.TemporaryDownloadDirectory, FileDownload.Id.ToString());
+            if (File.Exists(path))
+            {
+                File.Delete(path);
             }
 
             NetworkService networkService = new(_appStateStore);

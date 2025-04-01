@@ -20,7 +20,8 @@
     <Grid
         x:Name="MainBackground"
         Background="{StaticResource PrimaryBackgroundColor}"
-        ColumnDefinitions="240,*">
+        ColumnDefinitions="240,*"
+        PointerPressed="Grid_PointerPressed">
         <views:HostListingView />
 
         <Grid Grid.Column="1" RowDefinitions="*,auto">

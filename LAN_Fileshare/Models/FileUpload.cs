@@ -66,7 +66,7 @@ namespace LAN_Fileshare.Models
             Size = fileInfo.Length;
             TimeCreated = timeCreated;
             _bytesTransmitted = bytesTransmitted;
-            _state = FileState.Paused;
+            _state = _bytesTransmitted == Size ? FileState.Finished : FileState.Paused;
         }
 
         // For testing purposes
