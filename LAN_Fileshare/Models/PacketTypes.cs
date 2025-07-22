@@ -6,7 +6,9 @@
         {
             Acknowledge,
             Ping,
+            KeepAlive,
             HostInfo,
+            HostAndFileInfo,
             HostInfoReply,
             FileInformation,
             RemoveFile,

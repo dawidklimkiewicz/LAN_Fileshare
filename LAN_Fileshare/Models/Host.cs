@@ -1,8 +1,10 @@
-﻿using System;
+﻿using LAN_Fileshare.Services;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 
 namespace LAN_Fileshare.Models
 {
@@ -16,9 +18,10 @@ namespace LAN_Fileshare.Models
         public bool AutoDownload { get; set; }
         public FileList<FileUpload> FileUploadList { get; set; }
         public FileList<FileDownload> FileDownloadList { get; set; }
+        public HostConnection Connection { get; set; }
 
 
-        public Host(PhysicalAddress physicalAddress, IPAddress iPAddress, string username)
+        public Host(PhysicalAddress physicalAddress, IPAddress iPAddress, string username, TcpClient client)
         {
             PhysicalAddress = physicalAddress;
             IPAddress = iPAddress;
@@ -27,9 +30,10 @@ namespace LAN_Fileshare.Models
             IsBlocked = false;
             FileUploadList = new(this);
             FileDownloadList = new(this);
+            Connection = new(client);
         }
 
-        public Host(PhysicalAddress physicalAddress, IPAddress ipAddress, string username, string downloadPath, bool isBlocked, bool autoDownload, List<FileUpload> fileUploads)
+        public Host(PhysicalAddress physicalAddress, IPAddress ipAddress, string username, string downloadPath, bool isBlocked, bool autoDownload, List<FileUpload> fileUploads, TcpClient client)
         {
             PhysicalAddress = physicalAddress;
             IPAddress = ipAddress;
@@ -39,6 +43,7 @@ namespace LAN_Fileshare.Models
             AutoDownload = autoDownload;
             FileUploadList = new(this, fileUploads);
             FileDownloadList = new(this);
+            Connection = new(client);
         }
     }
 }

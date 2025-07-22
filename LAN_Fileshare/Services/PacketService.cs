@@ -44,6 +44,15 @@ namespace LAN_Fileshare.Services
             }
 
             /// <summary>
+            /// (1B) Type
+            /// </summary>
+            /// <returns></returns>
+            public static byte[] KeepAlive()
+            {
+                return SerializePacket(PacketType.KeepAlive, []);
+            }
+
+            /// <summary>
             /// (1B) Type | (4B) IPAddress | (6B) MAC address | (4B) Username length | (X Bytes) Username
             /// </summary>
             public static byte[] HostInfo(IPAddress senderIP, PhysicalAddress physicalAddress, string username)

@@ -57,7 +57,7 @@ namespace LAN_Fileshare.Services
                     try
                     {
                         TcpClient tcpClient = await _packetListener.AcceptTcpClientAsync(token);
-                        Trace.WriteLine("ACCEPTED CLIENT");
+                        Trace.WriteLine($"ACCEPTED CLIENT {tcpClient.Client.RemoteEndPoint}");
 
                         _ = Task.Run(() => HandleClientAsync(tcpClient));
                     }
@@ -82,8 +82,7 @@ namespace LAN_Fileshare.Services
         {
             try
             {
-                using NetworkStream networkStream = tcpClient.GetStream();
-                await ReadPacket(networkStream);
+                await ReadPacket(tcpClient);
             }
             catch (Exception ex)
             {
@@ -95,55 +94,87 @@ namespace LAN_Fileshare.Services
             }
         }
 
-        private async Task ReadPacket(NetworkStream networkStream)
+        private async Task ReadPacket(TcpClient tcpClient)
         {
+            using NetworkStream networkStream = tcpClient.GetStream();
             PacketType packetType = PacketService.Read.PacketType(networkStream);
             Trace.WriteLine($"Packet type: {packetType}");
 
             switch (packetType)
             {
-                case PacketType.Ping: ProcessPingPacket(networkStream); break;
-                case PacketType.HostInfo: ProcessHostInfoPacket(networkStream); break;
-                case PacketType.HostInfoReply: ProcessHostInfoReplyPacket(networkStream); break;
+                case PacketType.Ping: await ProcessPingPacket(tcpClient); break;
                 case PacketType.FileInformation: ProcessFileInfoPacket(networkStream); break;
                 case PacketType.RemoveFile: ProcessRemoveFilePacket(networkStream); break;
                 case PacketType.FileRequest: ProcessFileRequestPacket(networkStream); break;
                 case PacketType.InitialFileInformation: ProcessInitialFileInformationPacket(networkStream); break;
                 case PacketType.InitialFileInformationReply: ProcessFileInfoPacket(networkStream); break;
             }
-
-            try
-            {
-                // Signal that the stream can be closed
-                byte[] acknowledgePacket = PacketService.Create.Acknowledge();
-                await networkStream.WriteAsync(acknowledgePacket);
-                await networkStream.FlushAsync();
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine($"Failed to send acknowledgement packet - {ex}");
-            }
         }
 
         // TODO: dodać timeout albo nawet powtórzenie wysłania
-        private async void ProcessPingPacket(NetworkStream networkStream)
+        private async Task ProcessPingPacket(TcpClient tcpClient)
         {
+            NetworkStream networkStream = tcpClient.GetStream();
             IPAddress remoteIp = PacketService.Read.Ping(networkStream);
 
             try
             {
-                using TcpClient tcpClient = new();
-                tcpClient.Connect(remoteIp, _appStateStore.PacketListenerPort);
-                using NetworkStream responseStream = tcpClient.GetStream();
+                PacketType packetType;
 
+                // Send HostInfo
                 byte[] hostInfoPacket = PacketService.Create.HostInfo(_appStateStore.IPAddress!, _appStateStore.PhysicalAddress!, _appStateStore.Username);
-                byte[] responseBuffer = new byte[1];
+                await networkStream.WriteAsync(hostInfoPacket);
+                await networkStream.FlushAsync();
 
-                await responseStream.WriteAsync(hostInfoPacket, 0, hostInfoPacket.Length);
-                await responseStream.FlushAsync();
-                responseStream.ReadExactly(responseBuffer, 0, responseBuffer.Length);
+                // Read HostInfoReply and create Host object
+                packetType = PacketService.Read.PacketType(networkStream);
+                if (packetType != PacketType.HostInfoReply)
+                {
+                    throw new Exception($"Expected HostInfoReply packet, got {packetType} instead");
+                }
 
-                tcpClient.Close();
+                var hostInfoReplyFields = PacketService.Read.HostInfo(networkStream);
+                IPAddress remoteIP = hostInfoReplyFields.SenderIp;
+                PhysicalAddress remotePhysicalAddress = hostInfoReplyFields.PhysicalAddress;
+                string remoteUsername = hostInfoReplyFields.Username;
+
+                if (_appStateStore.HostStore.ContainsHost(remotePhysicalAddress))
+                {
+                    Trace.WriteLine($"Tried to add a host that already exists: {remoteIP}");
+                    tcpClient.Close();
+                    return;
+                }
+
+                GetOrCreateHost getOrCreateHost = new(_mainDbContextFactory);
+                Host? newHost = await getOrCreateHost.Execute(remotePhysicalAddress, remoteIP, remoteUsername, tcpClient);
+
+                if (newHost == null)
+                {
+                    Trace.WriteLine($"Error creating host {remoteIp}");
+                    tcpClient.Close();
+                    return;
+                }
+                _appStateStore.HostStore.AddHost(newHost);
+
+                // Send InitialFileInformation
+                byte[] initialFileInformationPacket = PacketService.Create.InitialFileInformation(_appStateStore.IPAddress!, newHost.FileUploadList.ToList());
+                await networkStream.WriteAsync(initialFileInformationPacket);
+                await networkStream.FlushAsync();
+
+                // Read InitialFileInformationReply
+                packetType = PacketService.Read.PacketType(networkStream);
+                if (packetType != PacketType.InitialFileInformationReply)
+                {
+                    Trace.WriteLine($"Expected InitialFileInformationReply packet, got {packetType} instead");
+                    tcpClient.Close();
+                    return;
+                }
+
+                var fileInfoReplyFields = PacketService.Read.FileInformation(networkStream);
+                IPAddress senderIP = fileInfoReplyFields.senderIP;
+                List<FileDownload> files = fileInfoReplyFields.files;
+
+                newHost.FileDownloadList.AddRange(files);
             }
             catch (Exception ex)
             {
@@ -152,8 +183,9 @@ namespace LAN_Fileshare.Services
         }
 
         // TODO: dodać timeout albo nawet powtórzenie wysłania
-        private async void ProcessHostInfoPacket(NetworkStream networkStream)
+        private async void ProcessHostInfoPacket(TcpClient tcpClient)
         {
+            using NetworkStream networkStream = tcpClient.GetStream();
             var packetFields = PacketService.Read.HostInfo(networkStream);
             IPAddress remoteIP = packetFields.SenderIp;
             PhysicalAddress remotePhysicalAddress = packetFields.PhysicalAddress;
@@ -164,7 +196,7 @@ namespace LAN_Fileshare.Services
                 try
                 {
                     GetOrCreateHost getOrCreateHost = new(_mainDbContextFactory);
-                    Host newHost = await getOrCreateHost.Execute(remotePhysicalAddress, remoteIP, remoteUsername);
+                    Host newHost = await getOrCreateHost.Execute(remotePhysicalAddress, remoteIP, remoteUsername, tcpClient);
                     _appStateStore.HostStore.AddHost(newHost);
                 }
                 catch (Exception ex)
@@ -175,18 +207,13 @@ namespace LAN_Fileshare.Services
 
             try
             {
-                using TcpClient tcpClient = new();
-                tcpClient.Connect(remoteIP, _appStateStore.PacketListenerPort);
-                using NetworkStream responseStream = tcpClient.GetStream();
-
                 byte[] hostInfoReplyPacket = PacketService.Create.HostInfoReply(_appStateStore.IPAddress!, _appStateStore.PhysicalAddress!, _appStateStore.Username);
                 byte[] responseBuffer = new byte[1];
 
-                await responseStream.WriteAsync(hostInfoReplyPacket, 0, hostInfoReplyPacket.Length);
-                await responseStream.FlushAsync();
-                responseStream.ReadExactly(responseBuffer, 0, responseBuffer.Length);
+                await networkStream.WriteAsync(hostInfoReplyPacket);
+                await networkStream.FlushAsync();
+                networkStream.ReadExactly(responseBuffer, 0, responseBuffer.Length);
 
-                tcpClient.Close();
             }
             catch (Exception ex)
             {
@@ -194,30 +221,30 @@ namespace LAN_Fileshare.Services
             }
         }
 
-        private async void ProcessHostInfoReplyPacket(NetworkStream networkStream)
-        {
-            var packetFields = PacketService.Read.HostInfo(networkStream);
-            IPAddress remoteIP = packetFields.SenderIp;
-            PhysicalAddress remotePhysicalAddress = packetFields.PhysicalAddress;
-            string remoteUsername = packetFields.Username;
+        //private async void ProcessHostInfoReplyPacket(NetworkStream networkStream)
+        //{
+        //    var packetFields = PacketService.Read.HostInfo(networkStream);
+        //    IPAddress remoteIP = packetFields.SenderIp;
+        //    PhysicalAddress remotePhysicalAddress = packetFields.PhysicalAddress;
+        //    string remoteUsername = packetFields.Username;
 
-            if (!_appStateStore.HostStore.ContainsHost(remotePhysicalAddress))
-            {
-                try
-                {
-                    GetOrCreateHost getOrCreateHost = new(_mainDbContextFactory);
-                    Host newHost = await getOrCreateHost.Execute(remotePhysicalAddress, remoteIP, remoteUsername);
-                    _appStateStore.HostStore.AddHost(newHost);
+        //    if (!_appStateStore.HostStore.ContainsHost(remotePhysicalAddress))
+        //    {
+        //        try
+        //        {
+        //            GetOrCreateHost getOrCreateHost = new(_mainDbContextFactory);
+        //            Host newHost = await getOrCreateHost.Execute(remotePhysicalAddress, remoteIP, remoteUsername);
+        //            _appStateStore.HostStore.AddHost(newHost);
 
-                    NetworkService networkService = new(_appStateStore);
-                    await networkService.SendInitialFileInformation(newHost.FileUploadList.ToList(), remoteIP, _appStateStore.PacketListenerPort);
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine($"Error receiving HostInfoReply packet: {ex}");
-                }
-            }
-        }
+        //            NetworkService networkService = new(_appStateStore);
+        //            await networkService.SendInitialFileInformation(newHost.FileUploadList.ToList(), remoteIP, _appStateStore.PacketListenerPort);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Trace.WriteLine($"Error receiving HostInfoReply packet: {ex}");
+        //        }
+        //    }
+        //}
 
         private async void ProcessInitialFileInformationPacket(NetworkStream netowrkStream)
         {
@@ -262,9 +289,16 @@ namespace LAN_Fileshare.Services
 
                 if (fileUpload != null)
                 {
-                    host.FileUploadList.Remove(fileUpload);
-                    DeleteFileUpload deleteFileUpload = new(_mainDbContextFactory);
-                    await deleteFileUpload.Execute(fileUpload.Id);
+                    try
+                    {
+                        host.FileUploadList.Remove(fileUpload);
+                        DeleteFileUpload deleteFileUpload = new(_mainDbContextFactory);
+                        await deleteFileUpload.Execute(fileUpload.Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error removing FileUpload from DB: {ex}");
+                    }
                 }
 
                 if (fileDownload != null)

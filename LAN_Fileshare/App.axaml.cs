@@ -72,7 +72,7 @@ namespace LAN_Fileshare
             _mainWindow.Hide();
         }
 
-        private void NetworkChange_NetworkAddressChanged(object? sender, System.EventArgs e)
+        private void NetworkChange_NetworkAddressChanged(object? sender, EventArgs e)
         {
             NetworkInterface? networkInterface = _networkService.GetNetworkInterface();
 

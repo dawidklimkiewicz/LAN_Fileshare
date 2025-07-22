@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace LAN_Fileshare.EntityFramework.Queries.Host
@@ -18,7 +19,7 @@ namespace LAN_Fileshare.EntityFramework.Queries.Host
             _contextFactory = contextFactory;
         }
 
-        public async Task<Models.Host> Execute(PhysicalAddress physicalAddress, IPAddress ipAddress, string username)
+        public async Task<Models.Host> Execute(PhysicalAddress physicalAddress, IPAddress ipAddress, string username, TcpClient tcpClient)
         {
             using MainDbContext context = _contextFactory.Create();
             HostDto? dto = await context.Hosts.Include(h => h.FileUploads).FirstOrDefaultAsync(h => h.PhysicalAddress.Equals(physicalAddress));
@@ -26,7 +27,7 @@ namespace LAN_Fileshare.EntityFramework.Queries.Host
             // If host does not exist, create it and save it to the database
             if (dto == null)
             {
-                Models.Host newHost = new(physicalAddress, ipAddress, username);
+                Models.Host newHost = new(physicalAddress, ipAddress, username, tcpClient);
                 dto = new HostDto
                 {
                     PhysicalAddress = newHost.PhysicalAddress,
@@ -64,7 +65,7 @@ namespace LAN_Fileshare.EntityFramework.Queries.Host
                     }
                     await context.SaveChangesAsync();
                 }
-                return new Models.Host(dto.PhysicalAddress, ipAddress, username, dto.DownloadPath, dto.IsBlocked, dto.AutoDownload, uploadFiles);
+                return new Models.Host(dto.PhysicalAddress, ipAddress, username, dto.DownloadPath, dto.IsBlocked, dto.AutoDownload, uploadFiles, tcpClient);
             }
         }
     }
