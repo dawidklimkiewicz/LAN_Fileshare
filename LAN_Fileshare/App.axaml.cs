@@ -37,7 +37,7 @@ namespace LAN_Fileshare
             }
 
             _packetListenerService = new(_appStateStore, _mainDbContextFactory);
-            _networkService = new(_appStateStore);
+            _networkService = new(_appStateStore, _mainDbContextFactory);
             _hostCheckService = new(_appStateStore);
 
         }

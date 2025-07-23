@@ -116,18 +116,19 @@ namespace LAN_Fileshare.Services
         {
             NetworkStream networkStream = tcpClient.GetStream();
             IPAddress remoteIp = PacketService.Read.Ping(networkStream);
-
             try
             {
                 PacketType packetType;
 
                 // Send HostInfo
                 byte[] hostInfoPacket = PacketService.Create.HostInfo(_appStateStore.IPAddress!, _appStateStore.PhysicalAddress!, _appStateStore.Username);
+                Trace.WriteLine("HS - Sending HostInfo");
                 await networkStream.WriteAsync(hostInfoPacket);
                 await networkStream.FlushAsync();
 
                 // Read HostInfoReply and create Host object
                 packetType = PacketService.Read.PacketType(networkStream);
+                Trace.WriteLine($"HS - Received {packetType}");
                 if (packetType != PacketType.HostInfoReply)
                 {
                     throw new Exception($"Expected HostInfoReply packet, got {packetType} instead");
@@ -141,40 +142,43 @@ namespace LAN_Fileshare.Services
                 if (_appStateStore.HostStore.ContainsHost(remotePhysicalAddress))
                 {
                     Trace.WriteLine($"Tried to add a host that already exists: {remoteIP}");
-                    tcpClient.Close();
+                    tcpClient.Dispose();
                     return;
                 }
 
                 GetOrCreateHost getOrCreateHost = new(_mainDbContextFactory);
                 Host? newHost = await getOrCreateHost.Execute(remotePhysicalAddress, remoteIP, remoteUsername, tcpClient);
+                Trace.WriteLine($"HS - Created new host: {newHost.IPAddress}");
 
                 if (newHost == null)
                 {
-                    Trace.WriteLine($"Error creating host {remoteIp}");
-                    tcpClient.Close();
+                    Trace.WriteLine($"Error creating host {remoteIP}");
+                    tcpClient.Dispose();
                     return;
                 }
                 _appStateStore.HostStore.AddHost(newHost);
 
                 // Send InitialFileInformation
                 byte[] initialFileInformationPacket = PacketService.Create.InitialFileInformation(_appStateStore.IPAddress!, newHost.FileUploadList.ToList());
+                Trace.Write("HS - Sendnig fileinfo");
                 await networkStream.WriteAsync(initialFileInformationPacket);
                 await networkStream.FlushAsync();
 
                 // Read InitialFileInformationReply
                 packetType = PacketService.Read.PacketType(networkStream);
+                Trace.WriteLine($"HS - received {packetType}");
                 if (packetType != PacketType.InitialFileInformationReply)
                 {
                     Trace.WriteLine($"Expected InitialFileInformationReply packet, got {packetType} instead");
-                    tcpClient.Close();
+                    tcpClient.Dispose();
                     return;
                 }
 
                 var fileInfoReplyFields = PacketService.Read.FileInformation(networkStream);
-                IPAddress senderIP = fileInfoReplyFields.senderIP;
                 List<FileDownload> files = fileInfoReplyFields.files;
 
                 newHost.FileDownloadList.AddRange(files);
+                Trace.WriteLine("HS - Files added, handshake finished");
             }
             catch (Exception ex)
             {
@@ -257,7 +261,7 @@ namespace LAN_Fileshare.Services
             {
                 host.FileDownloadList.AddRange(files);
 
-                NetworkService networkService = new(_appStateStore);
+                NetworkService networkService = new(_appStateStore, _mainDbContextFactory);
                 await networkService.SendInitialFileInformationReply(host.FileUploadList.ToList(), senderIP, _appStateStore.PacketListenerPort);
             }
         }

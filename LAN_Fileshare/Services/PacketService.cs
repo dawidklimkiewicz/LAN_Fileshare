@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using static LAN_Fileshare.Models.PacketTypes;
 
 namespace LAN_Fileshare.Services
@@ -201,6 +202,10 @@ namespace LAN_Fileshare.Services
             {
                 byte[] packetTypeBuffer = new byte[1];
                 int bytesRead = packetData.Read(packetTypeBuffer, 0, 1);
+                if (bytesRead != 1)
+                {
+                    throw new IOException("Error reading packet type - connection closed or invalid data received");
+                }
                 return (PacketType)packetTypeBuffer[0];
             }
 
