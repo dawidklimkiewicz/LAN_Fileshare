@@ -49,7 +49,7 @@ namespace LAN_Fileshare.Services
                     }
 
                     await Task.WhenAll(keepAliveTasks);
-                    await Task.Delay(TimeSpan.FromSeconds(1), token);
+                    await Task.Delay(TimeSpan.FromSeconds(3), token);
                 }
             }
             catch (OperationCanceledException) { }

@@ -2,7 +2,7 @@
     <Design.PreviewWith>
         <Border
             Width="200"
-            Height="100"
+            Height="200"
             Background="DarkGray">
 
             <StackPanel>
@@ -31,11 +31,12 @@
                     Height="10"
                     Margin="0,5,0,0"
                     Value="90" />
+				<TextBlock FontSize="30">Lorem ipsum</TextBlock>
             </StackPanel>
         </Border>
     </Design.PreviewWith>
 
-    <Style Selector="Label.iconButtonLabel">
+	<Style Selector="Label.iconButtonLabel">
         <Setter Property="FontFamily" Value="{DynamicResource Phosphor}" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="HorizontalAlignment" Value="Center" />

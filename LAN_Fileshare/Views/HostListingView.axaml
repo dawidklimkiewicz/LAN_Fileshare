@@ -9,35 +9,49 @@
     xmlns:views="using:LAN_Fileshare.Views"
     xmlns:vm="using:LAN_Fileshare.ViewModels"
     d:DesignHeight="700"
-    d:DesignWidth="240"
+    d:DesignWidth="300"
     x:DataType="vm:MainWindowViewModel"
     mc:Ignorable="d">
 
     <Grid Background="{DynamicResource SecondaryBackgroundColor}" RowDefinitions="auto,auto, *">
-        <StackPanel
-            Margin="15,10"
+		<Border BorderThickness="1" BorderBrush="{DynamicResource BorderColor}" Grid.Row="0">
+		<StackPanel
+			Background="{DynamicResource DarkerBackgroundColor}"
             Orientation="Vertical"
             Spacing="5">
             <TextBlock
-                FontSize="32"
+                FontSize="22"
+				Padding="20,20,20,0"
+				FontWeight="SemiBold"
                 Foreground="{StaticResource PrimaryTextColor}"
                 Text="{Binding LocalUsername}"
                 TextTrimming="CharacterEllipsis" />
             <TextBlock
-                FontSize="20"
+                FontSize="14"
+				Padding="20,0,20,20"
                 Foreground="{StaticResource SecondaryTextColor}"
                 Text="{Binding LocalIPAddress}" />
         </StackPanel>
-        <Rectangle
-            Grid.Row="1"
-            Width="230"
-            Height="1"
-            Fill="{StaticResource SecondaryTextColor}" />
+		</Border>
+
+		<StackPanel Orientation="Horizontal" Grid.Row="1" Margin="10,10,0,0">
+			<TextBlock
+				FontFamily="{DynamicResource Phosphor}"
+				FontSize="26"
+				Text="&#xE4EA;"
+				Foreground="{DynamicResource PrimaryTextColor}"/>
+			<TextBlock 
+				FontSize="16"
+				FontWeight="Bold"
+				Foreground="{DynamicResource PrimaryTextColor}"
+				Text=" Network devices"
+				VerticalAlignment="Center"/>
+		</StackPanel>
 
         <ListBox
             Grid.Row="2"
-            Margin="0,6,0,0"
-            Padding="10,0,15,0"
+            Margin="10,10,0,0"
+            Padding="0,0,15,0"
             Background="Transparent"
             DataContext="{Binding HostListingViewModel}"
             ItemsSource="{Binding HostListingItemViewModels}"
@@ -48,8 +62,9 @@
                     <Border Padding="10">
                         <Grid ColumnDefinitions="auto, *" RowDefinitions="auto, auto">
                             <TextBlock
+								Margin="0"
                                 Grid.Row="0"
-                                FontSize="16"
+								FontSize="16"
                                 FontWeight="SemiBold"
                                 Foreground="{DynamicResource PrimaryTextColor}"
                                 Text="{Binding Username}" />
@@ -74,7 +89,7 @@
                 </Style>
 
                 <Style Selector="ListBoxItem:selected">
-                    <Setter Property="BorderBrush" Value="White" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource SelectionColor}" />
                     <Setter Property="BorderThickness" Value="1" />
                 </Style>
 
