@@ -35,11 +35,11 @@ namespace LAN_Fileshare.ViewModels
         private string _searchText = "";
 
         [ObservableProperty]
-        private string _selectedHostName;
+        private string _selectedHostName = "";
 
         [ObservableProperty]
-        private IPAddress _selectedHostIp;
-        
+        private IPAddress _selectedHostIp = new([0, 0, 0, 0]);
+
         partial void OnSearchTextChanged(string value) => SearchFiles();
 
         public FileListingViewModel(AppStateStore appStateStore, FileDialogService fileDialogService, MainDbContextFactory mainDbContextFactory)

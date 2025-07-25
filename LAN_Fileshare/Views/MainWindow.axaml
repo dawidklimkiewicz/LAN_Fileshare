@@ -22,18 +22,13 @@
         Background="{StaticResource PrimaryBackgroundColor}"
         ColumnDefinitions="240,*"
         PointerPressed="Grid_PointerPressed">
-        <views:HostListingView />
+        <Border BoxShadow="0 2 30 0 LightGray">
+            <views:HostListingView />
+        </Border>
 
         <Grid Grid.Column="1" RowDefinitions="*,auto">
             <views:FileListingView DataContext="{Binding FileListingViewModel}" IsVisible="{Binding IsAnyHostSelected}" />
-            <TextBlock
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                FontSize="32"
-                Foreground="{StaticResource SecondaryTextColor}"
-                IsVisible="{Binding !FileListingViewModel.IsAnyHostSelected}"
-                Text="Select a host" />
-            <Grid Grid.Row="1" Background="Green" />
+            <views:NoDeviceSelectedView IsVisible="{Binding !FileListingViewModel.IsAnyHostSelected}" />
         </Grid>
     </Grid>
 </Window>

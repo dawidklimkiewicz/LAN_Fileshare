@@ -1,0 +1,33 @@
+<UserControl
+    x:Class="LAN_Fileshare.Views.NoDeviceSelectedView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    Background="White"
+    mc:Ignorable="d">
+    <StackPanel
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center"
+        Spacing="10">
+        <TextBlock
+            HorizontalAlignment="Center"
+            FontFamily="{DynamicResource Phosphor}"
+            FontSize="52"
+            Foreground="{StaticResource SecondaryTextColor}"
+            Text="&#xE4EA;" />
+        <TextBlock
+            HorizontalAlignment="Center"
+            FontSize="16"
+            FontWeight="SemiBold"
+            Foreground="{StaticResource PrimaryTextColor}"
+            Text="Select a Device" />
+        <TextBlock
+            HorizontalAlignment="Center"
+            FontSize="14"
+            Foreground="{StaticResource SecondaryTextColor}"
+            Text="Choose a device from the network to start sharing files" />
+    </StackPanel>
+</UserControl>

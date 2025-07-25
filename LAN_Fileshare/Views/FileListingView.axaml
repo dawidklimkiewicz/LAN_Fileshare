@@ -11,58 +11,66 @@
     d:DesignWidth="800"
     x:DataType="vm:FileListingViewModel"
     mc:Ignorable="d">
-	
-	<Grid RowDefinitions="auto,auto,*" Background="{DynamicResource SecondaryBackgroundColor}">
-		<StackPanel Orientation="Vertical"
-					Margin="15,20,15,20"
-				    Grid.Row="0"  >
-			<TextBlock 
-				FontSize="36"
-				Foreground="{DynamicResource PrimaryTextColor}"
-				Text="Username"/>
-			<TextBlock 
-				FontSize="20" 
-				Foreground="{DynamicResource SecondaryTextColor}"
-				Text="192.168.0.1"/>
-		</StackPanel>
 
-		<TextBox
-            Grid.Row="1"
-            Margin="10,0,10,10"
-			Background="Transparent"
-			BorderBrush="{DynamicResource BorderColor}"
-            VerticalAlignment="Center"
-            VerticalContentAlignment="Center"
-            CornerRadius="7"
-            FontSize="16"
-			Foreground="{DynamicResource SecondaryTextColor}"
-            Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            Watermark="Search files...">
-			<TextBox.Styles>
-				<Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
-					<Setter Property="Background" Value="{DynamicResource PrimaryBackgroundColor}"/>
-				</Style>
-				<Style Selector="TextBox:pointerover /template/ Border">
-					<Setter Property="Background" Value="{DynamicResource PrimaryBackgroundColor}"/>
-					<Setter Property="BorderBrush" Value="{DynamicResource BorderColor}" />
-				</Style>
-			</TextBox.Styles>
-		</TextBox>
-		
+    <Grid RowDefinitions="auto,auto,*">
+        <Grid Background="{DynamicResource SecondaryBackgroundColor}" RowDefinitions="auto,auto">
+            <StackPanel
+                Grid.Row="0"
+                Margin="15,17,15,20"
+                Orientation="Vertical">
+                <TextBlock
+                    FontSize="22"
+                    FontWeight="SemiBold"
+                    Foreground="{DynamicResource PrimaryTextColor}"
+                    Text="{Binding SelectedHostName}" />
+                <TextBlock
+                    FontSize="16"
+                    Foreground="{DynamicResource SecondaryTextColor}"
+                    Text="{Binding SelectedHostIp}" />
+            </StackPanel>
+
+            <TextBox
+                Grid.Row="1"
+                Margin="10,0,10,10"
+                VerticalAlignment="Center"
+                VerticalContentAlignment="Center"
+                Background="Transparent"
+                BorderBrush="{DynamicResource BorderColor}"
+                CornerRadius="7"
+                FontSize="16"
+                Foreground="{DynamicResource SecondaryTextColor}"
+                Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Watermark="Search files...">
+                <TextBox.Styles>
+                    <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+                        <Setter Property="Background" Value="{DynamicResource PrimaryBackgroundColor}" />
+                    </Style>
+                    <Style Selector="TextBox:pointerover /template/ Border">
+                        <Setter Property="Background" Value="{DynamicResource PrimaryBackgroundColor}" />
+                        <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}" />
+                    </Style>
+                </TextBox.Styles>
+            </TextBox>
+
+        </Grid>
+
         <TabControl Grid.Row="2">
-            <TabItem 
-			    FontSize="18"
-			    FontWeight="SemiBold"
-			    Foreground="{DynamicResource PrimaryTextColor}">
-				<TabItem.Header>
-					<StackPanel Orientation="Horizontal" Spacing="5">
-						<TextBlock FontFamily="{DynamicResource Phosphor}" VerticalAlignment="Center" Text="&#xE4C0;"/>
-						<TextBlock Text="Send Files"/>
-					</StackPanel>
-				</TabItem.Header>
+            <TabItem
+                FontSize="14"
+                FontWeight="SemiBold"
+                Foreground="{DynamicResource PrimaryTextColor}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontFamily="{DynamicResource Phosphor}"
+                            Text="&#xE4C0;" />
+                        <TextBlock Text="Send" />
+                    </StackPanel>
+                </TabItem.Header>
                 <ScrollViewer
                     x:Name="FileUploadsListBox"
-                    Margin="5,5,5,2"
+                    Margin="15,15,15,5"
                     DragDrop.AllowDrop="True"
                     DragDrop.DragLeave="FileUploadsList_DragLeave"
                     DragDrop.DragOver="FileUploadsList_DragOver"
@@ -81,34 +89,37 @@
                     </ScrollViewer.ContextMenu>
                 </ScrollViewer>
 
-			    <TabItem.Styles>
-				    <Style Selector="TabItem:selected /template/ Border#PART_SelectedPipe">
-					    <Setter Property="Background" Value="{DynamicResource SecondarySelectionColor}" />
-				    </Style>
-				    <Style Selector="TabItem /template/ ContentPresenter">
-					    <Setter Property="Foreground" Value="Gray"/>
-				    </Style>
-				    <Style Selector="TabItem:selected /template/ ContentPresenter" >
-					    <Setter Property="Foreground" Value="{DynamicResource SecondarySelectionColor}" />
-				    </Style>
-				    <Style Selector="TabItem:pointerover /template/ ContentPresenter">
-					    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}" />
-				    </Style>
-				    <Style Selector="TabItem:selected:pointerover /template/ ContentPresenter">
-					    <Setter Property="Foreground" Value="{DynamicResource SecondarySelectionColor}"/>
-				    </Style>
-			    </TabItem.Styles>
+                <TabItem.Styles>
+                    <Style Selector="TabItem:selected /template/ Border#PART_SelectedPipe">
+                        <Setter Property="Background" Value="{DynamicResource SecondarySelectionColor}" />
+                    </Style>
+                    <Style Selector="TabItem /template/ ContentPresenter">
+                        <Setter Property="Foreground" Value="Gray" />
+                    </Style>
+                    <Style Selector="TabItem:selected /template/ ContentPresenter">
+                        <Setter Property="Foreground" Value="{DynamicResource SecondarySelectionColor}" />
+                    </Style>
+                    <Style Selector="TabItem:pointerover /template/ ContentPresenter">
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}" />
+                    </Style>
+                    <Style Selector="TabItem:selected:pointerover /template/ ContentPresenter">
+                        <Setter Property="Foreground" Value="{DynamicResource SecondarySelectionColor}" />
+                    </Style>
+                </TabItem.Styles>
             </TabItem>
-            <TabItem 
-			    FontSize="18" 
-			    Foreground="{DynamicResource PrimaryTextColor}"
-			    FontWeight="SemiBold">
-				<TabItem.Header>
-					<StackPanel Orientation="Horizontal" Spacing="5">
-						<TextBlock FontFamily="{DynamicResource Phosphor}" VerticalAlignment="Center" Text="&#xE20C;"/>
-						<TextBlock Text="Download Files"/>
-					</StackPanel>
-				</TabItem.Header>
+            <TabItem
+                FontSize="14"
+                FontWeight="SemiBold"
+                Foreground="{DynamicResource PrimaryTextColor}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontFamily="{DynamicResource Phosphor}"
+                            Text="&#xE20C;" />
+                        <TextBlock Text="Download" />
+                    </StackPanel>
+                </TabItem.Header>
                 <ScrollViewer Margin="5,5,5,2">
                     <ItemsControl ItemsSource="{Binding FilteredFileDownloadList}">
                         <ItemsControl.ItemTemplate>
@@ -120,21 +131,21 @@
                 </ScrollViewer>
 
                 <TabItem.Styles>
-				    <Style Selector="TabItem /template/ ContentPresenter">
-					    <Setter Property="Foreground" Value="Gray"/>
-				    </Style>
+                    <Style Selector="TabItem /template/ ContentPresenter">
+                        <Setter Property="Foreground" Value="Gray" />
+                    </Style>
                     <Style Selector="TabItem:selected /template/ Border#PART_SelectedPipe">
                         <Setter Property="Background" Value="{DynamicResource SecondarySelectionColor}" />
                     </Style>
-				    <Style Selector="TabItem:selected /template/ ContentPresenter" >
-					    <Setter Property="Foreground" Value="{DynamicResource SecondarySelectionColor}" />
-				    </Style>
-				    <Style Selector="TabItem:pointerover /template/ ContentPresenter">
-					    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}" />
-				    </Style>
-				    <Style Selector="TabItem:selected:pointerover /template/ ContentPresenter">
-					    <Setter Property="Foreground" Value="{DynamicResource SecondarySelectionColor}"/>
-				    </Style>
+                    <Style Selector="TabItem:selected /template/ ContentPresenter">
+                        <Setter Property="Foreground" Value="{DynamicResource SecondarySelectionColor}" />
+                    </Style>
+                    <Style Selector="TabItem:pointerover /template/ ContentPresenter">
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}" />
+                    </Style>
+                    <Style Selector="TabItem:selected:pointerover /template/ ContentPresenter">
+                        <Setter Property="Foreground" Value="{DynamicResource SecondarySelectionColor}" />
+                    </Style>
                 </TabItem.Styles>
             </TabItem>
 
@@ -142,26 +153,15 @@
                 <Style Selector="TabControl">
                     <Setter Property="Template">
                         <ControlTemplate>
-                            <Border Background="{TemplateBinding Background}">
+                            <Border Background="Transparent">
                                 <Grid RowDefinitions="auto, *">
-                                    <Grid Background="{DynamicResource SecondaryBackgroundColor}" ColumnDefinitions="auto, *">
+                                    <Border Background="{DynamicResource SecondaryBackgroundColor}" BoxShadow="0 2 30 0 LightGray">
                                         <ItemsPresenter
                                             Name="PART_ItemsPresenter"
                                             Grid.Column="0"
                                             HorizontalAlignment="Left"
                                             ItemsPanel="{TemplateBinding ItemsPanel}" />
-                                        <!--<TextBox
-                                            Grid.Column="1"
-                                            Width="250"
-                                            Margin="20,0,0,0"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Center"
-                                            VerticalContentAlignment="Center"
-                                            CornerRadius="7"
-                                            FontSize="16"
-                                            Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            Watermark="Search" />-->
-                                    </Grid>
+                                    </Border>
                                     <ContentPresenter
                                         Name="PART_SelectedContentHost"
                                         Grid.Row="1"
@@ -177,7 +177,7 @@
                 </Style>
             </TabControl.Styles>
         </TabControl>
-	</Grid>
+    </Grid>
 
 
 </UserControl>
