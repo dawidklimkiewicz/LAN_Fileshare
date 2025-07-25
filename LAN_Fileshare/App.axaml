@@ -29,7 +29,7 @@
         <SolidColorBrush x:Key="BorderColor">#d1d1d1</SolidColorBrush>
         <SolidColorBrush x:Key="LightBorderColor">#e0e0e0</SolidColorBrush>
 
-        <SolidColorBrush x:Key="DragHoverBackgroundColor">#ddd</SolidColorBrush>
+        <SolidColorBrush x:Key="DragHoverBackgroundColor">#eee</SolidColorBrush>
         <SolidColorBrush x:Key="ListItemBackgroundColor">#444</SolidColorBrush>
         <SolidColorBrush x:Key="SelectedItemColor">#666</SolidColorBrush>
         <SolidColorBrush x:Key="HostListHoverColor">#555</SolidColorBrush>

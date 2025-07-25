@@ -65,12 +65,12 @@
                             VerticalAlignment="Center"
                             FontFamily="{DynamicResource Phosphor}"
                             Text="&#xE4C0;" />
-                        <TextBlock Text="Send" />
+                        <TextBlock Text="Send " />
                     </StackPanel>
                 </TabItem.Header>
                 <ScrollViewer
                     x:Name="FileUploadsListBox"
-                    Margin="15,15,15,5"
+                    Padding="20,15,20,5"
                     DragDrop.AllowDrop="True"
                     DragDrop.DragLeave="FileUploadsList_DragLeave"
                     DragDrop.DragOver="FileUploadsList_DragOver"
@@ -78,7 +78,7 @@
                     <ItemsControl ItemsSource="{Binding FilteredFileUploadList}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="vm:FileUploadItemViewModel">
-                                <view:FileUploadItemView Margin="0,0,0,3" />
+                                <view:FileUploadItemView Margin="0,7,0,0" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -117,14 +117,14 @@
                             VerticalAlignment="Center"
                             FontFamily="{DynamicResource Phosphor}"
                             Text="&#xE20C;" />
-                        <TextBlock Text="Download" />
+                        <TextBlock Text="Download " />
                     </StackPanel>
                 </TabItem.Header>
-                <ScrollViewer Margin="5,5,5,2">
+                <ScrollViewer Padding="20,15,20,5">
                     <ItemsControl ItemsSource="{Binding FilteredFileDownloadList}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="vm:FileDownloadItemViewModel">
-                                <view:FileDownloadItemView Margin="0,0,0,3" />
+                                <view:FileDownloadItemView Margin="0,7,0,0" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

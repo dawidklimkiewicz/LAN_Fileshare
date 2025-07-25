@@ -20,14 +20,19 @@
     </UserControl.Resources>
 
     <Border
-        Background="{DynamicResource DarkerBackgroundColor}"
+        Background="{DynamicResource SecondaryBackgroundColor}"
+        BorderBrush="{DynamicResource LightBorderColor}"
+        BorderThickness="1"
         ClipToBounds="True"
-        CornerRadius="10">
+        CornerRadius="5">
         <Grid RowDefinitions="*, auto">
             <StackPanel Margin="15,10,15,3">
 
                 <Grid VerticalAlignment="Top" ColumnDefinitions="*, auto">
-                    <TextBlock FontSize="18" Text="{Binding Name}" />
+                    <TextBlock
+                        FontSize="15"
+                        Foreground="{DynamicResource PrimaryTextColor}"
+                        Text="{Binding Name}" />
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <Button
                             Classes="iconButton"
