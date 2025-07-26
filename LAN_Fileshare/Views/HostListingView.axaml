@@ -12,67 +12,32 @@
     x:DataType="vm:MainWindowViewModel"
     mc:Ignorable="d">
 
-    <Border BorderBrush="{DynamicResource BorderColor}" BorderThickness="0,0,1,0">
+    <Border Name="hostListingBorder">
         <Grid Background="{DynamicResource SecondaryBackgroundColor}" RowDefinitions="auto,auto, *">
-            <Border
-                Grid.Row="0"
-                BorderBrush="{DynamicResource LightBorderColor}"
-                BorderThickness="0,0,0,1">
-                <StackPanel
-                    Background="{DynamicResource DarkerBackgroundColor}"
-                    Orientation="Vertical"
-                    Spacing="3">
-                    <TextBlock
-                        Padding="20,20,20,0"
-                        FontSize="22"
-                        FontWeight="SemiBold"
-                        Foreground="{StaticResource PrimaryTextColor}"
-                        Text="{Binding LocalUsername}"
-                        TextTrimming="CharacterEllipsis" />
-                    <TextBlock
-                        Padding="20,0,20,20"
-                        FontSize="16"
-                        Foreground="{StaticResource SecondaryTextColor}"
-                        Text="{Binding LocalIPAddress}" />
+            <Border Grid.Row="0" Name="localUsernameBorder">
+                <StackPanel Name="localUserStackPanel">
+                    <TextBlock Name="localUsernameTextBlock" Text="{Binding LocalUsername}"/>
+                    <TextBlock Name="localAddressTextBlock" Text="{Binding LocalIPAddress}" />
                 </StackPanel>
             </Border>
 
-            <StackPanel
-                Grid.Row="1"
-                Margin="15,10,0,0"
-                Orientation="Horizontal"
-                Spacing="2">
-                <TextBlock
-                    FontFamily="{DynamicResource Phosphor}"
-                    FontSize="22"
-                    Foreground="{DynamicResource PrimaryTextColor}"
-                    Text="&#xE4EA;" />
-                <TextBlock
-                    VerticalAlignment="Center"
-                    FontSize="14"
-                    FontWeight="Bold"
-                    Foreground="{DynamicResource PrimaryTextColor}"
-                    Text=" Network devices" />
+            <StackPanel Grid.Row="1" Name="networkDevicesStackPanel">
+                <TextBlock Name="networkDevicesLabelIcon" />
+                <TextBlock Name="networkDevicesLabelTextBlock" />
             </StackPanel>
 
             <ListBox
                 Grid.Row="2"
-                Margin="10,10,0,0"
-                Padding="0,0,15,0"
-                Background="Transparent"
+				Name="hostListingListBox"
                 DataContext="{Binding HostListingViewModel}"
                 ItemsSource="{Binding HostListingItemViewModels}"
-                ScrollViewer.VerticalScrollBarVisibility="Auto"
                 SelectedItem="{Binding SelectedHostListingItemViewModel}">
                 <ListBox.ItemTemplate>
                     <DataTemplate DataType="vm:HostListingItemViewModel">
                         <Border Padding="10">
                             <StackPanel Spacing="2">
                                 <TextBlock
-                                    Margin="0"
-                                    FontSize="16"
-                                    FontWeight="SemiBold"
-                                    Foreground="{DynamicResource PrimaryTextColor}"
+                                    Name="hostItemNameTextBlock"
                                     Text="{Binding Username}" />
                                 <TextBlock
                                     FontSize="14"
