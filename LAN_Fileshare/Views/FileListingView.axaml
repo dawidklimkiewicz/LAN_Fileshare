@@ -3,6 +3,7 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:c="using:LAN_Fileshare.Controls"
+	xmlns:conv="using:LAN_Fileshare.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:view="using:LAN_Fileshare.Views"
@@ -11,7 +12,10 @@
     d:DesignWidth="800"
     x:DataType="vm:FileListingViewModel"
     mc:Ignorable="d">
-
+	<UserControl.Resources>
+		<conv:IntToBoolNegatedConverter x:Key="IntToBoolNegatedConverter" />	
+	</UserControl.Resources>
+	
     <Grid RowDefinitions="auto,auto,*">
         <Grid Background="{DynamicResource SecondaryBackgroundColor}" RowDefinitions="auto,auto">
             <StackPanel
@@ -68,26 +72,33 @@
                         <TextBlock Text="Send " />
                     </StackPanel>
                 </TabItem.Header>
-                <ScrollViewer
-                    x:Name="FileUploadsListBox"
-                    Padding="20,15,20,5"
-                    DragDrop.AllowDrop="True"
-                    DragDrop.DragLeave="FileUploadsList_DragLeave"
-                    DragDrop.DragOver="FileUploadsList_DragOver"
-                    DragDrop.Drop="FileUploadsList_Drop">
-                    <ItemsControl ItemsSource="{Binding FilteredFileUploadList}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="vm:FileUploadItemViewModel">
-                                <view:FileUploadItemView Margin="0,7,0,0" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <ScrollViewer.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Command="{Binding ClearFinishedUploadsCommand}" Header="Remove finished files" />
-                        </ContextMenu>
-                    </ScrollViewer.ContextMenu>
-                </ScrollViewer>
+				<Grid>
+                    <ContentControl IsVisible="{Binding FilteredFileUploadList.Count, Converter={StaticResource IntToBoolNegatedConverter}}" 
+									ZIndex="1">
+                        <view:NoFileUploadsView />
+                    </ContentControl>
+                    <ScrollViewer
+                        x:Name="FileUploadsListBox"
+                        Padding="20,15,20,5"
+                        DragDrop.AllowDrop="True"
+                        DragDrop.DragLeave="FileUploadsList_DragLeave"
+                        DragDrop.DragOver="FileUploadsList_DragOver"
+                        DragDrop.Drop="FileUploadsList_Drop"
+                        ZIndex="0">
+                        <ItemsControl ItemsSource="{Binding FilteredFileUploadList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:FileUploadItemViewModel">
+                                    <view:FileUploadItemView Margin="0,7,0,0" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <ScrollViewer.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Command="{Binding ClearFinishedUploadsCommand}" Header="Remove finished files" />
+                            </ContextMenu>
+                        </ScrollViewer.ContextMenu>
+                    </ScrollViewer>
+				</Grid>
 
                 <TabItem.Styles>
                     <Style Selector="TabItem:selected /template/ Border#PART_SelectedPipe">
