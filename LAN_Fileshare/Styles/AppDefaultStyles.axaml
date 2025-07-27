@@ -2,7 +2,7 @@
     <Design.PreviewWith>
         <Border
             Width="200"
-            Height="100"
+            Height="200"
             Background="DarkGray">
 
             <StackPanel>
@@ -31,6 +31,7 @@
                     Height="10"
                     Margin="0,5,0,0"
                     Value="90" />
+                <TextBlock FontSize="30">Lorem ipsum</TextBlock>
             </StackPanel>
         </Border>
     </Design.PreviewWith>
@@ -39,11 +40,12 @@
         <Setter Property="FontFamily" Value="{DynamicResource Phosphor}" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="HorizontalAlignment" Value="Center" />
-        <Setter Property="FontSize" Value="27" />
+        <Setter Property="FontSize" Value="22" />
         <Setter Property="Margin" Value="0" />
     </Style>
 
     <Style Selector="Button.iconButton">
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryTextColor}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="Height" Value="35" />
@@ -52,10 +54,12 @@
 
     <Style Selector="Button.iconButton:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}" />
     </Style>
 
     <Style Selector="Button.iconButton:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}" />
     </Style>
 
     <Style Selector="Button.isExpanded">

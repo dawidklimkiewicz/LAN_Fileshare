@@ -4,89 +4,75 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:c="using:LAN_Fileshare.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:dtvm="using:LAN_Fileshare.ViewModels.DesignTime"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:views="using:LAN_Fileshare.Views"
     xmlns:vm="using:LAN_Fileshare.ViewModels"
     d:DesignHeight="700"
-    d:DesignWidth="240"
+    d:DesignWidth="300"
     x:DataType="vm:MainWindowViewModel"
     mc:Ignorable="d">
 
-    <Grid Background="{DynamicResource SecondaryBackgroundColor}" RowDefinitions="auto,auto, *">
-        <StackPanel
-            Margin="15,10"
-            Orientation="Vertical"
-            Spacing="5">
-            <TextBlock
-                FontSize="32"
-                Foreground="{StaticResource PrimaryTextColor}"
-                Text="{Binding LocalUsername}"
-                TextTrimming="CharacterEllipsis" />
-            <TextBlock
-                FontSize="20"
-                Foreground="{StaticResource SecondaryTextColor}"
-                Text="{Binding LocalIPAddress}" />
-        </StackPanel>
-        <Rectangle
-            Grid.Row="1"
-            Width="230"
-            Height="1"
-            Fill="{StaticResource SecondaryTextColor}" />
+    <Border Name="hostListingBorder">
+        <Grid Background="{DynamicResource SecondaryBackgroundColor}" RowDefinitions="auto,auto, *">
+            <Border Grid.Row="0" Name="localUsernameBorder">
+                <StackPanel Name="localUserStackPanel">
+                    <TextBlock Name="localUsernameTextBlock" Text="{Binding LocalUsername}"/>
+                    <TextBlock Name="localAddressTextBlock" Text="{Binding LocalIPAddress}" />
+                </StackPanel>
+            </Border>
 
-        <ListBox
-            Grid.Row="2"
-            Margin="0,6,0,0"
-            Padding="10,0,15,0"
-            Background="Transparent"
-            DataContext="{Binding HostListingViewModel}"
-            ItemsSource="{Binding HostListingItemViewModels}"
-            ScrollViewer.VerticalScrollBarVisibility="Auto"
-            SelectedItem="{Binding SelectedHostListingItemViewModel}">
-            <ListBox.ItemTemplate>
-                <DataTemplate DataType="vm:HostListingItemViewModel">
-                    <Border Padding="10">
-                        <Grid ColumnDefinitions="auto, *" RowDefinitions="auto, auto">
-                            <TextBlock
-                                Grid.Row="0"
-                                FontSize="16"
-                                FontWeight="SemiBold"
-                                Foreground="{DynamicResource PrimaryTextColor}"
-                                Text="{Binding Username}" />
-                            <TextBlock
-                                Grid.Row="1"
-                                FontSize="14"
-                                Foreground="{DynamicResource SecondaryTextColor}"
-                                Text="{Binding IPAddress}" />
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
+            <StackPanel Grid.Row="1" Name="networkDevicesStackPanel">
+                <TextBlock Name="networkDevicesLabelIcon" />
+                <TextBlock Name="networkDevicesLabelTextBlock" />
+            </StackPanel>
 
-            <ListBox.Styles>
-                <Style Selector="ListBoxItem">
-                    <Setter Property="Background" Value="{DynamicResource HostItemBackground}" />
-                    <Setter Property="CornerRadius" Value="10" />
-                    <Setter Property="Margin" Value="0,0,0,3" />
-                    <Setter Property="BorderBrush" Value="Transparent" />
-                    <Setter Property="BorderThickness" Value="1" />
-                    <Setter Property="Padding" Value="0" />
-                </Style>
+            <ListBox
+                Grid.Row="2"
+				Name="hostListingListBox"
+                DataContext="{Binding HostListingViewModel}"
+                ItemsSource="{Binding HostListingItemViewModels}"
+                SelectedItem="{Binding SelectedHostListingItemViewModel}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="vm:HostListingItemViewModel">
+                        <Border Padding="10">
+                            <StackPanel Spacing="2">
+                                <TextBlock
+                                    Name="hostItemNameTextBlock"
+                                    Text="{Binding Username}" />
+                                <TextBlock
+                                    FontSize="14"
+                                    Foreground="{DynamicResource SecondaryTextColor}"
+                                    Text="{Binding IPAddress}" />
+                            </StackPanel>
 
-                <Style Selector="ListBoxItem:selected">
-                    <Setter Property="BorderBrush" Value="White" />
-                    <Setter Property="BorderThickness" Value="1" />
-                </Style>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
 
-                <Style Selector="ContentPresenter:pointerover">
-                    <Setter Property="Background" Value="{DynamicResource HostItemBackgroundSelected}" />
-                </Style>
+                <ListBox.Styles>
+                    <Style Selector="ListBoxItem">
+                        <Setter Property="Background" Value="{DynamicResource HostItemBackground}" />
+                        <Setter Property="CornerRadius" Value="5" />
+                        <Setter Property="Margin" Value="0,0,0,3" />
+                        <Setter Property="BorderBrush" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="1" />
+                        <Setter Property="Padding" Value="0" />
+                    </Style>
 
-                <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-                    <Setter Property="Background" Value="{DynamicResource HostItemBackgroundSelected}" />
-                </Style>
-            </ListBox.Styles>
-        </ListBox>
-    </Grid>
+                    <Style Selector="ListBoxItem:selected">
+                        <Setter Property="BorderBrush" Value="{DynamicResource SelectionColor}" />
+                        <Setter Property="BorderThickness" Value="1" />
+                    </Style>
 
+                    <Style Selector="ContentPresenter:pointerover">
+                        <Setter Property="Background" Value="{DynamicResource HostItemBackgroundSelected}" />
+                    </Style>
+
+                    <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+                        <Setter Property="Background" Value="{DynamicResource HostItemBackgroundSelected}" />
+                    </Style>
+                </ListBox.Styles>
+            </ListBox>
+        </Grid>
+    </Border>
 </UserControl>

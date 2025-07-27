@@ -94,7 +94,9 @@ namespace LAN_Fileshare.Services
                 string ipAddressString = $"{(address >> 24) & 255}.{(address >> 16) & 255}.{(address >> 8) & 255}.{address & 255}";
                 IPAddress pingAddress = IPAddress.Parse(ipAddressString);
 
-                //  if (pingAddress.Equals(_appStateStore.IPAddress)) continue;
+#if !DEBUG
+                if (pingAddress.Equals(_appStateStore.IPAddress)) continue;
+#endif
 
                 pingTasks.Add(TryConnection(pingAddress, _appStateStore.PacketListenerPort));
             }

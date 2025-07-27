@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace LAN_Fileshare.ViewModels
@@ -32,6 +33,13 @@ namespace LAN_Fileshare.ViewModels
 
         [ObservableProperty]
         private string _searchText = "";
+
+        [ObservableProperty]
+        private string _selectedHostName = "";
+
+        [ObservableProperty]
+        private IPAddress _selectedHostIp = new([0, 0, 0, 0]);
+
         partial void OnSearchTextChanged(string value) => SearchFiles();
 
         public FileListingViewModel(AppStateStore appStateStore, FileDialogService fileDialogService, MainDbContextFactory mainDbContextFactory)
@@ -113,8 +121,8 @@ namespace LAN_Fileshare.ViewModels
         [RelayCommand]
         private async Task ClearFinishedDownloads()
         {
-            List<FileDownloadItemViewModel> finishedDwonloads = FileDownloadList.Where(file => file.IsFinished).ToList();
-            foreach (FileDownloadItemViewModel file in finishedDwonloads)
+            List<FileDownloadItemViewModel> finishedDownloads = FileDownloadList.Where(file => file.IsFinished).ToList();
+            foreach (FileDownloadItemViewModel file in finishedDownloads)
             {
                 await file.RemoveFile();
             }
@@ -170,6 +178,8 @@ namespace LAN_Fileshare.ViewModels
         public void Receive(SelectedHostChangedMessage message)
         {
             SelectedHost = message.Value?.Host;
+            SelectedHostName = _appStateStore.SelectedHost?.Username ?? "";
+            SelectedHostIp = _appStateStore.SelectedHost?.IPAddress ?? IPAddress.None;
             OnPropertyChanged(nameof(IsAnyHostSelected));
             GetFileViewModels();
         }

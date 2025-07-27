@@ -13,24 +13,30 @@
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="/Styles/AppDefaultStyles.axaml" />
+		<StyleInclude Source="/Styles/HostListingStyles.axaml" />
     </Application.Styles>
 
     <Application.Resources>
 
-        <SolidColorBrush x:Key="PrimaryBackgroundColor">#efefef</SolidColorBrush>
-        <SolidColorBrush x:Key="SecondaryBackgroundColor">#242429</SolidColorBrush>
-        <SolidColorBrush x:Key="DarkerBackgroundColor">#1c1d22</SolidColorBrush>
-        <SolidColorBrush x:Key="PrimaryTextColor">#FFF</SolidColorBrush>
-        <SolidColorBrush x:Key="SecondaryTextColor">#CECECE</SolidColorBrush>
-        <SolidColorBrush x:Key="HostItemBackground">#2f2f37</SolidColorBrush>
-        <SolidColorBrush x:Key="HostItemBackgroundSelected">#545463</SolidColorBrush>
+        <SolidColorBrush x:Key="PrimaryBackgroundColor">#f9fafb</SolidColorBrush>
+        <SolidColorBrush x:Key="SecondaryBackgroundColor">#ffffff</SolidColorBrush>
+        <SolidColorBrush x:Key="DarkerBackgroundColor">#f9f9f9</SolidColorBrush>
+        <SolidColorBrush x:Key="PrimaryTextColor">#000</SolidColorBrush>
+        <SolidColorBrush x:Key="SecondaryTextColor">#282828</SolidColorBrush>
+        <SolidColorBrush x:Key="HostItemBackground">#ffffff</SolidColorBrush>
+        <SolidColorBrush x:Key="HostItemBackgroundSelected">#f9fafb</SolidColorBrush>
+        <SolidColorBrush x:Key="SelectionColor">#6cadfc</SolidColorBrush>
+        <SolidColorBrush x:Key="SecondarySelectionColor">#3f94fc</SolidColorBrush>
+        <SolidColorBrush x:Key="BorderColor">#d1d1d1</SolidColorBrush>
+        <SolidColorBrush x:Key="LightBorderColor">#e0e0e0</SolidColorBrush>
 
-        <SolidColorBrush x:Key="DragHoverBackgroundColor">#ddd</SolidColorBrush>
+        <SolidColorBrush x:Key="DragHoverBackgroundColor">#eee</SolidColorBrush>
         <SolidColorBrush x:Key="ListItemBackgroundColor">#444</SolidColorBrush>
         <SolidColorBrush x:Key="SelectedItemColor">#666</SolidColorBrush>
         <SolidColorBrush x:Key="HostListHoverColor">#555</SolidColorBrush>
 
         <FontFamily x:Key="Phosphor">/Assets/Fonts/Phosphor.ttf#Phosphor</FontFamily>
+        <FontFamily x:Key="Roboto">/Assets/Fonts/Roboto.ttf#Roboto</FontFamily>
     </Application.Resources>
 
     <TrayIcon.Icons>

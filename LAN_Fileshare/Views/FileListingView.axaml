@@ -3,6 +3,7 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:c="using:LAN_Fileshare.Controls"
+	xmlns:conv="using:LAN_Fileshare.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:view="using:LAN_Fileshare.Views"
@@ -11,93 +12,189 @@
     d:DesignWidth="800"
     x:DataType="vm:FileListingViewModel"
     mc:Ignorable="d">
+	<UserControl.Resources>
+		<conv:IntToBoolNegatedConverter x:Key="IntToBoolNegatedConverter" />	
+	</UserControl.Resources>
+	
+    <Grid RowDefinitions="auto,auto,*">
+        <Grid Background="{DynamicResource SecondaryBackgroundColor}" RowDefinitions="auto,auto">
+            <StackPanel
+                Grid.Row="0"
+                Margin="15,17,15,20"
+                Orientation="Vertical">
+                <TextBlock
+                    FontSize="22"
+                    FontWeight="SemiBold"
+                    Foreground="{DynamicResource PrimaryTextColor}"
+                    Text="{Binding SelectedHostName}" />
+                <TextBlock
+                    FontSize="16"
+                    Foreground="{DynamicResource SecondaryTextColor}"
+                    Text="{Binding SelectedHostIp}" />
+            </StackPanel>
 
-    <TabControl>
-        <TabItem Header="Uploads">
-            <ScrollViewer
-                x:Name="FileUploadsListBox"
-                Margin="5,5,5,2"
-                DragDrop.AllowDrop="True"
-                DragDrop.DragLeave="FileUploadsList_DragLeave"
-                DragDrop.DragOver="FileUploadsList_DragOver"
-                DragDrop.Drop="FileUploadsList_Drop">
-                <ItemsControl ItemsSource="{Binding FilteredFileUploadList}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="vm:FileUploadItemViewModel">
-                            <view:FileUploadItemView Margin="0,0,0,3" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                <ScrollViewer.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Command="{Binding ClearFinishedUploadsCommand}" Header="Remove finished files" />
-                    </ContextMenu>
-                </ScrollViewer.ContextMenu>
-            </ScrollViewer>
+            <TextBox
+                Grid.Row="1"
+                Margin="10,0,10,10"
+                VerticalAlignment="Center"
+                VerticalContentAlignment="Center"
+                Background="Transparent"
+                BorderBrush="{DynamicResource BorderColor}"
+                CornerRadius="7"
+                FontSize="16"
+                Foreground="{DynamicResource SecondaryTextColor}"
+                Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Watermark="Search files...">
+                <TextBox.Styles>
+                    <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+                        <Setter Property="Background" Value="{DynamicResource PrimaryBackgroundColor}" />
+                    </Style>
+                    <Style Selector="TextBox:pointerover /template/ Border">
+                        <Setter Property="Background" Value="{DynamicResource PrimaryBackgroundColor}" />
+                        <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}" />
+                    </Style>
+                </TextBox.Styles>
+            </TextBox>
 
-            <TabItem.Styles>
-                <Style Selector="TabItem:selected /template/ Border#PART_SelectedPipe">
-                    <Setter Property="Background" Value="White" />
-                </Style>
-            </TabItem.Styles>
-        </TabItem>
+        </Grid>
 
-        <TabItem Header="Downloads">
-            <ScrollViewer Margin="5,5,5,2">
-                <ItemsControl ItemsSource="{Binding FilteredFileDownloadList}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="vm:FileDownloadItemViewModel">
-                            <view:FileDownloadItemView Margin="0,0,0,3" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+        <TabControl Grid.Row="2">
+            <TabItem
+                FontSize="14"
+                FontWeight="SemiBold"
+                Foreground="{DynamicResource PrimaryTextColor}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontFamily="{DynamicResource Phosphor}"
+                            Text="&#xE4C0;" />
+                        <TextBlock Text="Send " />
+                    </StackPanel>
+                </TabItem.Header>
+				<Grid>
+                    <ContentControl IsVisible="{Binding FilteredFileUploadList.Count, Converter={StaticResource IntToBoolNegatedConverter}}" 
+									ZIndex="1">
+                        <view:NoFileUploadsView />
+                    </ContentControl>
+                    <ScrollViewer
+                        x:Name="FileUploadsListBox"
+                        Padding="20,15,20,5"
+                        DragDrop.AllowDrop="True"
+                        DragDrop.DragLeave="FileUploadsList_DragLeave"
+                        DragDrop.DragOver="FileUploadsList_DragOver"
+                        DragDrop.Drop="FileUploadsList_Drop"
+                        ZIndex="0">
+                        <ItemsControl ItemsSource="{Binding FilteredFileUploadList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:FileUploadItemViewModel">
+                                    <view:FileUploadItemView Margin="0,7,0,0" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <ScrollViewer.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Command="{Binding ClearFinishedUploadsCommand}" Header="Remove finished files" />
+                            </ContextMenu>
+                        </ScrollViewer.ContextMenu>
+                    </ScrollViewer>
+				</Grid>
 
-            <TabItem.Styles>
-                <Style Selector="TabItem:selected /template/ Border#PART_SelectedPipe">
-                    <Setter Property="Background" Value="White" />
-                </Style>
-            </TabItem.Styles>
-        </TabItem>
+                <TabItem.Styles>
+                    <Style Selector="TabItem:selected /template/ Border#PART_SelectedPipe">
+                        <Setter Property="Background" Value="{DynamicResource SecondarySelectionColor}" />
+                    </Style>
+                    <Style Selector="TabItem /template/ ContentPresenter">
+                        <Setter Property="Foreground" Value="Gray" />
+                    </Style>
+                    <Style Selector="TabItem:selected /template/ ContentPresenter">
+                        <Setter Property="Foreground" Value="{DynamicResource SecondarySelectionColor}" />
+                    </Style>
+                    <Style Selector="TabItem:pointerover /template/ ContentPresenter">
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}" />
+                    </Style>
+                    <Style Selector="TabItem:selected:pointerover /template/ ContentPresenter">
+                        <Setter Property="Foreground" Value="{DynamicResource SecondarySelectionColor}" />
+                    </Style>
+                </TabItem.Styles>
+            </TabItem>
+            <TabItem
+                FontSize="14"
+                FontWeight="SemiBold"
+                Foreground="{DynamicResource PrimaryTextColor}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                        <TextBlock
+                            VerticalAlignment="Center"
+                            FontFamily="{DynamicResource Phosphor}"
+                            Text="&#xE20C;" />
+                        <TextBlock Text="Download " />
+                    </StackPanel>
+                </TabItem.Header>
+				<Grid>
+				    <ContentControl IsVisible="{Binding FilteredFileDownloadList.Count, Converter={StaticResource IntToBoolNegatedConverter}}"
+									    ZIndex="1">
+					    <view:NoFileDownloadsView />
+				    </ContentControl>
+                    <ScrollViewer Padding="20,15,20,5" ZIndex="0">
+                        <ItemsControl ItemsSource="{Binding FilteredFileDownloadList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:FileDownloadItemViewModel">
+                                    <view:FileDownloadItemView Margin="0,7,0,0" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+				</Grid>
 
-        <TabControl.Styles>
-            <Style Selector="TabControl">
-                <Setter Property="Template">
-                    <ControlTemplate>
-                        <Border Background="{TemplateBinding Background}">
-                            <Grid RowDefinitions="auto, *">
-                                <Grid Background="{DynamicResource DarkerBackgroundColor}" ColumnDefinitions="auto, *">
-                                    <ItemsPresenter
-                                        Name="PART_ItemsPresenter"
-                                        Grid.Column="0"
-                                        HorizontalAlignment="Left"
-                                        ItemsPanel="{TemplateBinding ItemsPanel}" />
-                                    <TextBox
-                                        Grid.Column="1"
-                                        Width="250"
-                                        Margin="20,0,0,0"
-                                        HorizontalAlignment="Left"
-                                        VerticalAlignment="Center"
-                                        VerticalContentAlignment="Center"
-                                        CornerRadius="7"
-                                        FontSize="16"
-                                        Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                        Watermark="Search" />
+                <TabItem.Styles>
+                    <Style Selector="TabItem /template/ ContentPresenter">
+                        <Setter Property="Foreground" Value="Gray" />
+                    </Style>
+                    <Style Selector="TabItem:selected /template/ Border#PART_SelectedPipe">
+                        <Setter Property="Background" Value="{DynamicResource SecondarySelectionColor}" />
+                    </Style>
+                    <Style Selector="TabItem:selected /template/ ContentPresenter">
+                        <Setter Property="Foreground" Value="{DynamicResource SecondarySelectionColor}" />
+                    </Style>
+                    <Style Selector="TabItem:pointerover /template/ ContentPresenter">
+                        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}" />
+                    </Style>
+                    <Style Selector="TabItem:selected:pointerover /template/ ContentPresenter">
+                        <Setter Property="Foreground" Value="{DynamicResource SecondarySelectionColor}" />
+                    </Style>
+                </TabItem.Styles>
+            </TabItem>
+
+            <TabControl.Styles>
+                <Style Selector="TabControl">
+                    <Setter Property="Template">
+                        <ControlTemplate>
+                            <Border Background="Transparent">
+                                <Grid RowDefinitions="auto, *">
+                                    <Border Background="{DynamicResource SecondaryBackgroundColor}" BoxShadow="0 2 30 0 LightGray">
+                                        <ItemsPresenter
+                                            Name="PART_ItemsPresenter"
+                                            Grid.Column="0"
+                                            HorizontalAlignment="Left"
+                                            ItemsPanel="{TemplateBinding ItemsPanel}" />
+                                    </Border>
+                                    <ContentPresenter
+                                        Name="PART_SelectedContentHost"
+                                        Grid.Row="1"
+                                        HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                        VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                        Background="Transparent"
+                                        Content="{TemplateBinding SelectedContent}"
+                                        ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
                                 </Grid>
-                                <ContentPresenter
-                                    Name="PART_SelectedContentHost"
-                                    Grid.Row="1"
-                                    HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                    VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                    Background="Transparent"
-                                    Content="{TemplateBinding SelectedContent}"
-                                    ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
-                            </Grid>
-                        </Border>
-                    </ControlTemplate>
-                </Setter>
-            </Style>
-        </TabControl.Styles>
-    </TabControl>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter>
+                </Style>
+            </TabControl.Styles>
+        </TabControl>
+    </Grid>
+
 
 </UserControl>
