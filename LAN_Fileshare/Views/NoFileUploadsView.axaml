@@ -1,33 +1,47 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="LAN_Fileshare.Views.NoFileUploadsView"
-			 >
-	<Grid Width="300" Height="180">
-		<Rectangle
-			Stroke="{DynamicResource BorderColor}"
-			StrokeThickness="2"
-			StrokeDashArray="6,4"
-			RadiusX="8"
-			RadiusY="8" />
-		<StackPanel VerticalAlignment="Center" Spacing="10">
-			<TextBlock
-				VerticalAlignment="Center"
-				FontFamily="{StaticResource Phosphor}"
-				Text="&#xE61E;"
-				FontSize="36"
-				Foreground="{DynamicResource SecondaryTextColor}"
-				HorizontalAlignment="Center" />
+<UserControl
+    x:Class="LAN_Fileshare.Views.NoFileUploadsView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:LAN_Fileshare.ViewModels;assembly=LAN_Fileshare"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:FileListingViewModel"
+    mc:Ignorable="d">
 
-			<TextBlock
-				Text="Drop files here to send them"
-				FontSize="16"
-				Foreground="{DynamicResource PrimaryTextColor}"
-				TextAlignment="Center"
-				TextWrapping="Wrap"
-				HorizontalAlignment="Center" />
-		</StackPanel>
-	</Grid>
+    <Button
+        Width="300"
+        Height="180"
+        HorizontalAlignment="Center"
+        Background="Transparent"
+        Command="{Binding OpenFileDialog}"
+        Cursor="Hand">
+        <Grid>
+            <Rectangle
+                RadiusX="8"
+                RadiusY="8"
+                Stroke="{DynamicResource BorderColor}"
+                StrokeDashArray="6,4"
+                StrokeThickness="2" />
+            <StackPanel VerticalAlignment="Center" Spacing="10">
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontFamily="{StaticResource Phosphor}"
+                    FontSize="36"
+                    Foreground="{DynamicResource SecondaryTextColor}"
+                    Text="&#xE61E;" />
+
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    FontSize="16"
+                    Foreground="{DynamicResource PrimaryTextColor}"
+                    Text="Browse or drop files here to send them"
+                    TextAlignment="Center"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+        </Grid>
+
+    </Button>
 </UserControl>

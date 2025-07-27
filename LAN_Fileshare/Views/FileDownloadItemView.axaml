@@ -101,7 +101,6 @@
                         Grid.Column="2"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
-                        IsVisible="{Binding IsTransmitting}"
                         Orientation="Horizontal"
                         Spacing="20">
                         <TextBlock
@@ -111,10 +110,12 @@
                         <TextBlock
                             FontSize="12"
                             Foreground="{DynamicResource SecondaryTextColor}"
+                            IsVisible="{Binding IsTransmitting}"
                             Text="{Binding TransmissionSpeed, Converter={StaticResource SpeedConverter}}" />
                         <TextBlock
                             FontSize="12"
                             Foreground="{DynamicResource SecondaryTextColor}"
+                            IsVisible="{Binding IsTransmitting}"
                             Text="{Binding EstimatedTimeRemaining, Converter={StaticResource EstimatedTimeConverter}}" />
                     </StackPanel>
                 </Grid>

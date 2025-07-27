@@ -1,5 +1,7 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,18 +18,26 @@ namespace LAN_Fileshare.Services
 
         public async Task<string[]?> OpenFileDialogAsync()
         {
-            var storageProvider = _window.StorageProvider;
-            if (storageProvider == null)
+            try
             {
-                return null;
+                IStorageProvider storageProvider = _window.StorageProvider;
+                if (storageProvider == null)
+                {
+                    return null;
+                }
+
+                var files = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+                {
+                    AllowMultiple = true,
+                });
+
+                return files.Select(file => file.Path.LocalPath).ToArray();
             }
-
-            var files = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            catch (Exception ex)
             {
-                AllowMultiple = true,
-            });
-
-            return files.Select(file => file.Path.LocalPath).ToArray();
+                Trace.WriteLine($"Error opening file dialog: {ex}");
+                return [];
+            }
         }
     }
 }

@@ -129,14 +129,14 @@ namespace LAN_Fileshare.ViewModels
         }
 
         [RelayCommand]
-        private async Task OpenFileDialog()
+        public async Task OpenFileDialog()
         {
             string[]? filePaths = await _fileDialogService.OpenFileDialogAsync();
             await UploadFiles(filePaths);
         }
 
         [RelayCommand]
-        private async Task DropFiles(string[]? filePaths)
+        public async Task DropFiles(string[]? filePaths)
         {
             await UploadFiles(filePaths);
         }

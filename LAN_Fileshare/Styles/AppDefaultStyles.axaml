@@ -11,7 +11,7 @@
                     VerticalAlignment="Center"
                     HorizontalContentAlignment="Center"
                     VerticalContentAlignment="Center"
-                    Classes="iconButton">
+                    Classes="iconButtonWithBorder">
                     <Label Classes="iconButtonLabel" Content="&#xE4F6;" />
                 </Button>
                 <Button
@@ -58,6 +58,36 @@
     </Style>
 
     <Style Selector="Button.iconButton:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}" />
+    </Style>
+
+    <Style Selector="Label.iconButtonWithBorderLabel">
+        <Setter Property="FontFamily" Value="{DynamicResource Phosphor}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="FontSize" Value="22" />
+        <Setter Property="Margin" Value="0" />
+    </Style>
+
+    <Style Selector="Button.iconButtonWithBorder">
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryTextColor}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Height" Value="35" />
+        <Setter Property="Width" Value="35" />
+    </Style>
+
+    <Style Selector="Button.iconButtonWithBorder:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}" />
+    </Style>
+
+    <Style Selector="Button.iconButtonWithBorder:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}" />
     </Style>
