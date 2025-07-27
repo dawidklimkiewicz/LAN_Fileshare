@@ -131,15 +131,21 @@
                         <TextBlock Text="Download " />
                     </StackPanel>
                 </TabItem.Header>
-                <ScrollViewer Padding="20,15,20,5">
-                    <ItemsControl ItemsSource="{Binding FilteredFileDownloadList}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate DataType="vm:FileDownloadItemViewModel">
-                                <view:FileDownloadItemView Margin="0,7,0,0" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
+				<Grid>
+				    <ContentControl IsVisible="{Binding FilteredFileDownloadList.Count, Converter={StaticResource IntToBoolNegatedConverter}}"
+									    ZIndex="1">
+					    <view:NoFileDownloadsView />
+				    </ContentControl>
+                    <ScrollViewer Padding="20,15,20,5" ZIndex="0">
+                        <ItemsControl ItemsSource="{Binding FilteredFileDownloadList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="vm:FileDownloadItemViewModel">
+                                    <view:FileDownloadItemView Margin="0,7,0,0" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+				</Grid>
 
                 <TabItem.Styles>
                     <Style Selector="TabItem /template/ ContentPresenter">

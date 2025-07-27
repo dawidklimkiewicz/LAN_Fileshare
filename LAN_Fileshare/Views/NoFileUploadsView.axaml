@@ -22,7 +22,7 @@
 				HorizontalAlignment="Center" />
 
 			<TextBlock
-				Text="Drag and drop files here to send"
+				Text="Drop files here to send them"
 				FontSize="16"
 				Foreground="{DynamicResource PrimaryTextColor}"
 				TextAlignment="Center"
