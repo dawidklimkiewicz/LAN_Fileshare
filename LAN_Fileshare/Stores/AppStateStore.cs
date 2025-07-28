@@ -2,23 +2,17 @@
 using LAN_Fileshare.Messages;
 using LAN_Fileshare.Models;
 using LAN_Fileshare.Services;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Threading.Tasks;
 
 namespace LAN_Fileshare.Stores
 {
     public class AppStateStore
     {
-        public string DownloadDirectory { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
-
         private PhysicalAddress? _physicalAddress = null!;
-        private IPAddress? _ipAddress = null!;
-
         public PhysicalAddress? PhysicalAddress => _physicalAddress;
+
+        private IPAddress? _ipAddress = null!;
         public IPAddress? IPAddress => _ipAddress;
         public IPAddress? IPMask = null;
         public string Username
@@ -31,7 +25,6 @@ namespace LAN_Fileshare.Stores
         public SettingsStore SettingsStore { get; set; }
         public HostStore HostStore { get; set; }
         public Host? SelectedHost { get; set; }
-        public List<Task> ActiveFileTransfers = new();
 
         public AppStateStore()
         {

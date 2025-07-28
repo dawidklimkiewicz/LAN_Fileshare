@@ -97,11 +97,13 @@
                         Foreground="{StaticResource PrimaryTextColor}"
                         Text="Default Download Path" />
                     <Grid ColumnDefinitions="*,auto">
-                        <TextBox Text="C:/dasdff/sd/fs/dfs/" />
+                        <TextBox Text="{Binding DownloadPath}" />
                         <Button
                             Grid.Column="1"
                             Margin="15,0,0,0"
                             Classes="iconButtonWithBorder"
+                            Command="{Binding OpenFolderDialogCommand}"
+                            CommandParameter="{Binding $parent[Window]}"
                             ToolTip.Tip="Browse path">
                             <Label Classes="iconButtonLabel" Content="&#xE256;" />
                         </Button>

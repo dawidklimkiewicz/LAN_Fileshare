@@ -29,7 +29,16 @@ namespace LAN_Fileshare.Stores
                 StrongReferenceMessenger.Default.Send(new NetworkInfoUpdated(_appStateStore));
             }
         }
-        public string DownloadPath { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+
+        private string _downloadPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+        public string DownloadPath
+        {
+            get => _downloadPath;
+            set
+            {
+                _downloadPath = value;
+            }
+        }
         public bool AutoDownloadDefault { get; set; } = false;
 
         public SettingsStore(AppStateStore appStateStore)
@@ -84,15 +93,18 @@ namespace LAN_Fileshare.Stores
             });
         }
 
-        public void Save()
+        public void Save(bool broadcastChanges = false)
         {
             try
             {
                 JsonSerializerOptions options = new() { WriteIndented = true };
                 string json = JsonSerializer.Serialize(this, options);
                 File.WriteAllText(_configFile, json);
-                BroadcastNewUsername();
 
+                if (broadcastChanges)
+                {
+                    BroadcastNewUsername();
+                }
             }
             catch (Exception ex)
             {

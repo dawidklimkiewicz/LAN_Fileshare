@@ -1,8 +1,12 @@
 ﻿using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LAN_Fileshare.Services;
 using LAN_Fileshare.Stores;
 using System;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace LAN_Fileshare.ViewModels
 {
@@ -47,8 +51,11 @@ namespace LAN_Fileshare.ViewModels
         [RelayCommand]
         private void Save(Window? window)
         {
+            Username = SanitizeUsername(Username);
             _settingsStore.Username = Username;
-            _settingsStore.Save();
+            _settingsStore.DownloadPath = DownloadPath;
+
+            _settingsStore.Save(broadcastChanges: false);
             window?.Close();
         }
 
@@ -56,6 +63,23 @@ namespace LAN_Fileshare.ViewModels
         private void RestoreDefaultUsername()
         {
             Username = Environment.UserName;
+        }
+
+        [RelayCommand]
+        private async Task OpenFolderDialog(Window window)
+        {
+            FolderDialogService folderDialogService = new(window);
+            string? result = await folderDialogService.OpenFolderDialog();
+            if (!string.IsNullOrWhiteSpace(result))
+            {
+                DownloadPath = result;
+            }
+        }
+        private string SanitizeUsername(string input)
+        {
+            string sanitized = new string(input.Normalize(NormalizationForm.FormC).Where(ch => !char.IsControl(ch)).ToArray());
+
+            return sanitized.Trim();
         }
     }
 }

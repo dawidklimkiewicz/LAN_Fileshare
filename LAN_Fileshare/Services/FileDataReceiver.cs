@@ -163,8 +163,8 @@ namespace LAN_Fileshare.Services
 
                 try
                 {
-                    File.Move(Path.Combine(_temporaryDownloadPath), Path.Combine(_appStateStore.DownloadDirectory, _fileToDownload.Name));
-                    Trace.WriteLine($"Moved {_fileToDownload.Name} to {Path.Combine(_appStateStore.DownloadDirectory, _fileToDownload.Name)}");
+                    File.Move(Path.Combine(_temporaryDownloadPath), Path.Combine(_appStateStore.SettingsStore.DownloadPath, _fileToDownload.Name));
+                    Trace.WriteLine($"Moved {_fileToDownload.Name} to {Path.Combine(_appStateStore.SettingsStore.DownloadPath, _fileToDownload.Name)}");
                 }
                 catch (Exception ex)
                 {
