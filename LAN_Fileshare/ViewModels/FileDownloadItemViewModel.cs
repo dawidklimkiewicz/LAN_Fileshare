@@ -105,7 +105,7 @@ namespace LAN_Fileshare.ViewModels
             }
 
             // Delete downloaded parts of the file
-            string path = Path.Combine(FileDownload.TemporaryDownloadDirectory, FileDownload.Id.ToString());
+            string path = Path.Combine(SettingsStore.TemporaryDownloadDir, FileDownload.Id.ToString());
             if (File.Exists(path))
             {
                 File.Delete(path);

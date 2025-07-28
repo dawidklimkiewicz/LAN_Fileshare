@@ -1,15 +1,19 @@
-﻿using Avalonia.Threading;
+﻿using Avalonia.Controls;
+using Avalonia.Threading;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using LAN_Fileshare.Messages;
 using LAN_Fileshare.Stores;
+using LAN_Fileshare.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LAN_Fileshare.ViewModels
 {
-    public class HostListingViewModel : ViewModelBase, IRecipient<HostAddedMessage>, IRecipient<HostRemovedMessage>, IDisposable
+    public partial class HostListingViewModel : ViewModelBase, IRecipient<HostAddedMessage>, IRecipient<HostRemovedMessage>, IDisposable
     {
         protected readonly ObservableCollection<HostListingItemViewModel> _hostListingItemViewModels;
         private readonly AppStateStore _appStateStore;
@@ -36,6 +40,17 @@ namespace LAN_Fileshare.ViewModels
 
             StrongReferenceMessenger.Default.Register<HostAddedMessage>(this);
             StrongReferenceMessenger.Default.Register<HostRemovedMessage>(this);
+        }
+
+        [RelayCommand]
+        public async Task OpenSettingsWindow(Window? owner)
+        {
+            SettingsWindow settingsWindow = new SettingsWindow();
+            if (owner != null)
+            {
+                settingsWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                await settingsWindow.ShowDialog(owner);
+            }
         }
 
         public async void Receive(HostAddedMessage message)

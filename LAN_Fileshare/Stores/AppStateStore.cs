@@ -24,6 +24,7 @@ namespace LAN_Fileshare.Stores
         public string Username = "";
 
         public int PacketListenerPort { get; set; } = 53788;
+        public SettingsStore SettingsStore { get; set; }
         public HostStore HostStore { get; set; }
         public Host? SelectedHost { get; set; }
         public List<Task> ActiveFileTransfers = new();
@@ -32,6 +33,7 @@ namespace LAN_Fileshare.Stores
         {
             InitLocalUserInfo();
             HostStore = new HostStore();
+            SettingsStore = new SettingsStore();
         }
 
         public void InitLocalUserInfo()

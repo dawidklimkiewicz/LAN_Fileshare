@@ -12,7 +12,6 @@ namespace LAN_Fileshare.ViewModels
     public partial class MainWindowViewModel : ViewModelBase, IRecipient<NetworkInfoUpdated>, IDisposable
     {
         private readonly AppStateStore _appStateStore;
-        private ViewModelBase currentViewModel;
 
         [ObservableProperty]
         private IPAddress? _localIPAddress;
@@ -25,8 +24,6 @@ namespace LAN_Fileshare.ViewModels
 
         public MainWindowViewModel(AppStateStore appStateStore, FileDialogService fileDialogService, MainDbContextFactory mainDbContextFactory)
         {
-            currentViewModel = new();
-
             _appStateStore = appStateStore;
             LocalIPAddress = _appStateStore.IPAddress;
             LocalUsername = _appStateStore.Username;

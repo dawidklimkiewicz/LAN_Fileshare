@@ -14,21 +14,33 @@
 
     <Border Name="hostListingBorder">
         <Grid Background="{DynamicResource SecondaryBackgroundColor}" RowDefinitions="auto,auto, *">
-            <Border Grid.Row="0" Name="localUsernameBorder">
-                <StackPanel Name="localUserStackPanel">
-                    <TextBlock Name="localUsernameTextBlock" Text="{Binding LocalUsername}"/>
-                    <TextBlock Name="localAddressTextBlock" Text="{Binding LocalIPAddress}" />
-                </StackPanel>
+            <Border Name="localUsernameBorder" Grid.Row="0">
+                <Button
+                    Padding="0"
+                    HorizontalAlignment="Stretch"
+                    Command="{Binding HostListingViewModel.OpenSettingsWindow}"
+                    CommandParameter="{Binding $parent[Window]}"
+                    Cursor="Hand">
+                    <StackPanel Name="localUserStackPanel">
+                        <TextBlock Name="localUsernameTextBlock" Text="{Binding LocalUsername}" />
+                        <TextBlock Name="localAddressTextBlock" Text="{Binding LocalIPAddress}" />
+                        <StackPanel.Styles>
+                            <Style Selector="StackPanel:pointerover">
+                                <Setter Property="Background" Value="{StaticResource DarkerBackgroundColor}" />
+                            </Style>
+                        </StackPanel.Styles>
+                    </StackPanel>
+                </Button>
             </Border>
 
-            <StackPanel Grid.Row="1" Name="networkDevicesStackPanel">
+            <StackPanel Name="networkDevicesStackPanel" Grid.Row="1">
                 <TextBlock Name="networkDevicesLabelIcon" />
                 <TextBlock Name="networkDevicesLabelTextBlock" />
             </StackPanel>
 
             <ListBox
+                Name="hostListingListBox"
                 Grid.Row="2"
-				Name="hostListingListBox"
                 DataContext="{Binding HostListingViewModel}"
                 ItemsSource="{Binding HostListingItemViewModels}"
                 SelectedItem="{Binding SelectedHostListingItemViewModel}">
@@ -36,9 +48,7 @@
                     <DataTemplate DataType="vm:HostListingItemViewModel">
                         <Border Padding="10">
                             <StackPanel Spacing="2">
-                                <TextBlock
-                                    Name="hostItemNameTextBlock"
-                                    Text="{Binding Username}" />
+                                <TextBlock Name="hostItemNameTextBlock" Text="{Binding Username}" />
                                 <TextBlock
                                     FontSize="14"
                                     Foreground="{DynamicResource SecondaryTextColor}"

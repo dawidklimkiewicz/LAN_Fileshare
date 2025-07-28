@@ -44,8 +44,5 @@
     <Compile Update="Views\HostListingView.axaml.cs">
       <DependentUpon>HostListingView.axaml</DependentUpon>
     </Compile>
-    <Compile Update="Views\LoadingScreenView.axaml.cs">
-      <DependentUpon>LoadingScreenView.axaml</DependentUpon>
-    </Compile>
   </ItemGroup>
 </Project>

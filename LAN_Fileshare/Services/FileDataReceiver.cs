@@ -33,7 +33,7 @@ namespace LAN_Fileshare.Services
             _appStateStore = appStateStore;
 
             _ct = cancellationToken;
-            _temporaryDownloadPath = Path.Combine(fileToDownload.TemporaryDownloadDirectory, fileToDownload.Id.ToString());
+            _temporaryDownloadPath = Path.Combine(SettingsStore.TemporaryDownloadDir, fileToDownload.Id.ToString());
             CreateDownloadFolder();
             _fileWriter = new BinaryWriter(new FileStream(_temporaryDownloadPath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None));
             _fileWriter.BaseStream.Seek(_fileToDownload.BytesTransmitted, SeekOrigin.Begin);
@@ -137,11 +137,11 @@ namespace LAN_Fileshare.Services
 
         private void CreateDownloadFolder()
         {
-            string path = _fileToDownload.TemporaryDownloadDirectory;
+            string path = SettingsStore.TemporaryDownloadDir;
             if (!Directory.Exists(path))
             {
                 DirectoryInfo dir = Directory.CreateDirectory(path);
-                dir.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+                dir.Attributes = FileAttributes.Directory;
             }
         }
 
