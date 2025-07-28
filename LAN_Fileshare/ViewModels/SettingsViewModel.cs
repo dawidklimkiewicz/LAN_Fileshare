@@ -51,11 +51,17 @@ namespace LAN_Fileshare.ViewModels
         [RelayCommand]
         private void Save(Window? window)
         {
+            bool broadcastChanges = false;
             Username = SanitizeUsername(Username);
-            _settingsStore.Username = Username;
+            if (_settingsStore.Username != Username)
+            {
+                _settingsStore.Username = Username;
+                broadcastChanges = true;
+            }
+
             _settingsStore.DownloadPath = DownloadPath;
 
-            _settingsStore.Save(broadcastChanges: false);
+            _settingsStore.Save(broadcastChanges);
             window?.Close();
         }
 

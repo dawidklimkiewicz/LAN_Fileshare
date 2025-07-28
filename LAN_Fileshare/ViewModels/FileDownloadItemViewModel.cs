@@ -80,8 +80,7 @@ namespace LAN_Fileshare.ViewModels
             {
                 _transmissionCancellationTokenSource = new();
                 FileDataReceiver fileDataReceiver = new(_appStateStore, _parentViewModel.SelectedHost, FileDownload, _transmissionCancellationTokenSource.Token);
-                Task listener = fileDataReceiver.SendFileRequest();
-                _appStateStore.ActiveFileTransfers.Add(listener);
+                _ = Task.Run(() => fileDataReceiver.SendFileRequest());
             }
         }
 
