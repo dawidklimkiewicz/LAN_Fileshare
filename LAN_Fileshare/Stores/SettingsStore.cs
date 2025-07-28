@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using LAN_Fileshare.Messages;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
@@ -8,23 +10,41 @@ namespace LAN_Fileshare.Stores
 {
     public class SettingsStore
     {
+        private AppStateStore _appStateStore;
         [JsonIgnore]
         public static readonly string ConfigDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "lan-fileshare");
         [JsonIgnore]
         public static readonly string TemporaryDownloadDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "lan-fileshare", "downloads");
         private static readonly string _configFile = Path.Combine(ConfigDir, "settings.json");
 
-        public string Username { get; set; } = "";
+        private string _username = Environment.UserName;
+        public string Username
+        {
+            get => _username;
+            set
+            {
+                _username = value;
+                StrongReferenceMessenger.Default.Send(new NetworkInfoUpdated(_appStateStore));
+            }
+        }
         public string DownloadPath { get; set; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
         public bool AutoDownloadDefault { get; set; } = false;
 
-        public SettingsStore()
+        public SettingsStore(AppStateStore appStateStore)
         {
+            _appStateStore = appStateStore;
             CreateConfigDir();
-            Load();
         }
 
-        private void Load()
+        [JsonConstructor]
+#pragma warning disable CS8618 // disable null value warning
+        public SettingsStore()
+#pragma warning restore CS8618 
+        {
+
+        }
+
+        public void Load()
         {
             try
             {
@@ -37,20 +57,21 @@ namespace LAN_Fileshare.Stores
                         Username = loaded.Username;
                         DownloadPath = loaded.DownloadPath;
                         AutoDownloadDefault = loaded.AutoDownloadDefault;
+                        Trace.WriteLine(json);
                         return;
                     }
-
-                    File.Delete(_configFile);
                 }
-
-                // Create config file if it doesn't exist or is corrupted
-                Save();
-
+                else
+                {
+                    Trace.WriteLine("settings.json file not found - creating a new one");
+                }
             }
             catch (Exception ex)
             {
-                Trace.WriteLine($"Failed to load settings, using defaults: {ex.Message}");
+                File.Delete(_configFile);
+                Trace.WriteLine($"Failed to load settings {ex}");
             }
+            Save();
         }
 
         public void Save()

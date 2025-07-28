@@ -22,9 +22,12 @@ namespace LAN_Fileshare.Services
             _appStateStore = appStateStore;
         }
 
-        public void GetLocalUserInfo(ref PhysicalAddress? physicalAddress, ref IPAddress? ipAddress, ref IPAddress? iPMask, ref string username)
+        public (PhysicalAddress? physicalAddress, IPAddress? ipAddress, IPAddress? iPMask, string username) GetLocalUserInfo()
         {
-            username = Environment.UserName;
+            string username = Environment.UserName;
+            IPAddress? ipAddress;
+            IPAddress? iPMask;
+            PhysicalAddress? physicalAddress;
 
             try
             {
@@ -53,8 +56,11 @@ namespace LAN_Fileshare.Services
             {
                 Trace.WriteLine(ex.Message);
                 ipAddress = null;
+                iPMask = null;
                 physicalAddress = null;
             }
+
+            return (physicalAddress, ipAddress, iPMask, username);
         }
 
         public NetworkInterface? GetNetworkInterface()

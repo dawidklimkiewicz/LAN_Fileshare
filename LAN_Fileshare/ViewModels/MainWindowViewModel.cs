@@ -37,6 +37,7 @@ namespace LAN_Fileshare.ViewModels
         public void Receive(NetworkInfoUpdated message)
         {
             LocalIPAddress = message.Value.IPAddress;
+            LocalUsername = message.Value.Username;
         }
 
         public void Dispose()

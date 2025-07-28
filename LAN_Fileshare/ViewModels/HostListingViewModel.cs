@@ -49,6 +49,7 @@ namespace LAN_Fileshare.ViewModels
             if (owner != null)
             {
                 settingsWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                settingsWindow.DataContext = new SettingsViewModel(_appStateStore.SettingsStore);
                 await settingsWindow.ShowDialog(owner);
             }
         }

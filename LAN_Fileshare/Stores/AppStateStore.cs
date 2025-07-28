@@ -20,8 +20,12 @@ namespace LAN_Fileshare.Stores
 
         public PhysicalAddress? PhysicalAddress => _physicalAddress;
         public IPAddress? IPAddress => _ipAddress;
-        public IPAddress? IPMask = null!;
-        public string Username = "";
+        public IPAddress? IPMask = null;
+        public string Username
+        {
+            get => SettingsStore.Username;
+            set => SettingsStore.Username = value;
+        }
 
         public int PacketListenerPort { get; set; } = 53788;
         public SettingsStore SettingsStore { get; set; }
@@ -31,15 +35,20 @@ namespace LAN_Fileshare.Stores
 
         public AppStateStore()
         {
-            InitLocalUserInfo();
             HostStore = new HostStore();
-            SettingsStore = new SettingsStore();
+            SettingsStore = new SettingsStore(this);
+            SettingsStore.Load();
+            InitLocalUserInfo();
         }
 
         public void InitLocalUserInfo()
         {
             NetworkService networkService = new(this);
-            networkService.GetLocalUserInfo(ref _physicalAddress, ref _ipAddress, ref IPMask, ref Username);
+            var userInfo = networkService.GetLocalUserInfo();
+            _ipAddress = userInfo.ipAddress;
+            IPMask = userInfo.iPMask;
+            _physicalAddress = userInfo.physicalAddress;
+
             StrongReferenceMessenger.Default.Send(new NetworkInfoUpdated(this));
         }
 

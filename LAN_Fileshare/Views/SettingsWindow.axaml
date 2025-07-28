@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:LAN_Fileshare.ViewModels"
     Title=""
     Width="450"
     Height="800"
@@ -12,27 +13,61 @@
     MaxWidth="450"
     d:DesignHeight="800"
     d:DesignWidth="450"
+    x:DataType="vm:SettingsViewModel"
     Background="{StaticResource SecondaryBackgroundColor}"
     mc:Ignorable="d">
 
     <ScrollViewer PointerPressed="ScrollViewer_PointerPressed">
         <StackPanel>
-            <TextBlock
-                Margin="30,20,30,15"
-                FontSize="20"
-                FontWeight="Bold"
-                Foreground="{StaticResource PrimaryTextColor}"
-                Text="Settings" />
+            <!--  Title and close/save buttons  -->
+            <Grid ColumnDefinitions="*, auto">
+                <TextBlock
+                    Margin="30,20,30,15"
+                    FontSize="20"
+                    FontWeight="Bold"
+                    Foreground="{StaticResource PrimaryTextColor}"
+                    Text="Settings" />
+                <StackPanel
+                    Grid.Column="1"
+                    Margin="0,0,30,0"
+                    Orientation="Horizontal"
+                    Spacing="5">
+                    <Button
+                        Background="Gray"
+                        Command="{Binding CloseCommand}"
+                        CommandParameter="{Binding $parent[Window]}"
+                        Content="Close"
+                        ToolTip.Tip="Close window without saving changes" />
+                    <Button
+                        Background="#3b82f6"
+                        Command="{Binding SaveCommand}"
+                        CommandParameter="{Binding $parent[Window]}"
+                        Content="Save"
+                        ToolTip.Tip="Close window and save changes" />
+                </StackPanel>
+
+            </Grid>
             <Separator Background="{StaticResource BorderColor}" />
 
             <StackPanel Margin="30,15,30,0" Spacing="30">
-                <StackPanel>
+
+                <!--  Username  -->
+                <StackPanel Spacing="5">
                     <TextBlock
-                        Margin="0,0,0,5"
                         FontSize="15"
                         Foreground="{StaticResource PrimaryTextColor}"
                         Text="Username" />
-                    <TextBox MaxLength="32" Text="" />
+                    <Grid ColumnDefinitions="*, auto">
+                        <TextBox MaxLength="32" Text="{Binding Username}" />
+                        <Button
+                            Grid.Column="1"
+                            Margin="15,0,0,0"
+                            Classes="iconButtonWithBorder"
+                            Command="{Binding RestoreDefaultUsernameCommand}"
+                            ToolTip.Tip="Restore default">
+                            <Label Classes="iconButtonLabel" Content="&#xE038;" />
+                        </Button>
+                    </Grid>
                 </StackPanel>
 
                 <!--  Automatic Download  -->
@@ -55,9 +90,8 @@
                 </StackPanel>
 
                 <!--  Default Download Path  -->
-                <StackPanel>
+                <StackPanel Spacing="5">
                     <TextBlock
-                        Margin="0,0,0,5"
                         FontSize="15"
                         Foreground="{StaticResource PrimaryTextColor}"
                         Text="Default Download Path" />
@@ -65,8 +99,9 @@
                         <TextBox Text="C:/dasdff/sd/fs/dfs/" />
                         <Button
                             Grid.Column="1"
-                            Margin="15,0,5,0"
-                            Classes="iconButtonWithBorder">
+                            Margin="15,0,0,0"
+                            Classes="iconButtonWithBorder"
+                            ToolTip.Tip="Browse path">
                             <Label Classes="iconButtonLabel" Content="&#xE256;" />
                         </Button>
                     </Grid>
