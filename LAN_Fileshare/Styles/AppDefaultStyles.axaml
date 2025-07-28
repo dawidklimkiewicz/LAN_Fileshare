@@ -36,6 +36,10 @@
         </Border>
     </Design.PreviewWith>
 
+    <Style Selector="Button.textButton:pointerover /template/ ContentPresenter" />
+
+
+    <!--  Icon button  -->
     <Style Selector="Label.iconButtonLabel">
         <Setter Property="FontFamily" Value="{DynamicResource Phosphor}" />
         <Setter Property="VerticalAlignment" Value="Center" />
@@ -70,6 +74,8 @@
         <Setter Property="Margin" Value="0" />
     </Style>
 
+
+    <!--  Icon button with border  -->
     <Style Selector="Button.iconButtonWithBorder">
         <Setter Property="Foreground" Value="{DynamicResource SecondaryTextColor}" />
         <Setter Property="Background" Value="Transparent" />
@@ -92,6 +98,7 @@
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}" />
     </Style>
 
+
     <Style Selector="Button.isExpanded">
         <Setter Property="RenderTransformOrigin" Value="17.5,17.5" />
         <Setter Property="RenderTransform">
@@ -100,6 +107,7 @@
             </Setter.Value>
         </Setter>
     </Style>
+
 
     <Style Selector="ProgressBar">
         <Setter Property="Foreground">

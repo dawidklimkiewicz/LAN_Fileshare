@@ -34,17 +34,31 @@
                     Orientation="Horizontal"
                     Spacing="5">
                     <Button
-                        Background="Gray"
+                        Background="#898989"
                         Command="{Binding CloseCommand}"
                         CommandParameter="{Binding $parent[Window]}"
                         Content="Close"
-                        ToolTip.Tip="Close window without saving changes" />
+                        FontSize="13"
+                        ToolTip.Tip="Close window without saving changes">
+                        <Button.Styles>
+                            <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#a0a0a0" />
+                            </Style>
+                        </Button.Styles>
+                    </Button>
                     <Button
                         Background="#3b82f6"
                         Command="{Binding SaveCommand}"
                         CommandParameter="{Binding $parent[Window]}"
                         Content="Save"
-                        ToolTip.Tip="Close window and save changes" />
+                        FontSize="13"
+                        ToolTip.Tip="Close window and save changes">
+                        <Button.Styles>
+                            <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                <Setter Property="Background" Value="#5394fc" />
+                            </Style>
+                        </Button.Styles>
+                    </Button>
                 </StackPanel>
 
             </Grid>
