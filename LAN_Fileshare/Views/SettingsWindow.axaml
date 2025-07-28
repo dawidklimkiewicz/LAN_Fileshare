@@ -59,7 +59,10 @@
                         Foreground="{StaticResource PrimaryTextColor}"
                         Text="Username" />
                     <Grid ColumnDefinitions="*, auto">
-                        <TextBox MaxLength="32" Text="{Binding Username}" />
+                        <TextBox
+                            VerticalContentAlignment="Center"
+                            MaxLength="32"
+                            Text="{Binding Username}" />
                         <Button
                             Grid.Column="1"
                             Margin="15,0,0,0"
@@ -82,12 +85,12 @@
                             FontSize="15"
                             Foreground="{StaticResource PrimaryTextColor}"
                             Text="Automatic Download" />
-                        <ToggleSwitch BorderBrush="Gray" IsChecked="True" />
+                        <ToggleSwitch BorderBrush="Gray" IsChecked="{Binding AutoDownloadDefault}" />
                     </StackPanel>
                     <TextBlock
                         FontSize="13"
-                        Foreground="Gray"
-                        Text="Automatically download files upon receiving" />
+                        Foreground="{StaticResource SecondaryTextColor}"
+                        Text="Automatically download newly received files" />
                 </StackPanel>
 
                 <!--  Default Download Path  -->
@@ -96,8 +99,12 @@
                         FontSize="15"
                         Foreground="{StaticResource PrimaryTextColor}"
                         Text="Default Download Path" />
+                    <TextBlock
+                        FontSize="13"
+                        Foreground="{StaticResource SecondaryTextColor}"
+                        Text="This is where you will find your downloaded files" />
                     <Grid ColumnDefinitions="*,auto">
-                        <TextBox Text="{Binding DownloadPath}" />
+                        <TextBox VerticalContentAlignment="Center" Text="{Binding DownloadPath}" />
                         <Button
                             Grid.Column="1"
                             Margin="15,0,0,0"

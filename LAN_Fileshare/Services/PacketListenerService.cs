@@ -235,6 +235,11 @@ namespace LAN_Fileshare.Services
 
                 NetworkService networkService = new(_appStateStore);
                 await networkService.SendInitialFileInformationReply(host.FileUploadList.ToList(), senderIP, _appStateStore.PacketListenerPort);
+
+                foreach (FileDownload file in files)
+                {
+                    DownloadReceivedFile(file, host);
+                }
             }
         }
 
@@ -248,6 +253,21 @@ namespace LAN_Fileshare.Services
             if (host != null)
             {
                 host.FileDownloadList.AddRange(files);
+                foreach (FileDownload file in files)
+                {
+                    DownloadReceivedFile(file, host);
+                }
+            }
+
+        }
+
+        private void DownloadReceivedFile(FileDownload file, Host fileOwner)
+        {
+            if (_appStateStore.SettingsStore.AutoDownloadDefault)
+            {
+                file.transmissionCancellationTokenSource = new();
+                FileDataReceiver fileDataReceiver = new(_appStateStore, fileOwner, file, file.transmissionCancellationTokenSource.Token);
+                _ = Task.Run(() => fileDataReceiver.SendFileRequest());
             }
         }
 

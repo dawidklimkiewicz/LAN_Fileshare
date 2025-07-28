@@ -11,6 +11,7 @@ namespace LAN_Fileshare.Models
         private object _bytesTransmittedLock = new();
         private long _bytesTransmittedLastValue;
 
+        public CancellationTokenSource transmissionCancellationTokenSource = new();
         public Guid Id { get; set; }
         public string Name { get; set; }
         public long Size { get; set; }

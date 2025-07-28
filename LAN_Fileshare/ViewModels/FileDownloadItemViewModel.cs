@@ -8,7 +8,6 @@ using LAN_Fileshare.Stores;
 using System;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace LAN_Fileshare.ViewModels
@@ -17,7 +16,6 @@ namespace LAN_Fileshare.ViewModels
     {
         private readonly FileListingViewModel _parentViewModel;
         private readonly AppStateStore _appStateStore;
-        private CancellationTokenSource _transmissionCancellationTokenSource;
 
         // Variables for estimating remaining time
         private long _lastTransmittedBytes;
@@ -61,7 +59,7 @@ namespace LAN_Fileshare.ViewModels
             BytesTransmitted = file.BytesTransmitted;
             TimeCreated = file.TimeCreated;
 
-            _transmissionCancellationTokenSource = new();
+            FileDownload.transmissionCancellationTokenSource = new();
 
             StrongReferenceMessenger.Default.Register<BytesTransmittedChangedMessage>(this);
             StrongReferenceMessenger.Default.Register<FileStateChangedMessage>(this);
@@ -78,8 +76,8 @@ namespace LAN_Fileshare.ViewModels
         {
             if (_parentViewModel.SelectedHost != null)
             {
-                _transmissionCancellationTokenSource = new();
-                FileDataReceiver fileDataReceiver = new(_appStateStore, _parentViewModel.SelectedHost, FileDownload, _transmissionCancellationTokenSource.Token);
+                FileDownload.transmissionCancellationTokenSource = new();
+                FileDataReceiver fileDataReceiver = new(_appStateStore, _parentViewModel.SelectedHost, FileDownload, FileDownload.transmissionCancellationTokenSource.Token);
                 _ = Task.Run(() => fileDataReceiver.SendFileRequest());
             }
         }
@@ -87,9 +85,9 @@ namespace LAN_Fileshare.ViewModels
         [RelayCommand]
         private void PauseDownload()
         {
-            if (_parentViewModel.SelectedHost != null && !_transmissionCancellationTokenSource.IsCancellationRequested)
+            if (_parentViewModel.SelectedHost != null && !FileDownload.transmissionCancellationTokenSource.IsCancellationRequested)
             {
-                _transmissionCancellationTokenSource.Cancel();
+                FileDownload.transmissionCancellationTokenSource.Cancel();
             }
         }
 

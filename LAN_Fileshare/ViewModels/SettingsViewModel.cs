@@ -60,6 +60,7 @@ namespace LAN_Fileshare.ViewModels
             }
 
             _settingsStore.DownloadPath = DownloadPath;
+            _settingsStore.AutoDownloadDefault = AutoDownloadDefault;
 
             _settingsStore.Save(broadcastChanges);
             window?.Close();
