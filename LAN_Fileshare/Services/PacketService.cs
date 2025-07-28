@@ -178,6 +178,12 @@ namespace LAN_Fileshare.Services
                 List<byte[]> fields = [BitConverter.GetBytes(lastReceivedByte)];
                 return SerializePacket(PacketType.StopFileTransmission, fields);
             }
+
+            public static byte[] UsernameChanged(IPAddress senderIP, string newUsername)
+            {
+                List<byte[]> fields = [senderIP.GetAddressBytes(), BitConverter.GetBytes(newUsername.Length), Encoding.UTF8.GetBytes(newUsername)];
+                return SerializePacket(PacketType.UsernameChanged, fields);
+            }
         }
 
 
@@ -316,6 +322,20 @@ namespace LAN_Fileshare.Services
                 byte[] lastReceivedByteBuffer = new byte[8];
                 networkStream.ReadExactly(lastReceivedByteBuffer, 0, lastReceivedByteBuffer.Length);
                 return BitConverter.ToInt64(lastReceivedByteBuffer);
+            }
+
+            public static (IPAddress senderIP, string newUsername) UsernameChanged(NetworkStream networkStream)
+            {
+                byte[] senderIpBuffer = new byte[4];
+                byte[] newUsernameLengthBuffer = new byte[4];
+
+                networkStream.ReadExactlyAsync(senderIpBuffer);
+                networkStream.ReadExactlyAsync(newUsernameLengthBuffer);
+
+                byte[] newUsernameBuffer = new byte[BitConverter.ToInt32(newUsernameLengthBuffer)];
+                networkStream.ReadExactlyAsync(newUsernameBuffer);
+
+                return (new IPAddress(senderIpBuffer), Encoding.UTF8.GetString(newUsernameBuffer));
             }
         }
     }

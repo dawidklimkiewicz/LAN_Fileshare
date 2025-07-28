@@ -1,6 +1,8 @@
-﻿using LAN_Fileshare.EntityFramework;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using LAN_Fileshare.EntityFramework;
 using LAN_Fileshare.EntityFramework.Queries.FileUpload;
 using LAN_Fileshare.EntityFramework.Queries.Host;
+using LAN_Fileshare.Messages;
 using LAN_Fileshare.Models;
 using LAN_Fileshare.Stores;
 using System;
@@ -110,6 +112,7 @@ namespace LAN_Fileshare.Services
                 case PacketType.FileRequest: ProcessFileRequestPacket(networkStream); break;
                 case PacketType.InitialFileInformation: ProcessInitialFileInformationPacket(networkStream); break;
                 case PacketType.InitialFileInformationReply: ProcessFileInfoPacket(networkStream); break;
+                case PacketType.UsernameChanged: ProcessUsernameChangedPacket(networkStream); break;
             }
 
             try
@@ -290,6 +293,21 @@ namespace LAN_Fileshare.Services
                 FileDataSender sender = new(host, file, listenerPort, startingByte, _mainDbContextFactory);
                 Task senderTask = sender.StartSending();
                 _appStateStore.ActiveFileTransfers.Add(senderTask);
+            }
+        }
+
+        private void ProcessUsernameChangedPacket(NetworkStream networkStream)
+        {
+            var packetFields = PacketService.Read.UsernameChanged(networkStream);
+            IPAddress senderIP = packetFields.senderIP;
+            string newUsername = packetFields.newUsername;
+
+            Host? host = _appStateStore?.HostStore.Get(senderIP);
+
+            if (host != null)
+            {
+                host.Username = newUsername;
+                StrongReferenceMessenger.Default.Send(new HostUsernameChangedMessage(host));
             }
         }
 

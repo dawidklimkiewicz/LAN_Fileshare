@@ -1,10 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using LAN_Fileshare.Messages;
+using LAN_Fileshare.Services;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace LAN_Fileshare.Stores
 {
@@ -41,7 +43,6 @@ namespace LAN_Fileshare.Stores
         public SettingsStore()
 #pragma warning restore CS8618 
         {
-
         }
 
         public void Load()
@@ -74,6 +75,15 @@ namespace LAN_Fileshare.Stores
             Save();
         }
 
+        private void BroadcastNewUsername()
+        {
+            _ = Task.Run(async () =>
+            {
+                NetworkService networkService = new(_appStateStore);
+                await networkService.BroadcastUsernameChanged(Username);
+            });
+        }
+
         public void Save()
         {
             try
@@ -81,6 +91,8 @@ namespace LAN_Fileshare.Stores
                 JsonSerializerOptions options = new() { WriteIndented = true };
                 string json = JsonSerializer.Serialize(this, options);
                 File.WriteAllText(_configFile, json);
+                BroadcastNewUsername();
+
             }
             catch (Exception ex)
             {

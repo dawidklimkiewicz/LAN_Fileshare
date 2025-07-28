@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace LAN_Fileshare.ViewModels
 {
-    public partial class HostListingViewModel : ViewModelBase, IRecipient<HostAddedMessage>, IRecipient<HostRemovedMessage>, IDisposable
+    public partial class HostListingViewModel : ViewModelBase, IRecipient<HostAddedMessage>, IRecipient<HostRemovedMessage>, IRecipient<HostUsernameChangedMessage>, IDisposable
     {
         protected readonly ObservableCollection<HostListingItemViewModel> _hostListingItemViewModels;
         private readonly AppStateStore _appStateStore;
@@ -40,6 +40,7 @@ namespace LAN_Fileshare.ViewModels
 
             StrongReferenceMessenger.Default.Register<HostAddedMessage>(this);
             StrongReferenceMessenger.Default.Register<HostRemovedMessage>(this);
+            StrongReferenceMessenger.Default.Register<HostUsernameChangedMessage>(this);
         }
 
         [RelayCommand]
@@ -77,10 +78,20 @@ namespace LAN_Fileshare.ViewModels
             }
         }
 
+        public void Receive(HostUsernameChangedMessage message)
+        {
+            HostListingItemViewModel? hostListingItemViewModel = _hostListingItemViewModels.FirstOrDefault(x => x.PhysicalAddress == message.Value.PhysicalAddress);
+            if (hostListingItemViewModel != null)
+            {
+                hostListingItemViewModel.Username = message.Value.Username;
+            }
+        }
+
         public void Dispose()
         {
             StrongReferenceMessenger.Default.Unregister<HostAddedMessage>(this);
             StrongReferenceMessenger.Default.Unregister<HostRemovedMessage>(this);
+            StrongReferenceMessenger.Default.Unregister<HostUsernameChangedMessage>(this);
         }
 
     }

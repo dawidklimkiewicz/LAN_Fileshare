@@ -16,6 +16,7 @@
             FileDataAck,
             InitialFileInformation,
             InitialFileInformationReply,
+            UsernameChanged,
         }
     }
 }

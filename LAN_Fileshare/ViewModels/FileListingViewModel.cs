@@ -18,7 +18,13 @@ using System.Threading.Tasks;
 
 namespace LAN_Fileshare.ViewModels
 {
-    public partial class FileListingViewModel : ObservableObject, IRecipient<SelectedHostChangedMessage>, IRecipient<FileAddedMessage>, IRecipient<FileRemovedMessage>, IDisposable
+    public partial class FileListingViewModel :
+        ObservableObject,
+        IRecipient<SelectedHostChangedMessage>,
+        IRecipient<FileAddedMessage>,
+        IRecipient<FileRemovedMessage>,
+        IRecipient<HostUsernameChangedMessage>,
+        IDisposable
     {
         private readonly AppStateStore _appStateStore;
         private readonly FileDialogService _fileDialogService;
@@ -51,6 +57,7 @@ namespace LAN_Fileshare.ViewModels
             StrongReferenceMessenger.Default.Register<SelectedHostChangedMessage>(this);
             StrongReferenceMessenger.Default.Register<FileAddedMessage>(this);
             StrongReferenceMessenger.Default.Register<FileRemovedMessage>(this);
+            StrongReferenceMessenger.Default.Register<HostUsernameChangedMessage>(this);
         }
 
         private void GetFileViewModels()
@@ -182,6 +189,16 @@ namespace LAN_Fileshare.ViewModels
             SelectedHostIp = _appStateStore.SelectedHost?.IPAddress ?? IPAddress.None;
             OnPropertyChanged(nameof(IsAnyHostSelected));
             GetFileViewModels();
+        }
+
+        public void Receive(HostUsernameChangedMessage message)
+        {
+            if (SelectedHost == null) return;
+            else if (SelectedHost.PhysicalAddress.Equals(message.Value.PhysicalAddress))
+            {
+                SelectedHostName = message.Value.Username;
+            }
+
         }
 
         public void Receive(FileAddedMessage message)

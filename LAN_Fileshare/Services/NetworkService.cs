@@ -254,6 +254,49 @@ namespace LAN_Fileshare.Services
             }
         }
 
+        public async Task BroadcastUsernameChanged(string newUsername)
+        {
+            try
+            {
+                List<Task> sendUsernameTasks = new();
+
+                foreach (Host host in _appStateStore.HostStore.GetHostList())
+                {
+                    sendUsernameTasks.Add(SendUsernameChanged(host.IPAddress, _appStateStore.PacketListenerPort, newUsername));
+                }
+                await Task.WhenAll(sendUsernameTasks);
+
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"Error broadcasting new username - {ex}");
+            }
+
+        }
+
+        private async Task SendUsernameChanged(IPAddress receiverIP, int port, string newUsername)
+        {
+            try
+            {
+                using TcpClient tcpClient = new();
+                await tcpClient.ConnectAsync(receiverIP, port);
+                using NetworkStream networkStream = tcpClient.GetStream();
+
+                byte[] packet = PacketService.Create.UsernameChanged(_appStateStore.IPAddress!, newUsername);
+                byte[] ackBuffer = new byte[1];
+
+                await networkStream.WriteAsync(packet, 0, packet.Length);
+                await networkStream.FlushAsync();
+
+                networkStream.ReadExactly(ackBuffer, 0, ackBuffer.Length);
+                tcpClient.Close();
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine($"Failed to send file information - {ex}");
+            }
+        }
+
         private IPAddress GetNetworkAddress(IPAddress ipAddress, IPAddress subnetMask)
         {
             byte[] ipAddressBytes = ipAddress.GetAddressBytes();
